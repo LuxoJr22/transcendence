@@ -1,45 +1,45 @@
 <script>
-    const img = new URL('$lib/assets/Capture.PNG', import.meta.url).href
-    const img1 = new URL('$lib/assets/img.webp', import.meta.url).href
-
-    let gameName = "otherGame";
-
-    function whatGame(){
-      if (gameName === "otherGame")
-        gameName = "pong"
-      else
-        gameName = "otherGame"
-    };
+    const img = new URL('$lib/assets/pong.png', import.meta.url).href
+    const img1 = new URL('$lib/assets/game2.png', import.meta.url).href
 </script>
 
-<div class="container">
-  <div class="row"> 
-    <div class="col text-end">
-      <p class="text-light">otherGame</p>
-    </div>
-    <div class="col-auto">
-      <div class="form-check form-switch">
-        <input on:click={whatGame} class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+<style>
+  .container-game {
+  width: 50%;
+  display: flex;
+}
+
+  .container-game img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .mycard {
+    width: 10%;
+    height: 5%;
+
+  }
+</style>
+
+<div class="container-fluid d-flex mt-5 ps-5 pt-5 justify-content-start">
+  <div id="carouselExample" class="carousel slide container-game">
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img src={img} class="d-block" alt="">
+      </div>
+      <div class="carousel-item">
+        <img src={img1} class="d-block" alt="">
       </div>
     </div>
-    <div class="col text-start">
-      <p class="text-light">Pong</p>
-    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
   </div>
 </div>
 
-{#if gameName === "otherGame"}
-  <p class="text-light">Je suis le other game</p>
-{:else}
-  <div class="container-fluid">
-    <h2 class="text-light p-2">Type de partie</h2>
-    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-      <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>
-      <label class="btn btn-outline-primary" for="btnradio1">Online</label>
-    
-      <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
-      <label class="btn btn-outline-primary" for="btnradio3">Tournament</label>
-    </div>
-    <h2 class="text-light p-2">Type d'adversaire</h2>
-  </div>
-{/if}
