@@ -49,7 +49,7 @@
             <div class="card-body">
               <h5 class="card-title">Online Mode</h5>
               <p class="card-text">Play online against other players.</p>
-              <a href="#" class="btn btn-dark">Play</a>
+              <a href="#" class="btn btn-dark mt-4">Play</a>
             </div>
           </div>
           <div class="card mycard bg-primary-subtle">
@@ -65,14 +65,14 @@
             <div class="card-body">
               <h5 class="card-title">Custom Matches</h5>
               <p class="card-text">Create your own custom matches.</p>
-              <a href="#" class="btn btn-dark">Go somewhere</a>
+              <a href="#" class="btn btn-dark mt-4">Custom my games</a>
             </div>
           </div>
           <div class="card mycard bg-primary-subtle">
             <div class="card-body">
               <h5 class="card-title">Character Customization</h5>
               <p class="card-text">Personalize your character's appearance and style.</p>
-              <a href="#" class="btn btn-dark">Go somewhere</a>
+              <a href="#" class="btn btn-dark">Custom my character</a>
             </div>
           </div>
         </div>
