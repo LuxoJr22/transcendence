@@ -7,19 +7,27 @@
     .layout-title {
         font-family: "Danfo", sans-serif;
     }
+    
     :global(body) {
         background-color: var(--bs-dark);
+    }
+    .text-warning-subtle {
+        color: var(--bs-warning-bg-subtle);
+    }
+
+    .responsive-img {
+        object-fit: cover;
     }
 </style>
 <nav class="navbar">
     <div class="container-fluid m-1">
-        <a href="/" class="navbar-item navbar-brand text-light fs-1 layout-title ms-4">t r i p l u m</a>
-        <a href="/profile" class="navbar-item navbar-brand text-light"><img src={img} class="border border rounded-circle m-1" width="30" height="30">Profile</a>
+        <a href="/" class="navbar-item navbar-brand text- fs-1 layout-title text-warning-subtle ms-4">t r i p l u m</a>
+        <a href="/profile" class="navbar-item navbar-brand text-warning-subtle"><img src={img} class="border border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">sforesti</a>
     </div>
 </nav>
 
 <slot />
 
-<footer class="bg-secondary fixed-bottom text-center">
+<!-- <footer class="bg-secondary fixed-bottom text-center">
     <p class="text-center">Final project of 42 school's common core, Transcendence, by <a href="https://github.com/LuxoJr22/transcendence" target="_blank" class="text-light">Triplum</a></p>
-</footer>
+</footer> -->
