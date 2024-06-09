@@ -16,13 +16,13 @@
   }
 
   .mycard {
-    width: 40%;
+    width: 42%;
   }
 </style>
 
 <div class="container-fluid">
   <div class="row">
-    <div class="col-6 d-flex mt-5 ps-5 pt-5 justify-content-start align-items-start">
+    <div class="col-xl-6 col-12 d-flex mt-5 ps-xl-4 pt-xl-5 justify-content-start align-items-start">
       <div id="carouselExample" class="carousel slide container-game">
         <div class="carousel-inner">
           <div class="carousel-item active">
@@ -42,36 +42,38 @@
         </button>
       </div>
     </div>
-    <div class="container col-6 mt-5 pt-5">
-      <div class="row mx-auto">
-        <div class="card mycard">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+    <div class="container col-xl-6 col-12 mt-5 pt-5">
+      <div class="pt-4">
+        <div class="row mx-auto mb-3">
+          <div class="card mycard me-3 ms-5 bg-primary-subtle">
+            <div class="card-body">
+              <h5 class="card-title">Online Mode</h5>
+              <p class="card-text">Play online against other players.</p>
+              <a href="#" class="btn btn-dark">Play</a>
+            </div>
+          </div>
+          <div class="card mycard bg-primary-subtle">
+            <div class="card-body">
+              <h5 class="card-title">Tournament</h5>
+              <p class="card-text">Compete in tournaments and prove your skills.</p>
+              <a href="#" class="btn btn-dark">Create or Join</a>
+            </div>
           </div>
         </div>
-        <div class="card mycard">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+        <div class="row mx-auto">
+          <div class="card mycard bg-primary-subtle me-3 ms-5">
+            <div class="card-body">
+              <h5 class="card-title">Custom Matches</h5>
+              <p class="card-text">Create your own custom matches.</p>
+              <a href="#" class="btn btn-dark">Go somewhere</a>
+            </div>
           </div>
-        </div>
-      </div>
-      <div class="row mx-auto">
-        <div class="card mycard">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-          </div>
-        </div>
-        <div class="card mycard">
-          <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+          <div class="card mycard bg-primary-subtle">
+            <div class="card-body">
+              <h5 class="card-title">Character Customization</h5>
+              <p class="card-text">Personalize your character's appearance and style.</p>
+              <a href="#" class="btn btn-dark">Go somewhere</a>
+            </div>
           </div>
         </div>
       </div>
