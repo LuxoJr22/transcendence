@@ -1,4 +1,5 @@
 <script>
+    import CustomCanva from "$lib/static/customGameCanva.svelte"
     const img = new URL('$lib/assets/pong.png', import.meta.url).href
     const img1 = new URL('$lib/assets/game2.png', import.meta.url).href
 </script>
@@ -65,6 +66,7 @@
             <div class="card-body">
               <h5 class="card-title">Custom Matches</h5>
               <p class="card-text">Create your own custom matches.</p>
+              <CustomCanva/>
             </div>
           </div>
           <div class="card mycard bg-warning-subtle">

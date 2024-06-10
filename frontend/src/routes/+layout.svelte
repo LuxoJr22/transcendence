@@ -26,6 +26,7 @@
     .responsive-img {
         object-fit: cover;
     }
+
 </style>
 <nav class="navbar">
     <div class="container-fluid m-1">
