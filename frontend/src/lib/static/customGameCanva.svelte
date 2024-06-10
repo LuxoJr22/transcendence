@@ -10,7 +10,7 @@
 </button>
 <div class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="staticBackdrop" aria-labelledby="staticBackdropLabel">
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="staticBackdropLabel">Custom canvas</h5>
+    <h5 class="offcanvas-title" id="staticBackdropLabel">Custom your games</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
@@ -64,9 +64,9 @@
           </label>
         </div>
       </div>
-      <div class="mt-2" style="width: 80%;">
+      <div class="mt-2" style="width: 90%;">
         <h5>Choose your fields</h5>
-        <div class="">
+        <div class="ms-4">
           <div id="carouselExampleIndicators" class="carousel slide">
             <div class="carousel-indicators">
               <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -75,13 +75,13 @@
             </div>
             <div class="carousel-inner">
               <div class="carousel-item active">
-                <img src={img1} class="d-block w-100" alt="...">
+                <img src={img1} class="d-block w-100 mt-2" alt="...">
               </div>
               <div class="carousel-item">
-                <img src={img2} class="d-block w-100" alt="...">
+                <img src={img2} class="d-block w-100 mt-2" alt="...">
               </div>
               <div class="carousel-item">
-                <img src={img3} class="d-block w-100" alt="...">
+                <img src={img3} class="d-block w-100 mt-2" alt="...">
               </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -94,7 +94,9 @@
             </button>
           </div>
         </div>
-        <button type="button" class="btn btn-success btn-lg">Play</button>
+        <div class="d-flex justify-content-center">
+          <button type="button" class="btn btn-success btn-lg mt-3">Play</button>
+        </div>   
       </div>
     </div>
   </div>
