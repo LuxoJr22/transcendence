@@ -15,6 +15,10 @@
         color: var(--bs-warning-bg-subtle);
     }
 
+    .text-primary-subtle {
+        color: var(--bs-primary-bg-subtle);
+    }
+
     .responsive-img {
         object-fit: cover;
     }
@@ -22,7 +26,7 @@
 <nav class="navbar">
     <div class="container-fluid m-1">
         <a href="/" class="navbar-item navbar-brand text- fs-1 layout-title text-warning-subtle ms-4">t r i p l u m</a>
-        <a href="/profile" class="navbar-item navbar-brand text-warning-subtle"><img src={img} class="border border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">sforesti</a>
+        <a href="/profile" class="navbar-item navbar-brand text-primary-subtle"><img src={img} class="border border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">sforesti</a>
     </div>
 </nav>
 

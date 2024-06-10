@@ -5,7 +5,7 @@
 
 <style>
   .container-game {
-   width: 100%;
+    width: 100%;
     display: flex;
   }
 
@@ -45,7 +45,7 @@
     <div class="container col-xl-6 col-12 mt-xl-5 pt-xl-5 ms-xl-0 ms-2 mb-xl-0 mb-5">
       <div class="pt-4">
         <div class="row mx-auto mb-3">
-          <div class="card mycard me-3 ms-5 bg-warning-subtle">
+          <div class="card mycard me-3 ms-sm-5 ms-3 bg-warning-subtle">
             <div class="card-body">
               <h5 class="card-title">Online Mode</h5>
               <p class="card-text">Play online against other players.</p>
@@ -61,7 +61,7 @@
           </div>
         </div>
         <div class="row mx-auto">
-          <div class="card mycard bg-warning-subtle me-3 ms-5">
+          <div class="card mycard bg-warning-subtle me-3 ms-sm-5 ms-3">
             <div class="card-body">
               <h5 class="card-title">Custom Matches</h5>
               <p class="card-text">Create your own custom matches.</p>
