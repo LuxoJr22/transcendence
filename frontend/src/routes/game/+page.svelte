@@ -11,7 +11,8 @@
     import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
     let scene, camera, renderer;
     let cube;
-  
+    let canvas;
+
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -364,8 +365,10 @@
 
 
 
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize( window.innerWidth, window.innerHeight );
+        const renderer = new THREE.WebGLRenderer({canvas});
+        renderer.setSize( window.innerWidth * 0.80, window.innerHeight * 0.80);
+        // renderer.domElement.style.width = window.innerWidth * 0.50 + "px";
+        // renderer.domElement.style.height = window.innerHeight * 0.50 + "px";
         document.body.appendChild( renderer.domElement );
 
         camera.position.z = 20;
@@ -520,26 +523,6 @@
 
         //#endregion
 
-
-        const labelRenderer = new CSS2DRenderer();
-        labelRenderer.setSize(window.innerWidth, window.innerHeight);
-        labelRenderer.domElement.style.position = 'absolute';
-        labelRenderer.domElement.style.top = '0px';
-        labelRenderer.domElement.style.pointerEvents = 'none';
-        document.body.appendChild(labelRenderer.domElement);
-
-        const p = document.createElement('p');
-        p.textContent = 0;
-        const cPointLabel = new CSS2DObject(p);
-        scene.add(cPointLabel);
-        cPointLabel.position.set(-3, 10, 4)
-
-        const c = document.createElement('p');
-        c.textContent = 0;
-        const dPointLabel = new CSS2DObject(c);
-        scene.add(dPointLabel);
-        dPointLabel.position.set(3, 10, 4)
-
         var composer = new EffectComposer( renderer );
         composer.addPass( new RenderPass( scene, camera ) );
 
@@ -582,16 +565,6 @@
         }
         animate(); })();
     });
-  </script>
-  
-  <style>
-    * {
-        overflow: hidden;
-    }
-    canvas {
-      display: block;
-    }
-    html, body {
-        overflow: hidden;
-    }
-  </style>
+</script>
+
+<canvas bind:this={canvas} class=""></canvas>
