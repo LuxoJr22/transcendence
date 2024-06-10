@@ -49,7 +49,7 @@
             <div class="card-body">
               <h5 class="card-title">Online Mode</h5>
               <p class="card-text">Play online against other players.</p>
-              <a href="#" class="btn btn-dark mt-4">Play</a>
+              <a href="/game" class="btn btn-dark mt-4">Play</a>
             </div>
           </div>
           <div class="card mycard bg-warning-subtle">
@@ -65,7 +65,6 @@
             <div class="card-body">
               <h5 class="card-title">Custom Matches</h5>
               <p class="card-text">Create your own custom matches.</p>
-              <a href="#" class="btn btn-dark mt-4">Custom my games</a>
             </div>
           </div>
           <div class="card mycard bg-warning-subtle">

@@ -5,9 +5,13 @@
 
 <style>
     .layout-title {
-        font-family: "Danfo", sans-serif;
+        font-family: "Bungee", sans-serif;
     }
-    
+
+    .opacity:hover {
+        opacity: 0.5;
+    }
+
     :global(body) {
         background-color: var(--bs-dark);
     }
@@ -25,8 +29,8 @@
 </style>
 <nav class="navbar">
     <div class="container-fluid m-1">
-        <a href="/" class="navbar-item navbar-brand text- fs-1 layout-title text-warning-subtle ms-4">t r i p l u m</a>
-        <a href="/profile" class="navbar-item navbar-brand text-primary-subtle"><img src={img} class="border border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">sforesti</a>
+        <a href="/" class="navbar-item navbar-brand text- fs-1 layout-title text-warning-subtle ms-4 opacity">t r i p l u m</a>
+        <a href="/profile" class="navbar-item navbar-brand text-primary-subtle opacity"><img src={img} class="border border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">sforesti</a>
     </div>
 </nav>
 
