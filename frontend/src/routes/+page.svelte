@@ -23,7 +23,7 @@
 
 <div class="container-fluid">
   <div class="row">
-    <div class="col-xl-6 col-12 d-flex mt-5 ps-xl-4 pt-xl-5 justify-content-start align-items-start">
+    <div class="col-xl-6 col-12 d-flex mt-xxl-3 mt-5 ps-xl-4 pt-xl-5 justify-content-start align-items-start">
       <div id="carouselExample" class="carousel slide container-game">
         <div class="carousel-inner">
           <div class="carousel-item active">
@@ -57,7 +57,7 @@
             <div class="card-body">
               <h5 class="card-title">Tournament</h5>
               <p class="card-text">Compete in tournaments and prove your skills.</p>
-              <a href="#" class="btn btn-dark">Create or Join</a>
+              <a href="/tournament" class="btn btn-dark">Create or Join</a>
             </div>
           </div>
         </div>
