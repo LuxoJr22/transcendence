@@ -1,52 +1,51 @@
-services:
-#   database:
-#     container_name: database
-#     hostname: database
-#     image: postgres:16.1
-#     env_file: .env
-#     volumes: 
-#       - ./database:/var/lib/postgresql/data
-#     networks:
-#       - transcendence
-#     restart: unless-stopped
-#     ports:
-#       - 5432:5432
+database:
+  container_name: database
+  hostname: database
+  image: postgres:16.1
+  env_file: .env
+  volumes: 
+    - ./database:/var/lib/postgresql/data
+  networks:
+    - transcendence
+  ports:
+    - 5432:5432
+  restart: unless-stopped
 
-#   django:
-#     container_name: django
-#     hostname: django
-#     env_file: .env
-#     build:
-#       context: ./backend
-#       dockerfile: Dockerfile
-#     volumes:
-#       - ./backend:/app
-#     networks:
-#       - transcendence
-#     ports:
-#       - 8000:8000
-#     restart: unless-stopped
-    
-#     depends_on:
-#       - database
+backend:
+  container_name: backend
+  hostname: backend
+  env_file: .env
+  build:
+    context: ./backend
+    dockerfile: Dockerfile
+  volumes:
+    - ./backend:/app
+  # command: python manage.py runserver 0.0.0.0:8000
+  networks:
+    - transcendence
+  ports:
+    - 8000:8000
+  restart: unless-stopped
+  depends_on:
+    - database
 
-  frontend:
-    container_name: frontend
-    env_file: .env
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    volumes: 
-      - ./frontend:/app
-      - /app/node_modules
-    networks:
-      - transcendence
-    ports:
-     - 8080:5173
-    restart: unless-stopped
+frontend:
+  container_name: frontend
+  env_file: .env
+  build:
+    context: ./frontend
+    dockerfile: Dockerfile
+  volumes: 
+    - ./frontend:/app
+    - /app/node_modules
+  networks:
+    - transcendence
+  ports:
+    - 8080:5173
+  restart: unless-stopped
+  depends_on:
+    - backend
 
 networks:
   transcendence:
     driver: bridge
-
-    
