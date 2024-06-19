@@ -135,8 +135,8 @@
                         else if (this.animleg == -2 * Math.PI / 3)
                             this.animleg = -Math.PI / 3;
                     }
-                    this.left.rotation.x = -dir;
-                    this.right.rotation.x = dir;
+                    this.left.rotation.x = -this.dir;
+                    this.right.rotation.x = this.dir;
                     this.left.rotation.y = 0;
                     this.right.rotation.y = 0;
                     this.left.rotation.z = THREE.MathUtils.lerp(this.left.rotation.z, this.animleg, 0.1)
@@ -366,7 +366,7 @@
 
 
         const renderer = new THREE.WebGLRenderer({canvas});
-        renderer.setSize( window.innerWidth * 0.80, window.innerHeight * 0.80);
+        renderer.setSize( 1920 * 0.7 , 1080 * 0.7);
         // renderer.domElement.style.width = window.innerWidth * 0.50 + "px";
         // renderer.domElement.style.height = window.innerHeight * 0.50 + "px";
         document.body.appendChild( renderer.domElement );
@@ -441,6 +441,11 @@
         },
         false,
         );
+
+        window.onresize = function(event){
+            if (window.innerWidth * 0.7 < 1920 * 0.7)
+                renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+        }
 
         function onDocumentKeyDown(event) {
             var keyCode = event.which;
@@ -556,11 +561,9 @@
             }
             moveBall();
             checkCollision();
-            //composer.render();
             if (o == 1)
             {
                 renderer.render( scene, camera );
-                labelRenderer.render(scene, camera);
             }
         }
         animate(); })();
