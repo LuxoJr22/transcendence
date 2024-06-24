@@ -44,6 +44,21 @@ services:
     ports:
      - 8080:5173
     restart: unless-stopped
+  
+  backendsimulation:
+    container_name: backendsimulation
+    build:
+      context: ./backendsimulation
+      dockerfile: Dockerfile
+    volumes:
+      - ./backendsimulation:/app
+    networks:
+      - transcendence
+    expose:
+      - "3000"
+    ports:
+    - "3000:3000"
+    restart: unless-stopped
 
 networks:
   transcendence:
