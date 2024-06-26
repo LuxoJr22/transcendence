@@ -4,4 +4,6 @@ WORKDIR /app
 COPY . .
 RUN npm install -g json-server
 
-CMD json-server --watch db.json
+EXPOSE 8000
+
+CMD json-server --watch db.json --port 8000

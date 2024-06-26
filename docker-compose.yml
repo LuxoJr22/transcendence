@@ -55,9 +55,9 @@ services:
     networks:
       - transcendence
     expose:
-      - "3000"
+      - "8000"
     ports:
-    - "3000:3000"
+    - "8000:8000"
     restart: unless-stopped
 
 networks:

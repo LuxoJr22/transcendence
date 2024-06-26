@@ -1,12 +1,16 @@
 {
     "users": {
       "1": {
-        "name": "John Doe",
-        "age": 25
+        "name": "Forestie Sacha",
+        "email": "sacha20031@gmail.com",
+        "pseudonyme": "sforesti",
+        "profileImg": "pathto"
       },
       "2": {
-        "name": "Jane Smith",
-        "age": 30
+        "name": "Dupont Antoine",
+        "email": "sacha20031@gmail.com",
+        "pseudonyme": "Adupont",
+        "profileImg": "pathto"
       }
     }
 }
