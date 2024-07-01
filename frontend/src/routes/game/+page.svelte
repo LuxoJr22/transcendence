@@ -21,10 +21,10 @@
         //#region PlayerClass
 
         class Player {
-            constructor (mesh, bind) {
+            constructor (mesh, bind, limit) {
                 this.mesh = mesh.scene;
                 this.mixer = new THREE.AnimationMixer( mesh.scene );
-                this.bb = new THREE.Box3().setFromObject( mesh.scene );
+                this.bb = new THREE.Box3().setFromObject( mesh.scene);
                 this.left = this.mesh.getObjectByName("Bone003L");
                 this.right = this.mesh.getObjectByName("Bone003R");
                 this.bone = this.mesh.getObjectByName("Bone");
@@ -39,8 +39,8 @@
                 this.charging = 1;
                 this.knockback = 0;
             
+                this.limit = limit;
                 this.bind = bind;
-                let walk = this.mixer.clipAction( gltf.animations[ 3 ] );
                 let load = this.mixer.clipAction( gltf.animations[ 1 ] );
                 let fall = this.mixer.clipAction( gltf.animations[ 2 ] );
                 load.setLoop(THREE.LoopOnce);
@@ -78,7 +78,6 @@
                     this.anims.fall.stop();
                     this.canmove = 1
                 }
-                //if (this.controller.yn + this.controller.yp != 0 || this.controller.xn + this.controller.xp != 0 || this.charge || this.isfalling)
                 this.mixer.update( dt );
                 if (this.charge)
                 {
@@ -108,7 +107,7 @@
                         this.animleg = 0;
                     else if (this.animleg == 0)
                         this.animleg = Math.PI / 3;
-                    if (this.animleg != 0 && Math.abs(this.left.rotation.z) >= Math.abs(this.animleg)- 0.1)
+                    if (this.animleg != 0 && Math.abs(this.left.rotation.z) >= Math.abs(this.animleg) - 0.1)
                         this.animleg *= -1;
 
                     /*if ( this.left.rotation.z > 0)
@@ -145,16 +144,23 @@
             }
             move () {
                 this.movelegs();
+                let ym, xm;
                 this.bb = new THREE.Box3().setFromObject(this.mesh);
+                xm = this.controller.xn + this.controller.xp + this.knockback;
+                ym = this.controller.yn + this.controller.yp;
+
                 if (this.charge)
                 {
-                    this.mesh.translateZ((this.controller.xn + this.controller.xp) / 2 + this.knockback);
-                    this.mesh.translateX((this.controller.yn + this.controller.yp) / 2);
+                    ym /= 2;
+                    xm /= 2;
                 }
-                else
+                if (this.mesh.position.y + ym > this.limit.ny && this.mesh.position.y + ym < this.limit.py)
                 {
-                    this.mesh.translateZ(this.controller.xn + this.controller.xp + this.knockback);
-                    this.mesh.translateX(this.controller.yn + this.controller.yp);
+                    this.mesh.translateX(ym);
+                }
+                if (this.mesh.position.x + xm > this.limit.nx && this.mesh.position.x + xm < this.limit.px)
+                {
+                    this.mesh.translateZ(xm);
                 }
             }
             keydown (keyCode) {
@@ -209,6 +215,8 @@
 
         var bind = {up: 83, down: 90, left:68, right:81, charge:32}
         var bind2 = {up: 40, down: 38, left:39, right:37, charge:96}
+        var limit = {px: 0, py:8, nx:-18, ny:-8}
+        var limit2 = {px: 18, py:8, nx: 0, ny:-8}
 
 
         //#region LoadModel
@@ -222,7 +230,7 @@
         gltf.scene.rotation.x = Math.PI / 2;
 
 
-        var play = new Player(gltf, bind2);
+        var play = new Player(gltf, bind2, limit);
 
         scene.add(play.mesh);
 
@@ -232,7 +240,7 @@
         gl.scene.rotation.y = Math.PI * 3 / 2;
         gl.scene.rotation.x = Math.PI / 2;
 
-        var er = new Player(gl, bind);
+        var er = new Player(gl, bind, limit2);
 
         scene.add(er.mesh);
 
@@ -261,10 +269,6 @@
         const mapping = generateCausticCanvasTexture(15);
 
 
-        var positions = [ play.mesh.position, er.mesh.position];
-        var ppos = [];
-        var direc = [];
-
         const shade = new THREE.ShaderMaterial( {
             uniforms: {
             map : {value: mapping},
@@ -272,9 +276,6 @@
             foamcolor : {value: new THREE.Color(0xffffff)},
             time: { value : 1.0},
             scale: { value : 10.0},
-            pos: {value: positions},
-            dpos : {value: ppos},
-            dir : {value : direc}
             },
             fragmentShader: `
             varying vec2 vUv;
@@ -284,8 +285,6 @@
             uniform vec3 foamcolor;
             uniform float time;
             uniform float scale;
-            uniform vec3 dpos[10];
-            uniform float dir[10];
 
             void main() {
                 int p = int(((time / 50.0) - floor(time / 50.0)) * 10.0);
@@ -298,31 +297,6 @@
                     0.01*vec2(cos(1.7 + time*0.0012+3.2*scale*vUv.x), sin(1.7 + time*0.001+3.0*scale*vUv.y))).rgb;
                 float d = 0.0;
                 gl_FragColor.rgb = mix(basecolor * clamp(1.0 - color2, 0.9, 1.0), foamcolor, color.r);
-                if (dpos[p].x != dpos[(p + 2) % 10].x || dpos[p].y != dpos[(p + 2) % 10].y )
-                {
-                    int i = (p + 2) % 10;
-                    float diff;
-                    float sign = -1.0;
-                    int off;
-                    while (i != p)
-                    {
-                        off = i - p;
-                        if (i < p)
-                            off += 10;
-                        if (dpos[i].y - vposition.y < 0.0)
-                            sign = 1.0;
-                        diff = (dpos[i].y - vposition.y) / (dpos[i].y - dpos[(i + 1) % 10].y);
-                        /*if (vposition.x * sign >= dpos[i].x * sign && vposition.x * sign <= dpos[(i + 1) % 10].x * sign
-                        && vposition.y <= dpos[i].y + ((float(off) + 1.0 + diff) / 7.0) && vposition.y >= dpos[i].y - ((float(off) + 1.0  + diff) / 7.0))*/
-                        if (vposition.y * sign >= dpos[i].y * sign && vposition.y * sign <= dpos[(i + 1) % 10].y * sign
-                        && vposition.x <= dpos[i].x + ((float(off) + 1.0 + diff) / 10.0) && vposition.x >= dpos[i].x - ((float(off) + 1.0  + diff) / 10.0))
-                        {
-                            gl_FragColor.rgb = mix(gl_FragColor.rgb, foamcolor,  (d + (diff) / 10.0));
-                        }
-                        d += 0.1;
-                        i = (i + 1) % 10;
-                    }
-                }
                     
             }`,
             vertexShader: `
@@ -538,8 +512,6 @@
 
         function animate() {
             requestAnimationFrame( animate );
-            ppos[Math.round((t - Math.floor(t)) * 10)] = new THREE.Vector3(play.mesh.position.x, play.mesh.position.y, play.mesh.position.z);
-            direc[Math.round((t - Math.floor(t)) * 10)] = play.dir;
             const dt = clock.getDelta();
             plain.material.uniforms.time.value = t * 50;
             t += dt;
@@ -559,7 +531,7 @@
             {
                 er.move();
             }
-            moveBall();
+            //moveBall();
             checkCollision();
             if (o == 1)
             {
