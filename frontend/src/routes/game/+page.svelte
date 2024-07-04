@@ -11,14 +11,12 @@
 	import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
     import { Player } from "./player.js";
     import { shade } from "./watershader";
-    let scene, camera, renderer;
-    let cube;
     let canvas;
 
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
-        scene.background = new THREE.Color(0x449977);
+        scene.background = new THREE.Color(0x54A0E4);
 
         var bind = {up: 83, down: 90, left:68, right:81, charge:32}
         var bind2 = {up: 38, down: 40, left:37, right:39, charge:96}
@@ -80,8 +78,6 @@
 
         textur.wrapT = THREE.RepeatWrapping;
 
-        let me = new THREE.MeshLambertMaterial({ map : textur });
-
         const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), shade);
 
         plain.position.set(0, 0, -0.8);
@@ -99,8 +95,6 @@
         const dl = new THREE.DirectionalLight( 0xffffff, 2 );
         dl.position.set( 0, 0, 5 );
         scene.add( dl );
-
-
 
         const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
         renderer.setSize( 1920 * 0.7 , 1080 * 0.7);
@@ -271,10 +265,8 @@
         composer.addPass( afterimagePass );*/
 
 
-		//var renderPixelatedPass = new RenderPixelatedPass( 3, scene, camera );
+	    //var renderPixelatedPass = new RenderPixelatedPass( 2, scene, camera );
 		//composer.addPass( renderPixelatedPass );
-
-        var o = 1;
 
         function animate() {
             requestAnimationFrame( animate );
@@ -299,10 +291,7 @@
             }
             moveBall();
             checkCollision();
-            if (o == 1)
-            {
-                renderer.render( scene, camera );
-            }
+            renderer.render( scene, camera );
         }
         animate(); 
     })();

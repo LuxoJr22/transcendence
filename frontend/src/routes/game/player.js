@@ -92,10 +92,6 @@ export class Player {
 			if (this.animleg != 0 && Math.abs(this.left.rotation.z) >= Math.abs(this.animleg) - 0.2)
 				this.animleg *= -1;
 
-			/*if ( this.left.rotation.z > 0)
-				this.bone.position.y = -this.left.rotation.z / 2;
-			else
-				this.bone.position.y = this.left.rotation.z / 2;*/
 			this.left.rotation.y = -this.dir;
 			this.right.rotation.y = -this.dir;
 			this.left.rotation.x = 0;
