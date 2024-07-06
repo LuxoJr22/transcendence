@@ -9,7 +9,9 @@
     import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
     import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
 	import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
+    import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
     import { Player } from "./player.js";
+    import { Bot } from "./bot.js";
     import { shade } from "./watershader";
     let canvas;
 
@@ -17,39 +19,76 @@
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
         scene.background = new THREE.Color(0x54A0E4);
-
+        
         var bind = {up: 83, down: 90, left:68, right:81, charge:32}
         var bind2 = {up: 38, down: 40, left:37, right:39, charge:96}
         var limit = {px: 0, py:8, nx:-18, ny:-8}
         var limit2 = {px: 18, py:8, nx: 0, ny:-8}
 
+        const uppertribune = new THREE.Mesh(new THREE.PlaneGeometry(34, 1), new THREE.MeshStandardMaterial);
+        uppertribune.position.set(0, 9, -0.5);
+
+        const lowertribune = new THREE.Mesh(new THREE.PlaneGeometry(34, 1), new THREE.MeshStandardMaterial);
+        lowertribune.position.set(0, -9, -0.5);
+
+        const righttribune = new THREE.Mesh(new THREE.PlaneGeometry(1, 14), new THREE.MeshStandardMaterial);
+        righttribune.position.set(17, 0, -0.5);
+
+        const lefttribune = new THREE.Mesh(new THREE.PlaneGeometry(1, 14), new THREE.MeshStandardMaterial);
+        lefttribune.position.set(-17.5, 0, -0.5);
+        const collisions = [righttribune, uppertribune, lefttribune, lowertribune];
 
         //#region LoadModel
 
         const loader = new GLTFLoader()
 
+
         const gltf = await loader.loadAsync('src/routes/game/public/pop.glb');
+
+        gltf.scene.position.set(-25, 0, -0.8);
+        gltf.scene.scale.set(0.5, 0.5, 0.5);
+
+        const top = new Bot(gltf.scene, 0.3, collisions);
+        top.mesh.position.set(0, 15, -0.8)
+        scene.add(top.mesh);
+
+        const bot = new Bot(gltf.scene, 0, collisions);
+
+        scene.add(bot.mesh);
+        
+        const left = new Bot(gltf.scene, 0.3, collisions);
+        
+        scene.add(left.mesh);
+
+        const right = new Bot(gltf.scene, 0, collisions);
+        scene.add(right.mesh);
+
+
         gltf.scene.position.set(-10, 0, -1.5);
         gltf.scene.scale.set(0.5, 0.5, 0.5);
         gltf.scene.rotation.y = Math.PI / 2;
         gltf.scene.rotation.x = Math.PI / 2;
 
-
         var play = new Player(gltf, bind2, limit, 0.15);
-
         scene.add(play.mesh);
 
+
+
+
         const gl = await loader.loadAsync('src/routes/game/public/sty.glb');
+
         gl.scene.position.set(10, 0, -1.5);
         gl.scene.scale.set(0.5, 0.5, 0.5);
         gl.scene.rotation.y = Math.PI * 3 / 2;
         gl.scene.rotation.x = Math.PI / 2;
 
         var er = new Player(gl, bind, limit2, 0.15);
-
         scene.add(er.mesh);
 
 
+
+
+    
         const bouee = await loader.loadAsync('src/routes/game/public/bue.glb');
         bouee.scene.position.set(0, -9, -0.8);
         bouee.scene.rotation.x = Math.PI / 2
@@ -290,6 +329,10 @@
                 er.move();
             }
             moveBall();
+            top.update();
+            bot.update();
+            left.update();
+            right.update();
             checkCollision();
             renderer.render( scene, camera );
         }

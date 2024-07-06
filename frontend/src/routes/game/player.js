@@ -96,8 +96,8 @@ export class Player {
 			this.right.rotation.y = -this.dir;
 			this.left.rotation.x = 0;
 			this.right.rotation.x = 0;
-			this.left.rotation.z = THREE.MathUtils.lerp(this.left.rotation.z, this.animleg, 0.1)
-			this.right.rotation.z = THREE.MathUtils.lerp(this.right.rotation.z, this.animleg, 0.1)
+			this.left.rotation.z = THREE.MathUtils.lerp(this.left.rotation.z, this.animleg, 0.1);
+			this.right.rotation.z = THREE.MathUtils.lerp(this.right.rotation.z, this.animleg, 0.1);
 			this.bone.rotation.y = THREE.MathUtils.lerp(this.bone.rotation.y, this.dir / 8, 0.2);
 			if (dirx < 0)
 				dirx = 0;
@@ -136,11 +136,11 @@ export class Player {
 			ym /= 2;
 			xm /= 2;
 		}
-		if (this.mesh.position.y + ym > this.limit.ny && this.mesh.position.y + ym < this.limit.py)
+		if (this.mesh.position.y - ym > this.limit.ny && this.mesh.position.y - ym < this.limit.py)
 		{
 			this.mesh.translateX(ym);
 		}
-		if (this.mesh.position.x + xm > this.limit.nx && this.mesh.position.x + xm < this.limit.px)
+		if (this.mesh.position.x - xm > this.limit.nx && this.mesh.position.x - xm < this.limit.px)
 		{
 			this.mesh.translateZ(xm);
 		}
