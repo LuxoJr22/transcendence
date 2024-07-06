@@ -16,8 +16,7 @@ export class Bot {
 		this.spectating = 0;
 		this.animleg = Math.PI / 7;
 		this.left.rotation.x = start;
-		this.dir = Math.PI * 3/ 2;
-		this.bone.rotation.z = -this.dir;
+		this.dir = 0;
 	}
 	random(min, max)
 	{
@@ -31,7 +30,7 @@ export class Bot {
 			this.spectate()
 		else
 			this.anim()
-		inter = this.bb.intersectsBox(this.rightb) + this.bb.intersectsBox(this.lowerb) * 2 + this.bb.intersectsBox(this.leftb) * 3 + this.bb.intersectsBox(this.upperb) * 4;
+		inter = this.bb.intersectsBox(this.leftb) + this.bb.intersectsBox(this.upperb) * 2 + this.bb.intersectsBox(this.rightb) * 3 + this.bb.intersectsBox(this.lowerb) * 4;
 		if (inter)
 		{
 			this.moving = 0;
@@ -42,15 +41,10 @@ export class Bot {
 	}
 	move() {
 		var dist = Math.abs(this.left.rotation.x - this.animleg) / 10 + 0.02;
-		this.mesh.translateY(dist * Math.cos(this.dir));
-		this.mesh.translateX(dist * Math.sin(this.dir));
+		this.mesh.translateY(dist);
 		if (this.mesh.position.y > 17 || this.mesh.position.y < -17 || this.mesh.position.x > 33 || this.mesh.position.x < -33)
 		{
-			this.dir = Math.random() * Math.PI * 2;
-			this.bone.rotation.z = -this.dir;
-		}
-		if (this.mesh.position.y > 17 || this.mesh.position.y < -17 || this.mesh.position.x > 33 || this.mesh.position.x < -33)
-		{
+			this.mesh.rotation.z = Math.random() * Math.PI * 2;
 			if (Math.floor(Math.random() * 2) == 1)
 			{
 				this.mesh.position.y = this.random(-17, 17);
@@ -78,16 +72,15 @@ export class Bot {
 	}
 	anim()
 	{
-		this.bone.rotation.z = THREE.MathUtils.lerp(this.bone.rotation.z, -this.dir, 0.1);
+		this.mesh.rotation.z = THREE.MathUtils.lerp(this.mesh.rotation.z, -this.dir, 0.1);
 		this.left.rotation.x = THREE.MathUtils.lerp(this.left.rotation.x, 0, 0.1);
 		this.right.rotation.x = THREE.MathUtils.lerp(this.right.rotation.x, 0, 0.1);
-		if (this.bone.rotation.z >= -this.dir - 0.01 && this.bone.rotation.z <= -this.dir + 0.01)
+		if (this.mesh.rotation.z >= -this.dir - 0.01 && this.mesh.rotation.z <= -this.dir + 0.01)
 		{
-			this.mesh.position.z = THREE.MathUtils.lerp(this.mesh.position.z, 0, 0.1);
-			if (this.dir == 0 || this.dir == Math.PI)
-				this.mesh.rotation.x = THREE.MathUtils.lerp(this.mesh.rotation.x, this.dir + Math.PI / 2, 0.1);	
-			else 
-				this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, this.dir - Math.PI, 0.1);
+			this.mesh.position.z = THREE.MathUtils.lerp(this.mesh.position.z, -0.2, 0.1);
+			this.bone.rotation.z = THREE.MathUtils.lerp(this.bone.rotation.z, Math.PI, 0.1);
+			if (this.bone.rotation.z >= Math.PI - 0.01 && this.bone.rotation.z <= Math.PI + 0.01)
+				this.bone.rotation.x = THREE.MathUtils.lerp(this.bone.rotation.x, -Math.PI / 2, 0.1);
 		}
 	}
 	spectate()

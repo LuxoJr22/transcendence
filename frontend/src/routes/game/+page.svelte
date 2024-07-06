@@ -49,15 +49,12 @@
         gltf.scene.scale.set(0.5, 0.5, 0.5);
 
         const top = new Bot(gltf.scene, 0.3, collisions);
-        top.mesh.position.set(0, 15, -0.8)
         scene.add(top.mesh);
 
         const bot = new Bot(gltf.scene, 0, collisions);
-
         scene.add(bot.mesh);
-        
+    
         const left = new Bot(gltf.scene, 0.3, collisions);
-        
         scene.add(left.mesh);
 
         const right = new Bot(gltf.scene, 0, collisions);
