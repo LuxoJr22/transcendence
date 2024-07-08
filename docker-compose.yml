@@ -21,7 +21,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./backend:/app
-    # command: python manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
     networks:
       - transcendence
     ports:
