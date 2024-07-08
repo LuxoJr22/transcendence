@@ -3,240 +3,89 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    import { CSS2DRenderer , CSS2DObject} from 'three/addons/renderers/CSS2DRenderer.js';
     import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
     import { label } from 'three/examples/jsm/nodes/Nodes.js';
     import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
     import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
     import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
-    let scene, camera, renderer;
-    let cube;
+	import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
+    import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
+    import { Player } from "./player.js";
+    import { Bot } from "./bot.js";
+    import { shade } from "./watershader";
     let canvas;
 
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
-        scene.background = new THREE.Color(0x449977);
-
-        //#region PlayerClass
-
-        class Player {
-            constructor (mesh, bind) {
-                this.mesh = mesh.scene;
-                this.mixer = new THREE.AnimationMixer( mesh.scene );
-                this.bb = new THREE.Box3().setFromObject( mesh.scene );
-                this.left = this.mesh.getObjectByName("Bone003L");
-                this.right = this.mesh.getObjectByName("Bone003R");
-                this.bone = this.mesh.getObjectByName("Bone");
-                this.gamepad = 0;
-                this.point = 0;
-                this.dir = 0;
-
-                this.animleg = 0
-
-                this.canmove = 1;
-                this.isfalling = 0;
-                this.charging = 1;
-                this.knockback = 0;
-            
-                this.bind = bind;
-                let walk = this.mixer.clipAction( gltf.animations[ 3 ] );
-                let load = this.mixer.clipAction( gltf.animations[ 1 ] );
-                let fall = this.mixer.clipAction( gltf.animations[ 2 ] );
-                load.setLoop(THREE.LoopOnce);
-                load.clampWhenFinished = true;
-                fall.setLoop(THREE.LoopOnce);
-                this.anims = {load: load, fall: fall};
-                this.charge = 0;
-
-                this.controller = {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
-            }
-            update (dt) {
-                this.knockback = THREE.MathUtils.lerp(this.knockback, 0, 0.1)
-                this.action();
-                if (this.charge && this.anims.load.time < 0.1 && !this.isfalling)
-                {
-                    this.animleg = -Math.PI / 2;
-                    this.left.rotation.z = -Math.PI / 2;
-                    this.right.rotation.z = Math.PI / 2;
-                    this.left.rotation.y = 0;
-                    this.right.rotation.y = 0;
-                    this.left.rotation.x = 0;
-                    this.right.rotation.x = 0;
-                }
-                if (this.isfalling && this.anims.fall.time > 0.2 && this.anims.fall.time < 0.4)
-                    this.charge = 0;
-                if (this.isfalling && this.anims.fall.time > 0.6)
-                {
-                    this.canmove = 0;
-                    this.charge = 1;
-                }
-                if (this.isfalling && !this.anims.fall.enabled)
-                {
-                    this.isfalling = 0;
-                    this.charge = 0;
-                    this.anims.fall.stop();
-                    this.canmove = 1
-                }
-                //if (this.controller.yn + this.controller.yp != 0 || this.controller.xn + this.controller.xp != 0 || this.charge || this.isfalling)
-                this.mixer.update( dt );
-                if (this.charge)
-                {
-                    this.charging = THREE.MathUtils.lerp(this.charging, 5, 0.05)
-                    if (this.anims.load.paused)
-                    {
-                        this.anims.fall.play();
-                        this.anims.load.stop()
-                        this.isfalling = 1;
-                    }
-                }
-                else
-                    this.charging = THREE.MathUtils.lerp(this.charging, 1, 0.1)
-            }
-            movelegs()
-            {
-                let diry = this.controller.yn + this.controller.yp;
-                let dirx = this.controller.xn + this.controller.xp;
-
-                if (dirx != 0)
-                    this.dir = Math.atan(diry / dirx);
-                else
-                    this.dir = Math.asin(diry * 10);
-                if (this.charge == 0)
-                {
-                    if (dirx == 0 && diry == 0)
-                        this.animleg = 0;
-                    else if (this.animleg == 0)
-                        this.animleg = Math.PI / 3;
-                    if (this.animleg != 0 && Math.abs(this.left.rotation.z) >= Math.abs(this.animleg)- 0.1)
-                        this.animleg *= -1;
-
-                    /*if ( this.left.rotation.z > 0)
-                        this.bone.position.y = -this.left.rotation.z / 2;
-                    else
-                        this.bone.position.y = this.left.rotation.z / 2;*/
-                    this.left.rotation.y = -this.dir;
-                    this.right.rotation.y = -this.dir;
-                    this.left.rotation.x = 0;
-                    this.right.rotation.x = 0;
-                    this.left.rotation.z = THREE.MathUtils.lerp(this.left.rotation.z, this.animleg, 0.1)
-                    this.right.rotation.z = THREE.MathUtils.lerp(this.right.rotation.z, this.animleg, 0.1)
-                }
-                else
-                {
-                    if (dirx == 0 && diry == 0)
-                        this.animleg = -Math.PI / 2;
-                    else if (this.animleg == -Math.PI / 2)
-                        this.animleg = -Math.PI / 3;
-                    if (this.animleg != -Math.PI / 2 && Math.abs(this.left.rotation.z + Math.PI / 2) >= Math.abs(this.animleg + Math.PI / 2) - 0.05)
-                    {
-                        if (this.animleg == -Math.PI / 3)
-                            this.animleg = -2 * Math.PI / 3;
-                        else if (this.animleg == -2 * Math.PI / 3)
-                            this.animleg = -Math.PI / 3;
-                    }
-                    this.left.rotation.x = -dir;
-                    this.right.rotation.x = dir;
-                    this.left.rotation.y = 0;
-                    this.right.rotation.y = 0;
-                    this.left.rotation.z = THREE.MathUtils.lerp(this.left.rotation.z, this.animleg, 0.1)
-                    this.right.rotation.z = THREE.MathUtils.lerp(this.right.rotation.z, this.animleg + Math.PI, 0.1)
-                }
-            }
-            move () {
-                this.movelegs();
-                this.bb = new THREE.Box3().setFromObject(this.mesh);
-                if (this.charge)
-                {
-                    this.mesh.translateZ((this.controller.xn + this.controller.xp) / 2 + this.knockback);
-                    this.mesh.translateX((this.controller.yn + this.controller.yp) / 2);
-                }
-                else
-                {
-                    this.mesh.translateZ(this.controller.xn + this.controller.xp + this.knockback);
-                    this.mesh.translateX(this.controller.yn + this.controller.yp);
-                }
-            }
-            keydown (keyCode) {
-                if (keyCode == this.bind.up)
-                    this.controller.yp = ySpeed;
-                if (keyCode == this.bind.down)
-                    this.controller.yn = -ySpeed;
-                if (keyCode == this.bind.left)
-                    this.controller.xn = -xSpeed;
-                if (keyCode == this.bind.right)
-                    this.controller.xp = xSpeed;
-                if (keyCode == this.bind.charge)
-                {
-                    this.controller.charge = 1;
-                }
-            }
-            keyup (keyCode) {
-                if (keyCode == this.bind.up)
-                    this.controller.yp = 0;
-                if (keyCode == this.bind.down)
-                    this.controller.yn = 0;
-                if (keyCode == this.bind.left)
-                    this.controller.xn = 0;
-                if (keyCode == this.bind.right)
-                    this.controller.xp = 0;
-
-                if (keyCode == this.bind.charge)
-                {
-                    this.controller.charge = 0;
-                }
-            }
-            action() {
-                if (this.controller.charge == 1 && !this.isfalling)
-                {
-                    this.anims.load.play();
-                    this.charge = 1;
-                }
-                if (this.controller.charge == 0 && !this.isfalling)
-                {
-                    this.charge = 0;
-                    this.anims.load.stop();
-                }
-            }
-            reset() {
-                this.anims.fall.stop();
-                this.anims.load.stop();
-                this.isfalling = 0;
-            }
-        }
-        //#endregion
-
-
+        scene.background = new THREE.Color(0x54A0E4);
+        
         var bind = {up: 83, down: 90, left:68, right:81, charge:32}
-        var bind2 = {up: 40, down: 38, left:39, right:37, charge:96}
+        var bind2 = {up: 38, down: 40, left:37, right:39, charge:96}
+        var limit = {px: 0, py:8, nx:-18, ny:-8}
+        var limit2 = {px: 18, py:8, nx: 0, ny:-8}
 
+        const uppertribune = new THREE.Mesh(new THREE.PlaneGeometry(34, 1), new THREE.MeshStandardMaterial);
+        uppertribune.position.set(0, 9, -0.5);
+
+        const lowertribune = new THREE.Mesh(new THREE.PlaneGeometry(34, 1), new THREE.MeshStandardMaterial);
+        lowertribune.position.set(0, -9, -0.5);
+
+        const righttribune = new THREE.Mesh(new THREE.PlaneGeometry(1, 14), new THREE.MeshStandardMaterial);
+        righttribune.position.set(17, 0, -0.5);
+
+        const lefttribune = new THREE.Mesh(new THREE.PlaneGeometry(1, 14), new THREE.MeshStandardMaterial);
+        lefttribune.position.set(-17.5, 0, -0.5);
+        const collisions = [righttribune, uppertribune, lefttribune, lowertribune];
 
         //#region LoadModel
 
         const loader = new GLTFLoader()
 
+
         const gltf = await loader.loadAsync('src/routes/game/public/pop.glb');
+
+        gltf.scene.position.set(-25, 0, -0.8);
+        gltf.scene.scale.set(0.5, 0.5, 0.5);
+
+        const top = new Bot(gltf.scene, 0.3, collisions);
+        scene.add(top.mesh);
+
+        const bot = new Bot(gltf.scene, 0, collisions);
+        scene.add(bot.mesh);
+    
+        const left = new Bot(gltf.scene, 0.3, collisions);
+        scene.add(left.mesh);
+
+        const right = new Bot(gltf.scene, 0, collisions);
+        scene.add(right.mesh);
+
+
         gltf.scene.position.set(-10, 0, -1.5);
         gltf.scene.scale.set(0.5, 0.5, 0.5);
         gltf.scene.rotation.y = Math.PI / 2;
         gltf.scene.rotation.x = Math.PI / 2;
 
-
-        var play = new Player(gltf, bind2);
-
+        var play = new Player(gltf, bind2, limit, 0.15);
         scene.add(play.mesh);
 
+
+
+
         const gl = await loader.loadAsync('src/routes/game/public/sty.glb');
+
         gl.scene.position.set(10, 0, -1.5);
         gl.scene.scale.set(0.5, 0.5, 0.5);
         gl.scene.rotation.y = Math.PI * 3 / 2;
         gl.scene.rotation.x = Math.PI / 2;
 
-        var er = new Player(gl, bind);
-
+        var er = new Player(gl, bind, limit2, 0.15);
         scene.add(er.mesh);
 
 
+
+
+    
         const bouee = await loader.loadAsync('src/routes/game/public/bue.glb');
         bouee.scene.position.set(0, -9, -0.8);
         bouee.scene.rotation.x = Math.PI / 2
@@ -257,84 +106,6 @@
         let spherebb = new THREE.Sphere(sphere.position, 1);
 
 
-        const {generateCausticCanvasTexture} = await import("./waterTexture.js");
-        const mapping = generateCausticCanvasTexture(15);
-
-
-        var positions = [ play.mesh.position, er.mesh.position];
-        var ppos = [];
-        var direc = [];
-
-        const shade = new THREE.ShaderMaterial( {
-            uniforms: {
-            map : {value: mapping},
-            basecolor : {value: new THREE.Color(0x19ABFF)},
-            foamcolor : {value: new THREE.Color(0xffffff)},
-            time: { value : 1.0},
-            scale: { value : 10.0},
-            pos: {value: positions},
-            dpos : {value: ppos},
-            dir : {value : direc}
-            },
-            fragmentShader: `
-            varying vec2 vUv;
-            varying vec3 vposition;
-            uniform sampler2D map;
-            uniform vec3 basecolor;
-            uniform vec3 foamcolor;
-            uniform float time;
-            uniform float scale;
-            uniform vec3 dpos[10];
-            uniform float dir[10];
-
-            void main() {
-                int p = int(((time / 50.0) - floor(time / 50.0)) * 10.0);
-                gl_FragColor.a = 1.0;
-                vec3 color = texture2D( map, vUv * scale +
-                    0.5*vec2( cos(time*0.001*0.1), sin(time*0.001*0.1)) +
-                    0.1*vec2( cos(time*0.0012+3.2*scale*vUv.x), sin(time*0.001+3.0*scale*vUv.y))).rgb;
-                vec3 color2 = texture2D( map, vUv * scale * 1.3+
-                    0.8*vec2(cos(time*0.001*0.1), sin(time*0.001*0.1)) +
-                    0.01*vec2(cos(1.7 + time*0.0012+3.2*scale*vUv.x), sin(1.7 + time*0.001+3.0*scale*vUv.y))).rgb;
-                float d = 0.0;
-                gl_FragColor.rgb = mix(basecolor * clamp(1.0 - color2, 0.9, 1.0), foamcolor, color.r);
-                if (dpos[p].x != dpos[(p + 2) % 10].x || dpos[p].y != dpos[(p + 2) % 10].y )
-                {
-                    int i = (p + 2) % 10;
-                    float diff;
-                    float sign = -1.0;
-                    int off;
-                    while (i != p)
-                    {
-                        off = i - p;
-                        if (i < p)
-                            off += 10;
-                        if (dpos[i].y - vposition.y < 0.0)
-                            sign = 1.0;
-                        diff = (dpos[i].y - vposition.y) / (dpos[i].y - dpos[(i + 1) % 10].y);
-                        /*if (vposition.x * sign >= dpos[i].x * sign && vposition.x * sign <= dpos[(i + 1) % 10].x * sign
-                        && vposition.y <= dpos[i].y + ((float(off) + 1.0 + diff) / 7.0) && vposition.y >= dpos[i].y - ((float(off) + 1.0  + diff) / 7.0))*/
-                        if (vposition.y * sign >= dpos[i].y * sign && vposition.y * sign <= dpos[(i + 1) % 10].y * sign
-                        && vposition.x <= dpos[i].x + ((float(off) + 1.0 + diff) / 10.0) && vposition.x >= dpos[i].x - ((float(off) + 1.0  + diff) / 10.0))
-                        {
-                            gl_FragColor.rgb = mix(gl_FragColor.rgb, foamcolor,  (d + (diff) / 10.0));
-                        }
-                        d += 0.1;
-                        i = (i + 1) % 10;
-                    }
-                }
-                    
-            }`,
-            vertexShader: `
-            varying vec2 vUv;
-            varying vec3 vposition;
-            void main() {
-                vUv = uv;
-                vposition = (modelMatrix * vec4(position, 1.0)).xyz;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);	
-            }
-            `
-        });
 
 
         const textur = new THREE.TextureLoader().load( "src/routes/game/public/f.png" );
@@ -342,8 +113,6 @@
         textur.wrapS = THREE.RepeatWrapping;
 
         textur.wrapT = THREE.RepeatWrapping;
-
-        let me = new THREE.MeshLambertMaterial({ map : textur });
 
         const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), shade);
 
@@ -359,22 +128,19 @@
         const light = new THREE.AmbientLight(0xffffff)
         scene.add(light)
 
-        const dl = new THREE.DirectionalLight( 0xffffff, 3 );
+        const dl = new THREE.DirectionalLight( 0xffffff, 2 );
         dl.position.set( 0, 0, 5 );
         scene.add( dl );
 
-
-
-        const renderer = new THREE.WebGLRenderer({canvas});
-        renderer.setSize( window.innerWidth * 0.80, window.innerHeight * 0.80);
-        // renderer.domElement.style.width = window.innerWidth * 0.50 + "px";
-        // renderer.domElement.style.height = window.innerHeight * 0.50 + "px";
+        const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
+        renderer.setSize( 1920 * 0.7 , 1080 * 0.7);
+		renderer.shadowMap.enabled = true;
         document.body.appendChild( renderer.domElement );
 
         camera.position.z = 20;
 
-        var xSpeed = 0.1;
-        var ySpeed = 0.1;
+        var xSpeed = 0.15;
+        var ySpeed = 0.15;
 
 
         var ballspeed = 0.2;
@@ -404,6 +170,8 @@
             if (buttons[0].value == 0)
                 play.controller.charge = 0;
         }
+
+        var xSpeed = 0.15, ySpeed = 0.15;
 
         function handlesticks(axes)
         {
@@ -441,6 +209,11 @@
         },
         false,
         );
+
+        window.onresize = function(event){
+            if (window.innerWidth * 0.7 < 1920 * 0.7)
+                renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+        }
 
         function onDocumentKeyDown(event) {
             var keyCode = event.which;
@@ -484,8 +257,6 @@
                 play.mesh.position.set(-10, 0, -1.5);
                 play.reset();
                 balldiry = 0
-                c.textContent = er.point;
-                p.textContent = play.point;
             }
             if (sphere.position.y >= 7 || sphere.position.y <= -7 )
                 balldiry *= -1;
@@ -524,19 +295,19 @@
         //#endregion
 
         var composer = new EffectComposer( renderer );
-        composer.addPass( new RenderPass( scene, camera ) );
+        //composer.addPass( new RenderPass( scene, camera ) );
 
-        var afterimagePass = new AfterimagePass();
-        composer.addPass( afterimagePass );
+        /*var afterimagePass = new AfterimagePass();
+        composer.addPass( afterimagePass );*/
 
-        var o = 1;
+
+	    //var renderPixelatedPass = new RenderPixelatedPass( 2, scene, camera );
+		//composer.addPass( renderPixelatedPass );
 
         function animate() {
             requestAnimationFrame( animate );
-            ppos[Math.round((t - Math.floor(t)) * 10)] = new THREE.Vector3(play.mesh.position.x, play.mesh.position.y, play.mesh.position.z);
-            direc[Math.round((t - Math.floor(t)) * 10)] = play.dir;
             const dt = clock.getDelta();
-            plain.material.uniforms.time.value = t * 50;
+            plain.material.uniforms.time.value = t * 70;
             t += dt;
             if (gamepads[0])
             {
@@ -555,15 +326,15 @@
                 er.move();
             }
             moveBall();
+            top.update();
+            bot.update();
+            left.update();
+            right.update();
             checkCollision();
-            //composer.render();
-            if (o == 1)
-            {
-                renderer.render( scene, camera );
-                labelRenderer.render(scene, camera);
-            }
+            renderer.render( scene, camera );
         }
-        animate(); })();
+        animate(); 
+    })();
     });
 </script>
 

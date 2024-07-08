@@ -16,50 +16,52 @@
   <div class="offcanvas-body">
     <div class="">
       <h5>IA</h5>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="IA" id="IA1">
-        <label class="form-check-label" for="IA1">
-          Play online
-        </label>
+      <div class= "row">
+        <div class="form-check col-3">
+          <input class="btn-check" type="radio" name="IA" id="IA1">
+          <label class="btn btn-secondary" for="IA1">
+            Online
+          </label>
+        </div>
+        <div class="form-check col-3">
+          <input class="btn-check" type="radio" name="IA" id="IA2" checked>
+          <label class="btn btn-secondary" for="IA2">
+            Bot
+          </label>
+        </div>
       </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="IA" id="IA2" checked>
-        <label class="form-check-label" for="IA2">
-          Play Against Bot
-        </label>
-      </div>
-      <div class="mt-2">
+      <div class="mt-2 row">
         <h5>Power Up</h5>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="PowerUp" id="PowerUp1">
-          <label class="form-check-label" for="PowerUp1">
+        <div class="form-check col-3">
+          <input class="btn-check" type="radio" name="PowerUp" id="PowerUp1">
+          <label class="btn btn-secondary" for="PowerUp1">
             Classic
           </label>
         </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="PowerUp" id="PowerUp2" checked>
-          <label class="form-check-label" for="PowerUp2">
+        <div class="form-check col-5">
+          <input class="btn-check" type="radio" name="PowerUp" id="PowerUp2" checked>
+          <label class="btn btn-secondary" for="PowerUp2">
             Power-Up
           </label>
         </div>
       </div>
-      <div class="mt-2">
+      <div class="mt-2 row">
         <h5>Number of points</h5>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="Points" id="Points2" checked>
-          <label class="form-check-label" for="Points2">
+        <div class="form-check col-4">
+          <input class="btn-check" type="radio" name="Points" id="Points1" checked>
+          <label class="btn btn-secondary" for="Points1">
             3 points
           </label>
         </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="Points" id="Points1">
-          <label class="form-check-label" for="Points1">
+        <div class="form-check col-3 ps-0 me-1">
+          <input class="btn-check" type="radio" name="Points" id="Points2">
+          <label class="btn btn-secondary" for="Points2">
             7 points
           </label>
         </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="Points" id="Points2" checked>
-          <label class="form-check-label" for="Points2">
+        <div class="form-check col-3 ms-1 ps-0 pe-0">
+          <input class="btn-check" type="radio" name="Points" id="Points3" checked>
+          <label class="btn btn-secondary" for="Points3">
             11 points
           </label>
         </div>
@@ -95,7 +97,7 @@
           </div>
         </div>
         <div class="d-flex justify-content-center">
-          <button type="button" class="btn btn-success btn-lg mt-3">Play</button>
+          <button type="button" class="btn btn-success btn-lg mt-4 ms-1 px-5">Play</button>
         </div>   
       </div>
     </div>
