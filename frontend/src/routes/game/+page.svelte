@@ -14,16 +14,22 @@
     import { Bot } from "./bot.js";
     import { shade } from "./watershader";
     let canvas;
+    var scoring = 0;
+    export var ls = 0;
 
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        const camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 0.1, 1000 );
         scene.background = new THREE.Color(0x54A0E4);
+
         
         var bind = {up: 83, down: 90, left:68, right:81, charge:32}
         var bind2 = {up: 38, down: 40, left:37, right:39, charge:96}
         var limit = {px: 0, py:8, nx:-18, ny:-8}
         var limit2 = {px: 18, py:8, nx: 0, ny:-8}
+        var bots = [];
+        
+        var endscoring = 0;
 
         const uppertribune = new THREE.Mesh(new THREE.PlaneGeometry(34, 1), new THREE.MeshStandardMaterial);
         uppertribune.position.set(0, 9, -0.5);
@@ -48,17 +54,13 @@
         gltf.scene.position.set(-25, 0, -0.8);
         gltf.scene.scale.set(0.5, 0.5, 0.5);
 
-        const top = new Bot(gltf.scene, 0.3, collisions);
-        scene.add(top.mesh);
-
-        const bot = new Bot(gltf.scene, 0, collisions);
-        scene.add(bot.mesh);
-    
-        const left = new Bot(gltf.scene, 0.3, collisions);
-        scene.add(left.mesh);
-
-        const right = new Bot(gltf.scene, 0, collisions);
-        scene.add(right.mesh);
+        let i = 0;
+        while (i < 4)
+        {
+            bots.push(new Bot(gltf.scene, collisions));
+            scene.add(bots[i].mesh);
+            i ++;
+        }
 
 
         gltf.scene.position.set(-10, 0, -1.5);
@@ -244,22 +246,33 @@
 
         function moveBall()
         {
-            sphere.translateX(balldir);
-            sphere.translateY(balldiry);
+            if (!scoring)
+            {
+                sphere.translateX(balldir);
+                sphere.translateY(balldiry);
+            }
             if (sphere.position.x >= 15 || sphere.position.x <= -15)
             {
                 if (sphere.position.x >= 15)
                     play.point ++;
                 else
                     er.point ++;
-                sphere.position.set(0, 0, 0);
-                er.mesh.position.set(10, 0, -1.5);
-                play.mesh.position.set(-10, 0, -1.5);
-                play.reset();
+                scoring = 1;
+                endscoring = t + 2;
+                sphere.position.set(0, 0, -2);
                 balldiry = 0
             }
             if (sphere.position.y >= 7 || sphere.position.y <= -7 )
                 balldiry *= -1;
+            if (t >= endscoring && scoring == 1)
+            {
+                scoring = 0;
+                sphere.position.set(0, 0, 0);
+                er.mesh.position.set(10, 0, -1.5);
+                play.mesh.position.set(-10, 0, -1.5);
+                play.reset();
+                er.reset()
+            }
 
         }
 
@@ -290,11 +303,12 @@
             {
                 balldir = THREE.MathUtils.lerp(balldir, ballspeed, 0.05);
             }
+            
         }
 
         //#endregion
 
-        var composer = new EffectComposer( renderer );
+        //var composer = new EffectComposer( renderer );
         //composer.addPass( new RenderPass( scene, camera ) );
 
         /*var afterimagePass = new AfterimagePass();
@@ -326,10 +340,10 @@
                 er.move();
             }
             moveBall();
-            top.update();
-            bot.update();
-            left.update();
-            right.update();
+            bots.forEach(element => {
+                element.update();
+                element.scoring = scoring;
+            });
             checkCollision();
             renderer.render( scene, camera );
         }

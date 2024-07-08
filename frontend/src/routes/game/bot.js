@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
+import { equal, lerp, random} from "./utils.js"
+
 
 export class Bot {
-	constructor (mesh, start, collision) {
+	constructor (mesh, collision) {
 		this.rightb = new THREE.Box3().setFromObject(collision[0]);
 		this.upperb = new THREE.Box3().setFromObject(collision[1]);
 		this.leftb = new THREE.Box3().setFromObject(collision[2]);
@@ -12,29 +14,46 @@ export class Bot {
 		this.right = this.mesh.getObjectByName("Bone003R");
 		this.bone = this.mesh.getObjectByName("Bone");
 		this.bb = new THREE.Box3().setFromObject(this.mesh);
+		this.jump = 0;
+		this.jumping = 0;
 		this.moving = 1;
 		this.spectating = 0;
+		this.scoring = 0;
 		this.animleg = Math.PI / 7;
-		this.left.rotation.x = start;
+		this.left.rotation.x = Math.random() * 0.3;
 		this.dir = 0;
-	}
-	random(min, max)
-	{
-		return (Math.random() * (max - min)) + min;
+		this.inter = 0;
+		this.place = 0;
+		this.mesh.rotation.z = Math.random() * Math.PI * 2;
+		if (Math.floor(Math.random() * 2) == 1)
+		{
+			this.mesh.position.y = random(-17, 17);
+			if (Math.floor(Math.random() * 2) == 1)
+				this.mesh.position.x = -33;
+			else
+				this.mesh.position.x = 33;
+		}
+		else
+		{
+			this.mesh.position.x = random(-33, 33);
+			if (Math.floor(Math.random() * 2) == 1)
+				this.mesh.position.y = -17;
+			else
+				this.mesh.position.y = 17;
+		}
 	}
 	update(){
-		var inter;
 		if (this.moving)
 			this.move();
-		else if (this.spectating)
+		else if (this.spectating && this.scoring)
 			this.spectate()
 		else
 			this.anim()
-		inter = this.bb.intersectsBox(this.leftb) + this.bb.intersectsBox(this.upperb) * 2 + this.bb.intersectsBox(this.rightb) * 3 + this.bb.intersectsBox(this.lowerb) * 4;
-		if (inter)
+		this.inter = this.bb.intersectsBox(this.leftb) + this.bb.intersectsBox(this.upperb) * -2 + this.bb.intersectsBox(this.rightb) * 3 + this.bb.intersectsBox(this.lowerb) * 4;
+		if (this.inter)
 		{
 			this.moving = 0;
-			this.dir = Math.PI / 2 * inter;
+			this.dir = Math.PI / 2 * this.inter;
 			if (this.dir == Math.PI * 2)
 				this.dir = 0;
 		}
@@ -47,7 +66,7 @@ export class Bot {
 			this.mesh.rotation.z = Math.random() * Math.PI * 2;
 			if (Math.floor(Math.random() * 2) == 1)
 			{
-				this.mesh.position.y = this.random(-17, 17);
+				this.mesh.position.y = random(-17, 17);
 				if (Math.floor(Math.random() * 2) == 1)
 					this.mesh.position.x = -33;
 				else
@@ -55,7 +74,7 @@ export class Bot {
 			}
 			else
 			{
-				this.mesh.position.x = this.random(-33, 33);
+				this.mesh.position.x = random(-33, 33);
 				if (Math.floor(Math.random() * 2) == 1)
 					this.mesh.position.y = -17;
 				else
@@ -72,19 +91,33 @@ export class Bot {
 	}
 	anim()
 	{
-		this.mesh.rotation.z = THREE.MathUtils.lerp(this.mesh.rotation.z, -this.dir, 0.1);
+		this.bone.rotation.x = THREE.MathUtils.lerp(this.bone.rotation.x, Math.PI / 2, 0.1);
 		this.left.rotation.x = THREE.MathUtils.lerp(this.left.rotation.x, 0, 0.1);
 		this.right.rotation.x = THREE.MathUtils.lerp(this.right.rotation.x, 0, 0.1);
-		if (this.mesh.rotation.z >= -this.dir - 0.01 && this.mesh.rotation.z <= -this.dir + 0.01)
+		if (equal(this.bone.rotation.x, Math.PI / 2))
 		{
 			this.mesh.position.z = THREE.MathUtils.lerp(this.mesh.position.z, -0.2, 0.1);
-			this.bone.rotation.z = THREE.MathUtils.lerp(this.bone.rotation.z, Math.PI, 0.1);
-			if (this.bone.rotation.z >= Math.PI - 0.01 && this.bone.rotation.z <= Math.PI + 0.01)
-				this.bone.rotation.x = THREE.MathUtils.lerp(this.bone.rotation.x, -Math.PI / 2, 0.1);
+			this.bone.rotation.y = THREE.MathUtils.lerp(this.bone.rotation.y, Math.PI, 0.03);
+			this.mesh.rotation.z = lerp(this.mesh.rotation.z, -this.dir, -0.04);
+			if (equal(this.bone.rotation.y, Math.PI) && this.mesh.rotation.z ==  -this.dir)
+			{
+				this.bone.rotation.y = Math.PI;
+				this.spectating = 1;
+			}
 		}
 	}
 	spectate()
 	{
-
+		if (equal(this.mesh.position.z, -0.2))
+		{
+			this.jumping = 1;
+			this.jump = Math.random() * 0.5;
+		}
+		else if (equal(this.mesh.position.z, this.jump))
+			this.jumping = 0;
+		if (this.jumping == 1)
+			this.mesh.position.z = THREE.MathUtils.lerp(this.mesh.position.z, this.jump, 0.2);
+		else
+			this.mesh.position.z = THREE.MathUtils.lerp(this.mesh.position.z,  -0.2, 0.3);
 	}
 }
