@@ -7,7 +7,7 @@ services:
     volumes: 
       - ./database:/var/lib/postgresql/data
     networks:
-      - transcendence
+      - triplum
     ports:
       - 5432:5432
     restart: unless-stopped
@@ -23,7 +23,7 @@ services:
       - ./backend:/app
     command: python manage.py runserver 0.0.0.0:8000
     networks:
-      - transcendence
+      - triplum
     ports:
       - 8000:8000
     restart: unless-stopped
@@ -40,7 +40,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     networks:
-      - transcendence
+      - triplum
     ports:
       - 8080:5173
     restart: unless-stopped
@@ -48,5 +48,5 @@ services:
       - backend
 
 networks:
-  transcendence:
+  triplum:
     driver: bridge
