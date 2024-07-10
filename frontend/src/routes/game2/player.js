@@ -36,6 +36,8 @@ export class Player {
 		this.mesh.rotation.y = -d + Math.PI / 2;
 		this.knockback = THREE.MathUtils.lerp(this.knockback, 0, 0.1)
 		this.action();
+		if (this.canmove)
+			this.move();
 	}
 	movelegs()
 	{

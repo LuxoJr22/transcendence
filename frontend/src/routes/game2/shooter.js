@@ -3,23 +3,32 @@ import { PointerLockControls } from 'three/addons/controls/PointerLockControls.j
 import { equal, lerp } from "./utils.js"
 
 export class Shooter {
-	constructor (mesh, bind, speed, cam, scene) {
+	constructor (mesh, bind, speed, cam, scene, target, collider) {
+		this.jumpheight = 5;
+		this.gravity = -9.81;
+		this.collider = collider;
+		this.target = target.getObjectByName("Bone001").children;
+		this.target.push(target.getObjectByName("Cylinder001"))
 		this.scene = scene;
 		this.ySpeed = speed * 2;
 		this.camera = cam;
 		this.cam = new PointerLockControls(this.camera, document.body);;
 		this.xSpeed = speed * 2;
 		this.mesh = mesh.scene;
-		this.bb = new THREE.Box3().setFromObject( mesh.scene);
 		this.left = this.mesh.getObjectByName("Bone003L");
 		this.right = this.mesh.getObjectByName("Bone003R");
 		this.bone = this.mesh.getObjectByName("Bone");
+		this.bb = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial( { color: 0xff0000 }));
+		this.scene.add(this.bb);
+		this.bbox = new THREE.Box3().setFromObject(this.bb);
 		this.raycaster = new THREE.Raycaster();
+		this.foot = new THREE.Raycaster();
+		this.foot.far = 1.6
+		this.velocity = new THREE.Vector3();
 		this.gamepad = 0;
 		this.point = 0;
 		this.dir = 0;
-		this.canJump = 1;
-		this.jumping = 0;
+		this.grounded = 1;
 
 		this.sphere = new THREE.Mesh(new THREE.SphereGeometry(0.2 , 20, 20), new THREE.MeshBasicMaterial( { color: 0xffc000 } ))
 		this.sphere.position.set(0, 0, 0);
@@ -30,6 +39,7 @@ export class Shooter {
 		this.isfalling = 0;
 		this.knockback = 0;
 		this.direction = new THREE.Vector3();
+		this.footdir = new THREE.Vector3(0, -1 ,0)
 	
 		this.bind = bind;
 
@@ -38,22 +48,22 @@ export class Shooter {
 	update (dt) {
 		this.cam.getDirection(this.direction);
 		this.raycaster.set(this.cam.getObject().position, this.direction)
+		this.foot.set(this.cam.getObject().position, this.footdir)
 		let d = Math.acos(this.direction.x)
 		if (this.direction.z < 0)
 			d *= -1;
 		this.mesh.rotation.y = -d + Math.PI / 2;
 		this.knockback = THREE.MathUtils.lerp(this.knockback, 0, 0.1)
-		this.action();
-	}
-	mousedown()
-	{
-		var intersects = this.raycaster.intersectObjects( this.scene.children );
+		if (this.canmove)
+			this.move(dt)
+		var inter = this.foot.intersectObjects( this.scene.children );
 
-		if (intersects[0] && intersects[ 0 ].object != this.sphere)
-		{
-			this.sphere.position.set(intersects[0].point.x, intersects[0].point.y ,intersects[0].point.z );
-
-		}
+		if (inter[0])
+			this.grounded = 1;
+		else
+			this.grounded = 0;
+		this.bb.position.set(this.cam.getObject().position.x, this.cam.getObject().position.y, this.cam.getObject().position.z);
+		this.bbox = new THREE.Box3().setFromObject(this.bb);
 	}
 	movelegs()
 	{
@@ -81,25 +91,28 @@ export class Shooter {
 			dirx = 0;
 		this.bone.rotation.x = THREE.MathUtils.lerp(this.bone.rotation.x, this.animleg / 10 + -dirx * 2, 0.1);
 	}
-	move () {
+	move (dt) {
 		this.movelegs();
 		let ym, xm;
-		this.bb = new THREE.Box3().setFromObject(this.mesh);
 		xm = this.controller.xn + this.controller.xp + this.knockback;
 		ym = this.controller.yn + this.controller.yp;
-		this.mesh.translateX(xm);
-		this.mesh.translateZ(ym);
-		if (this.cam)
+		/*this.mesh.translateX(xm);
+		this.mesh.translateZ(ym);*/
+		if (this.cam && !this.bbox.intersectsBox(this.collider[0]) && !this.bbox.intersectsBox(this.collider[1]))
 		{
 			this.cam.moveForward(ym);
 			this.cam.moveRight(xm);
 		}
-		if (this.controller.jump && this.jumping)
-			this.cam.getObject().position.y = THREE.MathUtils.lerp(this.cam.getObject().position.y, 3, 0.1);
-		else
-			this.cam.getObject().position.y = lerp(this.cam.getObject().position.y, 0.5, -0.1);
-		if (this.cam.getObject().position.y + 0.1 > 3)
-			this.jumping = 0;
+		if (this.controller.jump && this.grounded)
+		{
+			this.velocity.y = Math.sqrt(this.jumpheight * -2 * this.gravity);
+		}
+		this.velocity.y += this.gravity * dt;
+		if (this.velocity.y < 0 && this.grounded)
+		{
+			this.velocity.y = 0
+		}
+		this.cam.getObject().position.y += this.velocity.y * dt;
 	}
 	keydown (keyCode) {
 		if (keyCode == this.bind.up)
@@ -113,8 +126,6 @@ export class Shooter {
 		if (keyCode == this.bind.jump)
 		{
 			this.controller.jump = 1;
-			if (equal(this.cam.getObject().position.y, 0.5))
-				this.jumping = 1;
 		}
 	}
 	keyup (keyCode) {
@@ -131,7 +142,5 @@ export class Shooter {
 		{
 			this.controller.jump = 0;
 		}
-	}
-	action() {
 	}
 }

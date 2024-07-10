@@ -1,19 +1,10 @@
 <script lang= "ts">
     import { onMount } from 'svelte';
+    import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-    import { label } from 'three/examples/jsm/nodes/Nodes.js';
-    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-    import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
-	import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
-    import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
-    import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
     import { Shooter } from "./shooter.js";
     import { Player } from "./player.js";
-    import { shade } from "./watershader";
     let canvas;
     var scoring = 0;
     export var ls = 0;
@@ -33,19 +24,54 @@
         var bind2 = {up: 90, down: 83, left:81, right:68, jump:32}
         var bind = {up: 40, down: 38, left:39, right:37, jump:96}
 
+        
+        const box = new THREE.Mesh(new THREE.BoxGeometry(100, 1, 1), new THREE.MeshStandardMaterial( { color: 0xdddddd }))
+        box.castShadow = true;
+        scene.add(box)
+
+        const bbox = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10), new THREE.MeshStandardMaterial( { color: 0xdddddd }))
+        bbox.position.set(0, 0, -5)
+        bbox.castShadow = true;
+        scene.add(bbox)
+
+
+        const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial( { color: 0xdddddd }));
+
+        plain.position.set(0, -1, 0);
+        plain.rotation.x = -Math.PI / 2
+       // plain.overdraw = true;
+        plain.receiveShadow = true;
+
+        scene.add(plain);
+
+        var collider = [new THREE.Box3().setFromObject( box), new THREE.Box3().setFromObject( bbox)];
+
         //#region LoadModel
 
         const loader = new GLTFLoader()
+
+        
+        const gl = await loader.loadAsync('src/routes/game2/public/sty.glb');
+
+        gl.scene.position.set(10, 0, -1.5);
+        gl.scene.scale.set(0.5, 0.5, 0.5);
+
+        var er = new Player(gl, bind, 0.15, 0);
+        er.mesh.traverse(function(node) {
+            if (node.isMesh)
+                node.castShadow = true;
+        })
+        scene.add(er.mesh);
 
 
         const gltf = await loader.loadAsync('src/routes/game2/public/pop.glb');
 
 
-        gltf.scene.position.set(-10, 0, -1.5);
+        gltf.scene.position.set(0, 0.5, 3);
         gltf.scene.scale.set(0.5, 0.5, 0.5);
 
-        var play = new Shooter(gltf, bind2, 0.15, camera, scene);
-        //scene.add(play.mesh);
+        var play = new Shooter(gltf, bind2, 0.15, camera, scene, er.mesh, collider);
+        scene.add(play.mesh);
 
         el.addEventListener('click', function () {
             el.style.display = "none";
@@ -61,36 +87,26 @@
         scene.add(play.cam.getObject());
 
 
-        const gl = await loader.loadAsync('src/routes/game2/public/sty.glb');
-
-        gl.scene.position.set(10, 0, -1.5);
-        gl.scene.scale.set(0.5, 0.5, 0.5);
-
-        var er = new Player(gl, bind, 0.15, 0);
-        scene.add(er.mesh);
-
-
-
-        //#endregion
-
-        const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), shade);
-
-        plain.position.set(0, -1, 0);
-        plain.rotation.x = -Math.PI / 2
-        plain.overdraw = true;
-        plain.receiveShadow = true;
-
-        scene.add(plain);
 
         //#endregion
 
 
-        const light = new THREE.AmbientLight(0xffffff)
-        scene.add(light)
 
-        const dl = new THREE.DirectionalLight( 0xffffff, 2 );
-        dl.position.set( 0, 0, 5 );
+        const amblight = new THREE.AmbientLight( 0xffffff, 0.7 );
+		scene.add( amblight );
+
+        const dl = new THREE.DirectionalLight( 0xffffff, 1.0 );
+        
+        dl.position.set( 0, 100, 0 );
+        dl.target.position.set(0, 0, 0)
+        dl.castShadow = true;
         scene.add( dl );
+        scene.add( dl.target)
+        var size = 50;
+        dl.shadow.camera.top = size;
+        dl.shadow.camera.bottom = -size;
+        dl.shadow.camera.left = size;
+        dl.shadow.camera.right = -size;
 
         const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
         renderer.setSize( 1920 * 0.7 , 1080 * 0.7);
@@ -173,7 +189,17 @@
 
         function onMouse(event) {
             if (event.which == 1)
-                play.mousedown();
+            {  
+                var intersects = play.raycaster.intersectObjects( scene.children );
+
+                if (intersects[0] && intersects[ 0 ].object != play.sphere)
+                {
+                    play.sphere.position.set(intersects[0].point.x, intersects[0].point.y ,intersects[0].point.z );
+                    if (play.target.includes(intersects[0].object))
+                        er.mesh.position.set(Math.random() * 20, Math.random() * 2, Math.random() * 10)
+
+                }
+            }
         }
 
         function onDocumentKeyDown(event) {
@@ -193,13 +219,22 @@
         let t = 0;
         const clock = new THREE.Clock();
 
-
-        //#endregion
+        /*function CheckCollision()
+        {
+            var i = 0;
+            while (i < collider.length)
+            {
+                if (play.bbox.intersectsBox(collider[i]))
+                {
+                    console.log(play.bbox)
+                }
+                i ++;
+            }        
+        }*/
 
         function animate() {
             requestAnimationFrame( animate );
             const dt = clock.getDelta();
-            plain.material.uniforms.time.value = t * 70;
             t += dt;
             if (gamepads[0])
             {
@@ -207,16 +242,9 @@
                 handlebuttons(gamepads[0].buttons)
                 handlesticks(gamepads[0].axes)
             }
+            //CheckCollision();
             play.update(dt)
-            if (play.canmove)
-            {
-                play.move();
-            }
             er.update(dt)
-            if (er.canmove)
-            {
-                er.move();
-            }
             renderer.render( scene, camera );
         }
         animate(); 
