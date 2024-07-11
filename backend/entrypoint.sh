@@ -1,7 +1,7 @@
-# !/bin/sh
+#!/bin/sh
 
 while ! nc -z database 5432; do
-   sleep 1
+    sleep 0.1
 done
 
 python manage.py makemigrations
