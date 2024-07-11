@@ -1,33 +1,57 @@
 <script>
-    let password1 = "";
-    let password2 = "";
+    let username = '';
+    let email = '';
+    let password = '';
+    let errorMessage = '';
 
-    $: samePassword = (password1 === password2 || password2 === "");
+    async function registerUser() {
+        const response = await fetch('/api/register/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                password: password,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log('User creation success')
+        } else {
+            console.error('User creation failed')
+            errorMessage = data.detail;
+        }
+    }
 </script>
 
 <div class="container-fluid" style="height:100vh;">
     <div class="d-flex justify-content-center align-items-center" style="height:100%;">
-        <div class="p-5 border rounded">
+        <form on:submit|preventDefault="{registerUser}" class="p-5 border rounded">
             <div class="mb-3">
-                <label for="Pseudonyme" class="form-label text-light"><h5>Pseudonyme</h5></label>
-                <input type="text" class="form-control" id="Pseudonyme" placeholder="Enter pseudonyme">
+                <label class="form-label text-light">
+                    <h5>Pseudo</h5>
+                    <input type="text" bind:value="{username}" required class="form-control" placeholder="Enter pseudo">
+                </label>
             </div>
             <div class="mb-3">
-                <label for="password1" class="form-label text-light"><h5>Password</h5></label>
-                <input bind:value={password1} type="password" class="form-control" id="password1" placeholder="Enter password">
+                <label class="form-label text-light">
+                    <h5>Email</h5>
+                    <input type="email" bind:value="{email}" required class="form-control" placeholder="Enter email">
+                </label>
             </div>
             <div class="mb-3">
-                <label for="password2" class="form-label text-light"><h5>Confirm your password</h5></label>
-                <input bind:value={password2} type="password" class="form-control" id="password2" placeholder="Enter password">
-                {#if samePassword}
-                    <p class="text-light">yesss</p>
-                {:else}
-                    <p class="text-light">Nooo</p>
-                {/if}
+                <label class="form-label text-light">
+                    <h5>Password</h5>
+                    <input type="password" bind:value="{password}" required class="form-control" placeholder="Enter password">
+                </label>
             </div>
             <div class="btn-group-vertical col-12" role="group" aria-label="Vertical button group">
-                <button type="button" class="m-1 btn btn-primary">Create my account</button>
+                <button type="submit" class="m-1 btn btn-primary">Create my account</button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
