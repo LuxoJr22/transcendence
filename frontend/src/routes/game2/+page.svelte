@@ -5,6 +5,7 @@
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { Shooter } from "./shooter.js";
     import { Player } from "./player.js";
+    //import { flagshader } from "./flagshader";
     let canvas;
     var scoring = 0;
     export var ls = 0;
@@ -12,8 +13,11 @@
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
-        camera.position.z = 3;
-        camera.position.y = 0.5;
+        camera.position.z = 0;
+        camera.position.y = 7;
+
+        let t = 0;
+        const clock = new THREE.Clock();
 
         var el = document.getElementById("blocker");
 
@@ -29,7 +33,7 @@
         box.castShadow = true;
         scene.add(box)
 
-        const bbox = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10), new THREE.MeshStandardMaterial( { color: 0xdddddd }))
+        const bbox = new THREE.Mesh(new THREE.BoxGeometry(15, 10, 15), new THREE.MeshStandardMaterial( { color: 0xffffff }))
         bbox.position.set(0, 0, -5)
         bbox.castShadow = true;
         scene.add(bbox)
@@ -43,12 +47,54 @@
         plain.receiveShadow = true;
 
         scene.add(plain);
+        
+        const flagshader = new THREE.ShaderMaterial( {
+            transparent : true,
+            uniforms: {
+            time: { value : t},
+            },
+            fragmentShader: `
+            uniform float time;
+            void main() {
+                if (tan(time) > 0.0)
+                    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0 - tan(time));
+                else
+                    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+
+                    
+            }`,
+            vertexShader: `
+            uniform float time;
+            void main() {
+                vec4 result;
+
+                result = vec4(position.x , position.y , position.z - tan(time), 1.0);
+                result.x += result.x * cos(time * 2.0) / 2.0;
+
+                result.y += result.y * cos(time * 2.0) / 2.0;
+
+                gl_Position = projectionMatrix * modelViewMatrix * result;
+            }
+            `
+        });
+
+        const sh = new THREE.Mesh(new THREE.TorusGeometry(2, 0.4, 2), flagshader)
+        sh.rotation.x = Math.PI / 2;
+        sh.position.set(0, 6, -5)
+        scene.add(sh)
 
         var collider = [new THREE.Box3().setFromObject( box), new THREE.Box3().setFromObject( bbox)];
 
         //#region LoadModel
 
         const loader = new GLTFLoader()
+
+        const flag = await loader.loadAsync('src/routes/game2/public/f.glb');
+
+        flag.scene.position.set(0, 5, -5);
+        //flag.scene.scale.set(0.5, 0.5, 0.5);
+
+        scene.add(flag.scene);
 
         
         const gl = await loader.loadAsync('src/routes/game2/public/sty.glb');
@@ -71,7 +117,7 @@
         gltf.scene.scale.set(0.5, 0.5, 0.5);
 
         var play = new Shooter(gltf, bind2, 0.15, camera, scene, er.mesh, collider);
-        scene.add(play.mesh);
+        //scene.add(play.mesh);
 
         el.addEventListener('click', function () {
             el.style.display = "none";
@@ -216,8 +262,7 @@
 
         //#endregion
 
-        let t = 0;
-        const clock = new THREE.Clock();
+        
 
         /*function CheckCollision()
         {
@@ -245,6 +290,7 @@
             //CheckCollision();
             play.update(dt)
             er.update(dt)
+            flagshader.uniforms.time.value = t;
             renderer.render( scene, camera );
         }
         animate(); 

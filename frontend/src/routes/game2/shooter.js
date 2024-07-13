@@ -10,15 +10,16 @@ export class Shooter {
 		this.target = target.getObjectByName("Bone001").children;
 		this.target.push(target.getObjectByName("Cylinder001"))
 		this.scene = scene;
-		this.ySpeed = speed * 2;
+		this.ySpeed = speed;
 		this.camera = cam;
-		this.cam = new PointerLockControls(this.camera, document.body);;
+		this.cam = new PointerLockControls(this.camera, document.body);
+		this.lastpos = this.cam.getObject().position.clone();
 		this.xSpeed = speed * 2;
 		this.mesh = mesh.scene;
 		this.left = this.mesh.getObjectByName("Bone003L");
 		this.right = this.mesh.getObjectByName("Bone003R");
 		this.bone = this.mesh.getObjectByName("Bone");
-		this.bb = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial( { color: 0xff0000 }));
+		this.bb = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 1), new THREE.MeshStandardMaterial( { color: 0xff0000 }));
 		this.scene.add(this.bb);
 		this.bbox = new THREE.Box3().setFromObject(this.bb);
 		this.raycaster = new THREE.Raycaster();
@@ -93,16 +94,18 @@ export class Shooter {
 	}
 	move (dt) {
 		this.movelegs();
+		if (!this.bbox.intersectsBox(this.collider[0]) && !this.bbox.intersectsBox(this.collider[1]))
+			this.lastpos = this.cam.getObject().position.clone();
 		let ym, xm;
 		xm = this.controller.xn + this.controller.xp + this.knockback;
 		ym = this.controller.yn + this.controller.yp;
-		/*this.mesh.translateX(xm);
-		this.mesh.translateZ(ym);*/
 		if (this.cam && !this.bbox.intersectsBox(this.collider[0]) && !this.bbox.intersectsBox(this.collider[1]))
 		{
 			this.cam.moveForward(ym);
 			this.cam.moveRight(xm);
 		}
+		if (this.bbox.intersectsBox(this.collider[0]) || this.bbox.intersectsBox(this.collider[1]))
+			this.cam.getObject().position.set(this.lastpos.x, this.cam.getObject().position.y, this.lastpos.z);
 		if (this.controller.jump && this.grounded)
 		{
 			this.velocity.y = Math.sqrt(this.jumpheight * -2 * this.gravity);
