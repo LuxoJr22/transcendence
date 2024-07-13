@@ -1,4 +1,7 @@
 <script>
+    import { goto } from '$app/navigation';
+    import { isAuth } from '../../stores/auth';
+
     let username = '';
     let email = '';
     let password = '';
@@ -20,9 +23,10 @@
         const data = await response.json();
 
         if (response.ok) {
-            console.log('User creation success')
+            console.log('User creation success');
+            goto('/login');
         } else {
-            console.error('User creation failed')
+            console.error('User creation failed');
             errorMessage = data.detail;
         }
     }
