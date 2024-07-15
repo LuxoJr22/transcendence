@@ -5,7 +5,8 @@
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { Shooter } from "./shooter.js";
     import { Player } from "./player.js";
-    //import { flagshader } from "./flagshader";
+    import { flagshader } from "./flagshader";
+
     let canvas;
     var scoring = 0;
     export var ls = 0;
@@ -18,65 +19,49 @@
 
         let t = 0;
         const clock = new THREE.Clock();
+        var reload = 0;
 
         var el = document.getElementById("blocker");
+        var ui = document.getElementById("ui");
+        var circle = document.getElementById("circular");
+
+        //console.log(el.offsetHeight)
 
 
         scene.background = new THREE.Color(0x54A0E4);
+
+        var flagposs = 0;
 
         
         var bind2 = {up: 90, down: 83, left:81, right:68, jump:32}
         var bind = {up: 40, down: 38, left:39, right:37, jump:96}
 
+        var texture = new THREE.TextureLoader().load( 'src/routes/game2/public/images.jpg' );
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set( 4, 4 );
+
+        var mat = new THREE.MeshStandardMaterial( { map : texture})
+
         
-        const box = new THREE.Mesh(new THREE.BoxGeometry(100, 1, 1), new THREE.MeshStandardMaterial( { color: 0xdddddd }))
+        const box = new THREE.Mesh(new THREE.BoxGeometry(100, 1, 1), new THREE.MeshStandardMaterial( { color: 0xffffff }))
         box.castShadow = true;
         scene.add(box)
 
-        const bbox = new THREE.Mesh(new THREE.BoxGeometry(15, 10, 15), new THREE.MeshStandardMaterial( { color: 0xffffff }))
+        const bbox = new THREE.Mesh(new THREE.BoxGeometry(15, 10, 15), mat)
         bbox.position.set(0, 0, -5)
         bbox.castShadow = true;
         scene.add(bbox)
 
 
-        const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial( { color: 0xdddddd }));
+        const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), mat);
 
         plain.position.set(0, -1, 0);
         plain.rotation.x = -Math.PI / 2
-       // plain.overdraw = true;
+        //plain.overdraw = true;
         plain.receiveShadow = true;
 
         scene.add(plain);
-        
-        const flagshader = new THREE.ShaderMaterial( {
-            transparent : true,
-            uniforms: {
-            time: { value : t},
-            },
-            fragmentShader: `
-            uniform float time;
-            void main() {
-                if (tan(time) > 0.0)
-                    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0 - tan(time));
-                else
-                    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-
-                    
-            }`,
-            vertexShader: `
-            uniform float time;
-            void main() {
-                vec4 result;
-
-                result = vec4(position.x , position.y , position.z - tan(time), 1.0);
-                result.x += result.x * cos(time * 2.0) / 2.0;
-
-                result.y += result.y * cos(time * 2.0) / 2.0;
-
-                gl_Position = projectionMatrix * modelViewMatrix * result;
-            }
-            `
-        });
 
         const sh = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.1, 20), flagshader)
         sh.rotation.x = Math.PI / 2;
@@ -103,6 +88,8 @@
 
         flag.scene.position.set(0, 5, -5);
         //flag.scene.scale.set(0.5, 0.5, 0.5);
+
+        const flbb = new THREE.Box3().setFromObject( flag.scene);
 
         scene.add(flag.scene);
 
@@ -166,6 +153,8 @@
 
         const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
         renderer.setSize( 1920 * 0.7 , 1080 * 0.7);
+        ui.style.width = 1920 * 0.7 + "px";
+        ui.style.height = 1080 * 0.7 + "px";
 		renderer.shadowMap.enabled = true;
         document.body.appendChild( renderer.domElement );
 
@@ -244,16 +233,15 @@
         }
 
         function onMouse(event) {
-            if (event.which == 1)
+            if (event.which == 1 && reload == 0)
             {  
                 var intersects = play.raycaster.intersectObjects( scene.children );
-
+                reload = 360;
                 if (intersects[0] && intersects[ 0 ].object != play.sphere)
                 {
                     play.sphere.position.set(intersects[0].point.x, intersects[0].point.y ,intersects[0].point.z );
                     if (play.target.includes(intersects[0].object))
                         er.mesh.position.set(Math.random() * 20, Math.random() * 2, Math.random() * 10)
-
                 }
             }
         }
@@ -274,18 +262,11 @@
 
         
 
-        /*function CheckCollision()
+        function CheckCollision(dt)
         {
-            var i = 0;
-            while (i < collider.length)
-            {
-                if (play.bbox.intersectsBox(collider[i]))
-                {
-                    console.log(play.bbox)
-                }
-                i ++;
-            }        
-        }*/
+            if (play.bbox.intersectsBox(flbb))
+                flagposs += dt;
+        }
 
         function animate() {
             requestAnimationFrame( animate );
@@ -297,7 +278,18 @@
                 handlebuttons(gamepads[0].buttons)
                 handlesticks(gamepads[0].axes)
             }
-            //CheckCollision();
+            if (reload > 0)
+            {
+                reload -= dt * 250;
+                circle.style.background = `conic-gradient(#cccccc ${360 - reload}deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
+                console.log(reload);
+            }
+            else
+            {
+                reload = 0;
+                circle.style.background = `conic-gradient(#cccccc 0deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
+            }
+            CheckCollision(dt);
             play.update(dt)
             er.update(dt)
             sh.material.uniforms.time.value = t;
@@ -311,6 +303,11 @@
 </script>
 
 <style>
+    #ui {
+        position: absolute;
+		width: 10px;
+		height: 10px;
+    }
     #blocker {
 				position: absolute;
 				width: 100%;
@@ -319,17 +316,38 @@
 			}
     #crosshair {
         position: absolute;
-        top: 415px;
-        bottom: 0;
-        left: 625px;
-        right: 0;
-        width: 5%;
+        top: 50%;
+        left: 50%;
         z-index: 1;
+        pointer-events: none;
     }
+    #crossimg {
+        width: 50%;
+        position: relative;
+        top: -100px;
+        left: -100px;
+    }
+
+    #circular {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        top: -15px;
+        left: -15px;
+        border-radius: 50%;
+        background: conic-gradient(#cccccc 0deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg);
+    }
+
 
 </style>
 
-<div id="blocker">
+<div id="ui">
+    <div id="blocker">
+    </div>
+    <div id="crosshair">
+        <div id="circular"></div>
+        <img id="crossimg" src="src/routes/game2/public/dotcrosshair.png"/>
+    </div>
 </div>
-<img id="crosshair" src="src/routes/game2/public/ch.png"/>
+
 <canvas bind:this={canvas} class=""></canvas>
