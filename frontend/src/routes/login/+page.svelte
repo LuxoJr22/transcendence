@@ -1,6 +1,7 @@
 <script>;
     import { goto } from '$app/navigation';
     import { isAuth } from '../../stores/auth';
+    import { fetchUserData } from '../../stores/users';
 
     let username = '';
     let password = '';
@@ -22,6 +23,7 @@
             localStorage.setItem('access_token', data.access);
             localStorage.setItem('refresh_token', data.refresh);
             isAuth.set(true);
+            fetchUserData();
             goto('/')
         } else {
             console.error('Login failed');
