@@ -38,7 +38,6 @@ export class Shooter {
 
 		this.canmove = 1;
 		this.isfalling = 0;
-		this.knockback = 0;
 		this.direction = new THREE.Vector3();
 		this.footdir = new THREE.Vector3(0, -1 ,0)
 	
@@ -54,7 +53,6 @@ export class Shooter {
 		if (this.direction.z < 0)
 			d *= -1;
 		this.mesh.rotation.y = -d + Math.PI / 2;
-		this.knockback = THREE.MathUtils.lerp(this.knockback, 0, 0.1)
 		if (this.canmove)
 			this.move(dt)
 		var inter = this.foot.intersectObjects( this.scene.children );
@@ -97,7 +95,7 @@ export class Shooter {
 		if (!this.bbox.intersectsBox(this.collider[0]) && !this.bbox.intersectsBox(this.collider[1]))
 			this.lastpos = this.cam.getObject().position.clone();
 		let ym, xm;
-		xm = this.controller.xn + this.controller.xp + this.knockback;
+		xm = this.controller.xn + this.controller.xp;
 		ym = this.controller.yn + this.controller.yp;
 		if (this.cam && !this.bbox.intersectsBox(this.collider[0]) && !this.bbox.intersectsBox(this.collider[1]))
 		{
