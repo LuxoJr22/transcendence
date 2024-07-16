@@ -6,6 +6,7 @@ clean:
 
 fclean: clean
 	@git clean -dfX
+	@rm -f backend/users/migrations/0*.py
 
 re: fclean all
 
