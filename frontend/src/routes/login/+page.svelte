@@ -8,7 +8,7 @@
     let errorMessage = '';
 
     async function loginUser() {
-        const response = await fetch('/api/token/', {
+        const response = await fetch('/api/login/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
