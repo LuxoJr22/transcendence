@@ -14,8 +14,8 @@
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
-        camera.position.z = 0;
-        camera.position.y = 7;
+        camera.position.z = 30;
+        camera.position.y = 10;
 
         let t = 0;
         const clock = new THREE.Clock();
@@ -24,8 +24,7 @@
         var el = document.getElementById("blocker");
         var ui = document.getElementById("ui");
         var circle = document.getElementById("circular");
-
-        //console.log(el.offsetHeight)
+        var ficon = document.getElementById("flagicon");
 
 
         scene.background = new THREE.Color(0x54A0E4);
@@ -92,6 +91,12 @@
         const flbb = new THREE.Box3().setFromObject( flag.scene);
 
         scene.add(flag.scene);
+
+        /*const mount = await loader.loadAsync('src/routes/game2/public/mountain.glb');
+        mount.scene.scale.set(10, 10, 10);
+        scene.add(mount.scene);*/
+
+        var collider = [new THREE.Box3().setFromObject( box), new THREE.Box3().setFromObject( bbox)/*, new THREE.Box3().setFromObject( mount.scene)*/];
 
         
         const gl = await loader.loadAsync('src/routes/game2/public/sty.glb');
@@ -271,6 +276,18 @@
         function animate() {
             requestAnimationFrame( animate );
             const dt = clock.getDelta();
+            console.log(flagposs)
+            if (flagposs >= 5)
+            {
+                ficon.style.display = "block";
+                scene.remove(flag.scene);
+                if (Math.tan(sh.material.uniforms.time.value) > 2.0)
+                    scene.remove(sh)
+                if (Math.tan(tor.material.uniforms.time.value) > 2.0)
+                    scene.remove(tor)
+                if (Math.tan(toru.material.uniforms.time.value) > 2.0)
+                    scene.remove(toru)
+            }
             t += dt;
             if (gamepads[0])
             {
@@ -338,11 +355,18 @@
         background: conic-gradient(#cccccc 0deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg);
     }
 
+    #flagicon {
+        display: none;
+    }
+
 
 </style>
 
 <div id="ui">
     <div id="blocker">
+    </div>
+    <div>
+        <img id="flagicon" src="src/routes/game2/public/flag.png"/>
     </div>
     <div id="crosshair">
         <div id="circular"></div>
