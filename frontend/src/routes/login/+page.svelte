@@ -1,13 +1,11 @@
 <script>;
     import { goto } from '$app/navigation';
-    import { isAuth } from '../../stores/auth';
-    import { fetchUserData } from '../../stores/users';
+    import { login } from '../../stores/auth';
 
     let username = '';
     let password = '';
-    let errorMessage = '';
 
-    async function loginUser() {
+    async function handleLogin() {
         const response = await fetch('/api/login/', {
             method: 'POST',
             headers: {
@@ -20,14 +18,10 @@
 
         if (response.ok) {
             console.log('Login success');
-            localStorage.setItem('access_token', data.access);
-            localStorage.setItem('refresh_token', data.refresh);
-            isAuth.set(true);
-            fetchUserData();
-            goto('/')
+            login(data.access, data.refresh, data.user);
+            goto('/');
         } else {
             console.error('Login failed');
-            errorMessage = data.detail;
         }
     }
 
@@ -36,7 +30,7 @@
 
 <div class="container-fluid" style="height:100vh;">
     <div class="d-flex justify-content-center align-items-center" style="height:100%;">
-        <form on:submit|preventDefault="{loginUser}" class="p-5 border rounded">
+        <form on:submit|preventDefault="{handleLogin}" class="p-5 border rounded">
             <div class="mb-3">
                 <label for="formGroupExampleInput" class="form-label text-light">
                     <h5>Pseudo</h5>
