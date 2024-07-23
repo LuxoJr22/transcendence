@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from .models import TriplumUser
+from .models import User
 
-class TriplumUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True)
 
 	class Meta:
-		model = TriplumUser
+		model = User
 		fields = ['id', 'username', 'email', 'password']
 		extra_kwargs = {
 			'id': {'read_only':True}
@@ -13,5 +13,5 @@ class TriplumUserSerializer(serializers.ModelSerializer):
 
 	def create(self, data):
 		password = data.pop('password', None)
-		user = TriplumUser.objects.create_user(**data, password=password)
+		user = User.objects.create_user(**data, password=password)
 		return user

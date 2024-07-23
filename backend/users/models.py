@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 
-class TriplumUserManager(BaseUserManager):
+class UserManager(BaseUserManager):
 	def create_user(self, username, email, password=None):
 		if not username:
 			raise ValueError('The username must be set')
@@ -21,7 +21,7 @@ class TriplumUserManager(BaseUserManager):
 		user.is_staff = True
 		return user
 
-class TriplumUser(AbstractBaseUser):
+class User(AbstractBaseUser):
 	username = models.CharField(max_length=12, unique=True)
 	email = models.EmailField(max_length=254, unique=True)
 
@@ -29,7 +29,7 @@ class TriplumUser(AbstractBaseUser):
 	is_online = models.BooleanField(default=True)
 	is_superuser = models.BooleanField(default=False)
 
-	objects = TriplumUserManager()
+	objects = UserManager()
 
 	USERNAME_FIELD = 'username'
 	REQUIRED_FIELDS = []
