@@ -1,4 +1,4 @@
-<script lang= "ts">
+<script lang="ts">
     import { onMount } from 'svelte';
     import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
     import * as THREE from 'three';
@@ -9,7 +9,6 @@
 
     let canvas;
     var scoring = 0;
-    export var ls = 0;
 
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
@@ -169,6 +168,8 @@
         er.mesh.traverse(function(node) {
             if (node.isMesh)
                 node.castShadow = true;
+            if (node.isSkinnedMesh)
+                node.frustumCalled = true;
         })
         scene.add(er.mesh);
 
@@ -328,8 +329,9 @@
                     play.sphere.position.set(intersects[i].point.x, intersects[i].point.y ,intersects[i].point.z );
                     if (play.bbox.intersectsSphere(play.spherebb))
                     {
-                        play.velocity.y += (10 - intersects[ i ].distance);
-                        play.velocity.x += 10;
+                        //play.velocity.y += (10 - intersects[ i ].distance);
+                        play.force.x += (play.cam.getObject().position.x - intersects[i].point.x) * 50 / intersects[ i ].distance;
+                        play.force.z += (play.cam.getObject().position.z - intersects[i].point.z) * 50 / intersects[ i ].distance;
                     }
                 }
             }
@@ -449,11 +451,11 @@
     <div id="blocker">
     </div>
     <div>
-        <img id="flagicon" src="src/routes/game2/public/flag.png"/>
+        <img id="flagicon" alt="flag" src="src/routes/game2/public/flag.png"/>
     </div>
     <div id="crosshair">
         <div id="circular"></div>
-        <img id="crossimg" src="src/routes/game2/public/dotcrosshair.png"/>
+        <img id="crossimg" alt="ch" src="src/routes/game2/public/dotcrosshair.png"/>
     </div>
 </div>
 

@@ -26,6 +26,7 @@ export class Shooter {
 		this.foot = new THREE.Raycaster();
 		this.foot.far = 1.6
 		this.velocity = new THREE.Vector3();
+		this.force = new THREE.Vector3();
 		this.gamepad = 0;
 		this.point = 0;
 		this.dir = 0;
@@ -116,6 +117,10 @@ export class Shooter {
 		let speedifx = (100 * xm) - this.velocity.x;
 		this.velocity.x += speedifx * 0.1;
 
+		this.force.x += -this.force.x * 0.05;
+		this.force.z += -this.force.z * 0.05;
+		this.force.y += this.gravity * dt;
+
 		if (this.cam && !this.bbox.intersectsBox(this.collider[0]) && !this.bbox.intersectsBox(this.collider[1]))
 		{
 			//console.log((this.velocity.x * dt * this.direction.z * -1) + (this.velocity.z * dt * this.direction.x))
@@ -123,6 +128,9 @@ export class Shooter {
 			this.cam.getObject().position.z += this.velocity.x * dt * this.direction.x;
 			this.cam.getObject().position.x += this.velocity.z * dt * this.direction.x;
 			this.cam.getObject().position.z += this.velocity.z * dt * this.direction.z;
+
+			this.cam.getObject().position.x += this.force.x * dt;
+			this.cam.getObject().position.z += this.force.z * dt;
 		}
 
 
