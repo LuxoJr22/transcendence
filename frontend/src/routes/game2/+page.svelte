@@ -53,7 +53,68 @@
         scene.add(bbox)
 
 
-        const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), mat);
+        /*********************************************************************************************************************/
+        /***************************************************  TEST **********************************************************/
+        /*********************************************************************************************************************/
+        class SkeletonCollider {
+            distance = 0
+            v1 = new THREE.Vector3()
+            v2 = new THREE.Vector3()
+            bones = []
+            material = new THREE.MeshBasicMaterial({
+                color: 0xff0000,
+                wireframe: true,
+                depthTest: false,
+            })
+            constructor(object) {
+                object.traverse((child) => {
+                    if (child.isBone) {
+                        if (child.parent && child.parent.type === 'Bone') {
+                            this.bones.push(child)
+                            child.getWorldPosition(this.v1)
+                            child.parent.getWorldPosition(this.v2)
+                            this.distance = this.v2.distanceTo(this.v1)
+                            let g
+                            switch (child.name) {
+                                case 'Bone001':
+                                {
+                                    g = new THREE.BoxGeometry(3, 1, 1)
+                                    g.translate(0, this.distance / 2 - 0.3, 0)
+                                    break;
+                                }
+                                default:
+                                {
+                                    g = new THREE.BoxGeometry(0.2, this.distance, 0.2)
+                                    g.translate(0, this.distance / 2, 0)
+                                    break
+                                }
+                            }
+                            
+                            const m = new THREE.Mesh(g, this.material)
+                            m.visible = false
+                            scene.add(m)
+
+                            child.userData.m = m
+                            pickables.push(m)
+                        }
+                    }
+                })
+            }
+
+            update() {
+                this.bones.forEach((b) => {
+                    b.getWorldPosition(b.userData.m.position)
+                    b.getWorldQuaternion(b.userData.m.quaternion)
+                })
+            }
+        }
+
+
+        /*********************************************************************************************************************/
+        /***************************************************  TEST **********************************************************/
+        /*********************************************************************************************************************/
+
+        const plain = new THREE.Mesh(new THREE.PlaneGeometry(300, 100), mat);
 
         plain.position.set(0, -1, 0);
         plain.rotation.x = -Math.PI / 2
@@ -84,11 +145,11 @@
         const loader = new GLTFLoader()
 
         const flag = await loader.loadAsync('src/routes/game2/public/f.glb');
+        const fb = new THREE.Mesh(new THREE.BoxGeometry(15, 5, 15), new THREE.MeshStandardMaterial( { color: 0xff0000 }));
+        fb.position.set(0, 7.5, -5);
+        const fbb = new THREE.Box3().setFromObject(fb)
 
         flag.scene.position.set(0, 5, -5);
-        //flag.scene.scale.set(0.5, 0.5, 0.5);
-
-        const flbb = new THREE.Box3().setFromObject( flag.scene);
 
         scene.add(flag.scene);
 
@@ -111,6 +172,9 @@
         })
         scene.add(er.mesh);
 
+        const pickables = [];
+        let skeletonCollider = new SkeletonCollider(er.mesh)
+
 
         const gltf = await loader.loadAsync('src/routes/game2/public/pop.glb');
 
@@ -118,7 +182,7 @@
         gltf.scene.position.set(0, 0.5, 3);
         gltf.scene.scale.set(0.5, 0.5, 0.5);
 
-        var play = new Shooter(gltf, bind2, 0.15, camera, scene, er.mesh, collider);
+        var play = new Shooter(gltf, bind2, 0.15, camera, scene, er.mesh, collider, pickables);
         //scene.add(play.mesh);
 
         el.addEventListener('click', function () {
@@ -239,14 +303,34 @@
 
         function onMouse(event) {
             if (event.which == 1 && reload == 0)
-            {  
+            {
+                
                 var intersects = play.raycaster.intersectObjects( scene.children );
                 reload = 360;
-                if (intersects[0] && intersects[ 0 ].object != play.sphere)
+                let i = 0
+                if (intersects[i] && intersects[ i ].object == play.bb)
+                    i ++;
+                if (intersects[i] && intersects[ i ].object != play.sphere)
                 {
-                    play.sphere.position.set(intersects[0].point.x, intersects[0].point.y ,intersects[0].point.z );
-                    if (play.target.includes(intersects[0].object))
+                    play.sphere.position.set(intersects[i].point.x, intersects[i].point.y ,intersects[i].point.z );
+                    if (play.target.includes(intersects[i].object))
                         er.mesh.position.set(Math.random() * 20, Math.random() * 2, Math.random() * 10)
+                }
+            }
+            if (event.which == 3)
+            {
+                var intersects = play.raycaster.intersectObjects( scene.children );
+                let i = 0
+                if (intersects[i] && intersects[ i ].object == play.bb)
+                    i ++;
+                if (intersects[i] && intersects[ i ].object != play.sphere)
+                {
+                    play.sphere.position.set(intersects[i].point.x, intersects[i].point.y ,intersects[i].point.z );
+                    if (play.bbox.intersectsSphere(play.spherebb))
+                    {
+                        play.velocity.y += (10 - intersects[ i ].distance);
+                        play.velocity.x += 10;
+                    }
                 }
             }
         }
@@ -269,14 +353,13 @@
 
         function CheckCollision(dt)
         {
-            if (play.bbox.intersectsBox(flbb))
+            if (play.bbox.intersectsBox(fbb))
                 flagposs += dt;
         }
 
         function animate() {
             requestAnimationFrame( animate );
             const dt = clock.getDelta();
-            console.log(flagposs)
             if (flagposs >= 5)
             {
                 ficon.style.display = "block";
@@ -299,7 +382,6 @@
             {
                 reload -= dt * 250;
                 circle.style.background = `conic-gradient(#cccccc ${360 - reload}deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
-                console.log(reload);
             }
             else
             {
@@ -307,6 +389,7 @@
                 circle.style.background = `conic-gradient(#cccccc 0deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
             }
             CheckCollision(dt);
+            skeletonCollider.update()
             play.update(dt)
             er.update(dt)
             sh.material.uniforms.time.value = t;

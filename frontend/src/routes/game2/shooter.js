@@ -3,14 +3,14 @@ import { PointerLockControls } from 'three/addons/controls/PointerLockControls.j
 import { equal, lerp } from "./utils.js"
 
 export class Shooter {
-	constructor (mesh, bind, speed, cam, scene, target, collider) {
+	constructor (mesh, bind, speed, cam, scene, target, collider, pickable) {
 		this.jumpheight = 5;
 		this.gravity = -9.81;
 		this.collider = collider;
 		this.target = target.getObjectByName("Bone001").children;
-		this.target.push(target.getObjectByName("Cylinder001"))
+		this.target = this.target.concat(pickable)
 		this.scene = scene;
-		this.ySpeed = speed;
+		this.ySpeed = speed * 2;
 		this.camera = cam;
 		this.cam = new PointerLockControls(this.camera, document.body);
 		this.lastpos = this.cam.getObject().position.clone();
@@ -32,6 +32,7 @@ export class Shooter {
 		this.grounded = 1;
 
 		this.sphere = new THREE.Mesh(new THREE.SphereGeometry(0.2 , 20, 20), new THREE.MeshBasicMaterial( { color: 0xffc000 } ))
+		this.spherebb = new THREE.Sphere(this.sphere.position, 10);
 		this.sphere.position.set(0, 0, 0);
 		this.scene.add(this.sphere);
 		this.animleg = 0
@@ -68,7 +69,6 @@ export class Shooter {
 	{
 		let diry = this.controller.yn + this.controller.yp;
 		let dirx = this.controller.xn + this.controller.xp;
-
 		if (dirx != 0)
 			this.dir = Math.atan(diry / dirx);
 		else
@@ -97,13 +97,6 @@ export class Shooter {
 		let ym, xm;
 		xm = this.controller.xn + this.controller.xp;
 		ym = this.controller.yn + this.controller.yp;
-		if (this.cam && !this.bbox.intersectsBox(this.collider[0]) && !this.bbox.intersectsBox(this.collider[1]))
-		{
-			this.cam.moveForward(ym);
-			this.cam.moveRight(xm);
-		}
-		if (this.bbox.intersectsBox(this.collider[0]) || this.bbox.intersectsBox(this.collider[1]))
-			this.cam.getObject().position.set(this.lastpos.x, this.cam.getObject().position.y, this.lastpos.z);
 		if (this.controller.jump && this.grounded)
 		{
 			this.velocity.y = Math.sqrt(this.jumpheight * -2 * this.gravity);
@@ -114,6 +107,30 @@ export class Shooter {
 			this.velocity.y = 0
 		}
 		this.cam.getObject().position.y += this.velocity.y * dt;
+
+
+
+		let speedif = (100 * ym) - this.velocity.z;
+		this.velocity.z += speedif * 0.1;
+
+		let speedifx = (100 * xm) - this.velocity.x;
+		this.velocity.x += speedifx * 0.1;
+
+		if (this.cam && !this.bbox.intersectsBox(this.collider[0]) && !this.bbox.intersectsBox(this.collider[1]))
+		{
+			//console.log((this.velocity.x * dt * this.direction.z * -1) + (this.velocity.z * dt * this.direction.x))
+			this.cam.getObject().position.x += this.velocity.x * dt * this.direction.z * -1;
+			this.cam.getObject().position.z += this.velocity.x * dt * this.direction.x;
+			this.cam.getObject().position.x += this.velocity.z * dt * this.direction.x;
+			this.cam.getObject().position.z += this.velocity.z * dt * this.direction.z;
+		}
+
+
+
+
+		if (this.bbox.intersectsBox(this.collider[0]) || this.bbox.intersectsBox(this.collider[1]))
+			this.cam.getObject().position.set(this.lastpos.x, this.cam.getObject().position.y, this.lastpos.z);
+
 	}
 	keydown (keyCode) {
 		if (keyCode == this.bind.up)
