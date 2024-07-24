@@ -1,23 +1,35 @@
 from rest_framework import generics
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import TriplumUser
-from .serializers import TriplumUserSerializer
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from .models import User
+from .serializers import UserSerializer
 
-class TriplumRegisterView(generics.CreateAPIView):
-	queryset = TriplumUser.objects.all()
-	serializer_class = TriplumUserSerializer
-	permission_classes = [AllowAny] # Access to this view
+class RegisterView(generics.CreateAPIView):
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
+	permission_classes = [AllowAny]
 
-class TriplumUserDetailView(APIView):
-	permission_classes = [IsAuthenticated]
-	
-	def get(self, request):
-		user = request.user
-		data = {
-			'id': user.id,
-			'username': user.username,
-			'email': user.email,
-		}
-		return Response(data)
+class LoginView(TokenObtainPairView):
+	serializer_class = TokenObtainPairSerializer
+	permission_classes = [AllowAny]
+
+	def post(self, request):
+		serializer = self.get_serializer(data=request.data)
+
+		serializer.is_valid(raise_exception=True)
+
+		user = User.objects.get(username=request.data['username'])
+
+		refresh = RefreshToken.for_user(user)
+		return Response({
+			"refresh": str(refresh),
+			"access": str(refresh.access_token),
+			"user": {
+				"id": user.id,
+				"username": user.username,
+				"email": user.email,
+			}
+		})

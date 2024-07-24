@@ -1,15 +1,19 @@
 <script>
-    import { onMount } from 'svelte'
-    import { isAuth, checkAuth } from '../stores/auth'
-    import { user, fetchUserData } from '../stores/users';
-
+    import { onMount } from 'svelte';
+    import { isAuthenticated, user, getUser } from '../stores/user';
+    import { getAccessToken, logout } from '../stores/auth';
 
     onMount(() => {
-        checkAuth()
-        if ($isAuth) {
-            fetchUserData();
+        const token = getAccessToken();
+        if (token) {
+            isAuthenticated.set(true);
+            getUser()
         }
-    })
+    });
+
+    function handleLogout() {
+        logout();
+    }
 
     const img = new URL('$lib/assets/sforesti.jpg', import.meta.url).href
     const img1 = new URL('$lib/assets/img.webp', import.meta.url).href
@@ -50,14 +54,14 @@
 <nav class="navbar">
     <div class="container-fluid">
         <a href="/" class="navbar-item navbar-brand fs-1 layout-title text-warning-subtle ms-4 opacity">t r i p l u m</a>
-        {#if $user}
+        {#if $isAuthenticated}
             <div class="dropdown">
                 <a href="/" class="navbar-item navbar-brand text-primary-subtle opacity dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src={img} class="border border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">{$user.username}
+                    <img src={img} alt="User profile" class="border border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">{$user.username}
                 </a>
                 <ul class="dropdown-menu" style="min-width: 0;">
                     <li><a class="dropdown-item text-start ps-2" href="/profile"><i class="bi-gear pe-2" style="font-size: 1.3rem; color: grey;"></i>settings</a></li>
-                    <li><a class="dropdown-item text-danger text-start ps-2" href="#"><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</a></li>
+                    <li><a class="dropdown-item text-danger text-start ps-2" href="/" on:click={handleLogout}><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</a></li>
                 </ul>
             </div>
         {:else}

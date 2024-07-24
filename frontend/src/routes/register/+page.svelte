@@ -1,13 +1,11 @@
 <script>
     import { goto } from '$app/navigation';
-    import { isAuth } from '../../stores/auth';
 
     let username = '';
     let email = '';
     let password = '';
-    let errorMessage = '';
 
-    async function registerUser() {
+    async function register() {
         const response = await fetch('/api/register/', {
             method: 'POST',
             headers: {
@@ -27,14 +25,13 @@
             goto('/login');
         } else {
             console.error('User creation failed');
-            errorMessage = data.detail;
         }
     }
 </script>
 
 <div class="container-fluid" style="height:100vh;">
     <div class="d-flex justify-content-center align-items-center" style="height:100%;">
-        <form on:submit|preventDefault="{registerUser}" class="p-5 border rounded">
+        <form on:submit|preventDefault="{register}" class="p-5 border rounded">
             <div class="mb-3">
                 <label class="form-label text-light">
                     <h5>Pseudo</h5>
