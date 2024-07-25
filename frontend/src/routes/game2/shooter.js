@@ -104,9 +104,7 @@ export class Shooter {
 		}
 		this.velocity.y += this.gravity * dt;
 		if (this.velocity.y < 0 && this.grounded)
-		{
 			this.velocity.y = 0
-		}
 		this.cam.getObject().position.y += this.velocity.y * dt;
 
 
@@ -119,7 +117,9 @@ export class Shooter {
 
 		this.force.x += -this.force.x * 0.05;
 		this.force.z += -this.force.z * 0.05;
-		this.force.y += this.gravity * dt;
+		this.force.y += -this.force.y * 0.1;
+		if (this.force.y < 0 && this.grounded)
+			this.force.y = 0
 
 		if (this.cam && !this.bbox.intersectsBox(this.collider[0]) && !this.bbox.intersectsBox(this.collider[1]))
 		{
@@ -131,6 +131,7 @@ export class Shooter {
 
 			this.cam.getObject().position.x += this.force.x * dt;
 			this.cam.getObject().position.z += this.force.z * dt;
+			this.cam.getObject().position.y += this.force.y * dt;
 		}
 
 

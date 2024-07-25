@@ -169,7 +169,7 @@
             if (node.isMesh)
                 node.castShadow = true;
             if (node.isSkinnedMesh)
-                node.frustumCalled = true;
+                node.frustumCulled = false;
         })
         scene.add(er.mesh);
 
@@ -329,7 +329,9 @@
                     play.sphere.position.set(intersects[i].point.x, intersects[i].point.y ,intersects[i].point.z );
                     if (play.bbox.intersectsSphere(play.spherebb))
                     {
-                        //play.velocity.y += (10 - intersects[ i ].distance);
+                        if (play.velocity.y < 0 && play.cam.getObject().position.y - intersects[i].point.y > 0)
+                            play.velocity.y = 0;
+                        play.force.y += (play.cam.getObject().position.y - intersects[i].point.y) * 50 / intersects[ i ].distance;
                         play.force.x += (play.cam.getObject().position.x - intersects[i].point.x) * 50 / intersects[ i ].distance;
                         play.force.z += (play.cam.getObject().position.z - intersects[i].point.z) * 50 / intersects[ i ].distance;
                     }
