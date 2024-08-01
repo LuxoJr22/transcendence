@@ -6,15 +6,18 @@
     import { Shooter } from "./shooter.js";
     import { Player } from "./player.js";
     import { flagshader } from "./flagshader";
+    import { createmap } from "./map.js"
+    import { SkeletonCollider } from "./skeletoncollider.js"
+    import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
 
     let canvas;
-    var scoring = 0;
 
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
-        camera.position.z = 30;
-        camera.position.y = 10;
+        camera.position.z = 34;
+        camera.position.y = 3;
+        camera.position.x = 27;
 
         let t = 0;
         const clock = new THREE.Clock();
@@ -34,93 +37,8 @@
         var bind2 = {up: 90, down: 83, left:81, right:68, jump:32}
         var bind = {up: 40, down: 38, left:39, right:37, jump:96}
 
-        var texture = new THREE.TextureLoader().load( 'src/routes/game2/public/images.jpg' );
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set( 4, 4 );
+        createmap(scene);
 
-        var mat = new THREE.MeshStandardMaterial( { map : texture})
-
-        
-        const box = new THREE.Mesh(new THREE.BoxGeometry(100, 1, 1), new THREE.MeshStandardMaterial( { color: 0xffffff }))
-        box.castShadow = true;
-        scene.add(box)
-
-        const bbox = new THREE.Mesh(new THREE.BoxGeometry(15, 10, 15), mat)
-        bbox.position.set(0, 0, -5)
-        bbox.castShadow = true;
-        scene.add(bbox)
-
-
-        /*********************************************************************************************************************/
-        /***************************************************  TEST **********************************************************/
-        /*********************************************************************************************************************/
-        class SkeletonCollider {
-            distance = 0
-            v1 = new THREE.Vector3()
-            v2 = new THREE.Vector3()
-            bones = []
-            material = new THREE.MeshBasicMaterial({
-                color: 0xff0000,
-                wireframe: true,
-                depthTest: false,
-            })
-            constructor(object) {
-                object.traverse((child) => {
-                    if (child.isBone) {
-                        if (child.parent && child.parent.type === 'Bone') {
-                            this.bones.push(child)
-                            child.getWorldPosition(this.v1)
-                            child.parent.getWorldPosition(this.v2)
-                            this.distance = this.v2.distanceTo(this.v1)
-                            let g
-                            switch (child.name) {
-                                case 'Bone001':
-                                {
-                                    g = new THREE.BoxGeometry(3, 1, 1)
-                                    g.translate(0, this.distance / 2 - 0.3, 0)
-                                    break;
-                                }
-                                default:
-                                {
-                                    g = new THREE.BoxGeometry(0.2, this.distance, 0.2)
-                                    g.translate(0, this.distance / 2, 0)
-                                    break
-                                }
-                            }
-                            
-                            const m = new THREE.Mesh(g, this.material)
-                            m.visible = false
-                            scene.add(m)
-
-                            child.userData.m = m
-                            pickables.push(m)
-                        }
-                    }
-                })
-            }
-
-            update() {
-                this.bones.forEach((b) => {
-                    b.getWorldPosition(b.userData.m.position)
-                    b.getWorldQuaternion(b.userData.m.quaternion)
-                })
-            }
-        }
-
-
-        /*********************************************************************************************************************/
-        /***************************************************  TEST **********************************************************/
-        /*********************************************************************************************************************/
-
-        const plain = new THREE.Mesh(new THREE.PlaneGeometry(300, 100), mat);
-
-        plain.position.set(0, -1, 0);
-        plain.rotation.x = -Math.PI / 2
-        //plain.overdraw = true;
-        plain.receiveShadow = true;
-
-        scene.add(plain);
 
         const sh = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.1, 20), flagshader)
         sh.rotation.x = Math.PI / 2;
@@ -137,9 +55,6 @@
         toru.position.set(0, 6, -5)
         scene.add(toru)
 
-        var collider = [new THREE.Box3().setFromObject( box), new THREE.Box3().setFromObject( bbox)];
-
-        //#region LoadModel
 
         const loader = new GLTFLoader()
 
@@ -152,13 +67,37 @@
 
         scene.add(flag.scene);
 
-        /*const mount = await loader.loadAsync('src/routes/game2/public/mountain.glb');
-        mount.scene.scale.set(10, 10, 10);
-        scene.add(mount.scene);*/
-
-        var collider = [new THREE.Box3().setFromObject( box), new THREE.Box3().setFromObject( bbox)/*, new THREE.Box3().setFromObject( mount.scene)*/];
+        const mount = await loader.loadAsync('src/routes/game2/public/mountain.glb');
+        scene.add(mount.scene);
 
         
+        mount.scene.children[0].children[0].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
+        mount.scene.children[0].children[1].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
+        mount.scene.children[0].children[0].geometry.computeVertexNormals();
+        //const helper = new VertexNormalsHelper(  mount.scene.children[0].children[0], 1, 0xff0000 );
+        
+        /*helper.scale.set(20, 20, 20)
+        helper.update()
+        scene.add(helper)*/
+
+
+        const tri = new THREE.Triangle(); // for re-use
+        const indices = new THREE.Vector3(); // for re-use
+        const outNormal = new THREE.Vector3(); // this is the output normal you need
+        const triangles = [];
+
+        for( let f = 0; f < 22434; f++ ){
+
+            indices.fromArray(mount.scene.children[0].children[1].geometry.index.array, f * 3);
+            tri.setFromAttributeAndIndices(mount.scene.children[0].children[1].geometry.attributes.position,
+                indices.x,
+                indices.y,
+                indices.z);
+            triangles.push(tri)
+            tri.getNormal(outNormal);
+        }
+
+
         const gl = await loader.loadAsync('src/routes/game2/public/sty.glb');
 
         gl.scene.position.set(10, 0, -1.5);
@@ -174,7 +113,7 @@
         scene.add(er.mesh);
 
         const pickables = [];
-        let skeletonCollider = new SkeletonCollider(er.mesh)
+        let skeletonCollider = new SkeletonCollider(er.mesh, scene, pickables)
 
 
         const gltf = await loader.loadAsync('src/routes/game2/public/pop.glb');
@@ -183,7 +122,7 @@
         gltf.scene.position.set(0, 0.5, 3);
         gltf.scene.scale.set(0.5, 0.5, 0.5);
 
-        var play = new Shooter(gltf, bind2, 0.15, camera, scene, er.mesh, collider, pickables);
+        var play = new Shooter(gltf, bind2, 0.15, camera, scene, er.mesh, pickables);
         //scene.add(play.mesh);
 
         el.addEventListener('click', function () {
@@ -253,9 +192,9 @@
         function handlebuttons(buttons)
         {
             if (buttons[0].value > 0)
-                play.controller.charge = 1;
+                play.controller.jump = 1;
             if (buttons[0].value == 0)
-                play.controller.charge = 0;
+                play.controller.jump = 0;
         }
 
         var xSpeed = 0.15, ySpeed = 0.15;
@@ -322,7 +261,7 @@
             {
                 var intersects = play.raycaster.intersectObjects( scene.children );
                 let i = 0
-                if (intersects[i] && intersects[ i ].object == play.bb)
+                if ((intersects[i] && intersects[ i ].object == play.bb) || (intersects[i] && intersects[ i ].object.type == "Line"))
                     i ++;
                 if (intersects[i] && intersects[ i ].object != play.sphere)
                 {
@@ -331,6 +270,8 @@
                     {
                         if (play.velocity.y < 0 && play.cam.getObject().position.y - intersects[i].point.y > 0)
                             play.velocity.y = 0;
+                        if (intersects[i].distance < 0.5)
+                            intersects[i].distance = 0.5;
                         play.force.y += (play.cam.getObject().position.y - intersects[i].point.y) * 50 / intersects[ i ].distance;
                         play.force.x += (play.cam.getObject().position.x - intersects[i].point.x) * 50 / intersects[ i ].distance;
                         play.force.z += (play.cam.getObject().position.z - intersects[i].point.z) * 50 / intersects[ i ].distance;
@@ -338,6 +279,7 @@
                 }
             }
         }
+
 
         function onDocumentKeyDown(event) {
             var keyCode = event.which;
@@ -352,8 +294,6 @@
         };
 
         //#endregion
-
-        
 
         function CheckCollision(dt)
         {
@@ -384,7 +324,7 @@
             }
             if (reload > 0)
             {
-                reload -= dt * 250;
+                reload -= dt * 400;
                 circle.style.background = `conic-gradient(#cccccc ${360 - reload}deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
             }
             else

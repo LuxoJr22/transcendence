@@ -3,17 +3,15 @@ import { PointerLockControls } from 'three/addons/controls/PointerLockControls.j
 import { equal, lerp } from "./utils.js"
 
 export class Shooter {
-	constructor (mesh, bind, speed, cam, scene, target, collider, pickable) {
+	constructor (mesh, bind, speed, cam, scene, target, pickable) {
 		this.jumpheight = 5;
 		this.gravity = -9.81;
-		this.collider = collider;
 		this.target = target.getObjectByName("Bone001").children;
 		this.target = this.target.concat(pickable)
 		this.scene = scene;
 		this.ySpeed = speed * 2;
 		this.camera = cam;
 		this.cam = new PointerLockControls(this.camera, document.body);
-		this.lastpos = this.cam.getObject().position.clone();
 		this.xSpeed = speed * 2;
 		this.mesh = mesh.scene;
 		this.left = this.mesh.getObjectByName("Bone003L");
@@ -24,7 +22,7 @@ export class Shooter {
 		this.bbox = new THREE.Box3().setFromObject(this.bb);
 		this.raycaster = new THREE.Raycaster();
 		this.foot = new THREE.Raycaster();
-		this.foot.far = 1.6
+		this.foot.far = 2
 		this.velocity = new THREE.Vector3();
 		this.force = new THREE.Vector3();
 		this.gamepad = 0;
@@ -37,6 +35,9 @@ export class Shooter {
 		this.sphere.position.set(0, 0, 0);
 		this.scene.add(this.sphere);
 		this.animleg = 0
+		this.movement = new THREE.Vector3();
+		this.movecaster = new THREE.Raycaster();
+		this.movecaster.far = 1;
 
 		this.canmove = 1;
 		this.isfalling = 0;
@@ -51,6 +52,8 @@ export class Shooter {
 		this.cam.getDirection(this.direction);
 		this.raycaster.set(this.cam.getObject().position, this.direction)
 		this.foot.set(this.cam.getObject().position, this.footdir)
+		let feet = this.cam.getObject().position.clone();
+		this.movecaster.set(feet, this.movement.normalize())
 		let d = Math.acos(this.direction.x)
 		if (this.direction.z < 0)
 			d *= -1;
@@ -58,7 +61,9 @@ export class Shooter {
 		if (this.canmove)
 			this.move(dt)
 		var inter = this.foot.intersectObjects( this.scene.children );
-
+		if (inter[0] && inter[0].distance < 1.4)
+			this.cam.getObject().position.y += 0.1;
+		
 		if (inter[0])
 			this.grounded = 1;
 		else
@@ -93,8 +98,6 @@ export class Shooter {
 	}
 	move (dt) {
 		this.movelegs();
-		if (!this.bbox.intersectsBox(this.collider[0]) && !this.bbox.intersectsBox(this.collider[1]))
-			this.lastpos = this.cam.getObject().position.clone();
 		let ym, xm;
 		xm = this.controller.xn + this.controller.xp;
 		ym = this.controller.yn + this.controller.yp;
@@ -120,8 +123,9 @@ export class Shooter {
 		this.force.y += -this.force.y * 0.1;
 		if (this.force.y < 0 && this.grounded)
 			this.force.y = 0
+		var test = this.movecaster.intersectObjects( this.scene.children);
 
-		if (this.cam && !this.bbox.intersectsBox(this.collider[0]) && !this.bbox.intersectsBox(this.collider[1]))
+		if (this.cam && !test[0])
 		{
 			//console.log((this.velocity.x * dt * this.direction.z * -1) + (this.velocity.z * dt * this.direction.x))
 			this.cam.getObject().position.x += this.velocity.x * dt * this.direction.z * -1;
@@ -132,13 +136,12 @@ export class Shooter {
 			this.cam.getObject().position.x += this.force.x * dt;
 			this.cam.getObject().position.z += this.force.z * dt;
 			this.cam.getObject().position.y += this.force.y * dt;
+
 		}
 
-
-
-
-		if (this.bbox.intersectsBox(this.collider[0]) || this.bbox.intersectsBox(this.collider[1]))
-			this.cam.getObject().position.set(this.lastpos.x, this.cam.getObject().position.y, this.lastpos.z);
+		this.movement.x = this.velocity.x * dt * this.direction.z * -1 + this.velocity.z * dt * this.direction.x + this.force.x * dt;
+		this.movement.y = this.velocity.y * dt + this.force.y * dt;
+		this.movement.z = this.velocity.x * dt * this.direction.x + this.velocity.z * dt * this.direction.z + this.force.z * dt;
 
 	}
 	keydown (keyCode) {
