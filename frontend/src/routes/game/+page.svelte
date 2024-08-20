@@ -1,15 +1,7 @@
 <script lang= "ts">
     import { onMount } from 'svelte';
     import * as THREE from 'three';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-    import { label } from 'three/examples/jsm/nodes/Nodes.js';
-    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-    import { AfterimagePass } from 'three/addons/postprocessing/AfterimagePass.js';
-	import { RenderPixelatedPass } from 'three/addons/postprocessing/RenderPixelatedPass.js';
-    import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';;
     import { Player } from "./player.js";
     import { Bot } from "./bot.js";
     import { shade } from "./watershader";
@@ -219,20 +211,19 @@
 
         function onDocumentKeyDown(event) {
             var keyCode = event.which;
-            play.keydown(keyCode);
-            er.keydown(keyCode);
+			chatSocket.send(JSON.stringify({
+				'event':'keyDown',
+				'message':keyCode
+			}))
         };
 
         function onDocumentKeyUp(event) {
             var keyCode = event.which;
-            play.keyup(keyCode);
-            er.keyup(keyCode);
+			chatSocket.send(JSON.stringify({
+				'event':'keyUp',
+				'message':keyCode
+			}))
         };
-
-        const controls = new OrbitControls( camera, renderer.domElement );
-                        controls.target.set( 0, 0, 0 );
-                        controls.update();
-
         //#endregion
 
         let t = 0;
@@ -305,6 +296,26 @@
             }
             
         }
+
+        let url = `ws://localhost:8000/ws/pong/`
+		const chatSocket = new WebSocket(url)
+
+		chatSocket.onmessage = function(e) {
+	
+			let data = JSON.parse(e.data)
+			console.log('Data:', data)
+
+			if (data.event === 'keyDown')
+			{
+                play.keydown(data.message)
+                er.keydown(data.message)
+            }
+            if (data.event === 'keyUp')
+            {
+                play.keyup(data.message)
+                er.keyup(data.message)
+            }
+		}
 
         //#endregion
 

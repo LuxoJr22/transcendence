@@ -12,6 +12,8 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from chat import routing
+from pong import routing as pongroute
+from shooter import routing as shooterRoute
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 
@@ -19,7 +21,7 @@ application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": AuthMiddlewareStack(
         URLRouter(
-            routing.websocket_urlpatterns
+            routing.websocket_urlpatterns + pongroute.websocket_urlpatterns + shooterRoute.websocket_urlpatterns
         )
     ),
 })
