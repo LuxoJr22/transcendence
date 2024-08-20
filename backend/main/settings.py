@@ -33,15 +33,17 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-	'rest_framework',
-	'rest_framework_simplejwt',
-	'users',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -132,6 +134,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # User model
+
 AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
@@ -145,4 +148,14 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
+
+# Channels configuration
+
+ASGI_APPLICATION = 'main.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
 }
