@@ -32,13 +32,13 @@
     <div class="d-flex justify-content-center align-items-center" style="height:100%;">
         <form on:submit|preventDefault="{handleLogin}" class="p-5 border rounded">
             <div class="mb-3">
-                <label for="formGroupExampleInput" class="form-label text-light">
+                <label for="formGroupExampleInput" class="form-label text-light container-fluid">
                     <h5>Pseudo</h5>
                     <input type="text" bind:value="{username}" class="form-control" id="formGroupExampleInput" placeholder="Enter pseudo">
                 </label>
             </div>
             <div class="mb-3">
-                <label for="formGroupExampleInput" class="form-label text-light">
+                <label for="formGroupExampleInput" class="form-label text-light container-fluid">
                     <h5>Password</h5>
                     <input type="password" bind:value="{password}" class="form-control" id="formGroupExampleInput" placeholder="Enter password">
                 </label>
