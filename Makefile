@@ -9,7 +9,7 @@ fclean: clean
 	@git clean -dfX
 	@rm -f backend/users/migrations/0*.py
 
-re: fclean all
+re: clean all
 
 prune: fclean
 	@docker system prune -af

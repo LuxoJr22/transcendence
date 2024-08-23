@@ -4,9 +4,7 @@
     let username = '';
     let email = '';
     let password = '';
-    let usernameStatus = '';
-    let passwordStatus = '';
-    let emailStatus = '';
+    let errors = '';
 
     async function register() {
         const response = await fetch('/api/register/', {
@@ -28,8 +26,7 @@
             goto('/login');
         } else {
             console.error(data);
-            emailStatus = data.email;
-            usernameStatus = data.username;
+            errors = data;
         }
     }
 </script>
@@ -43,10 +40,10 @@
                     <input type="text" bind:value="{username}" required class="form-control" placeholder="Enter pseudo">
                 </label>
             </div>
-            {#if usernameStatus} 
+            {#if errors.username} 
                 <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">
                     <i class="bi bi-exclamation-triangle-fill pe-2" style="font-size: 0.8rem; color: var(--bs-danger-bg);"></i>                        <div>
-                    {usernameStatus}
+                    {errors.username[0]}
                     </div>
                 </div>
             {/if}
@@ -57,10 +54,10 @@
                     
                 </label>
             </div>
-            {#if emailStatus} 
+            {#if errors.email} 
                 <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">
                     <i class="bi bi-exclamation-triangle-fill pe-2" style="font-size: 0.8rem; color: var(--bs-danger-bg);"></i>                        <div>
-                    {emailStatus}
+                    <p>{errors.email[0]}</p>
                     </div>
                 </div>
             {/if}
@@ -70,10 +67,10 @@
                     <input type="password" bind:value="{password}" required class="form-control" placeholder="Enter password">
                 </label>
             </div>
-            {#if passwordStatus} 
+            {#if errors.password} 
                 <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">
                     <i class="bi bi-exclamation-triangle-fill pe-2" style="font-size: 0.8rem; color: var(--bs-danger-bg);"></i>                        <div>
-                    {passwordStatus}
+                    {errors.password[0]}
                     </div>
                 </div>
             {/if}
