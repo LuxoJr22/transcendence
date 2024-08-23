@@ -30,6 +30,7 @@ class LoginView(TokenObtainPairView):
 			"user": {
 				"id": user.id,
 				"username": user.username,
+				"display_name": user.display_name,
 				"email": user.email,
 			}
 		})

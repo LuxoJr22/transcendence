@@ -13,12 +13,18 @@ class UserSerializer(serializers.ModelSerializer):
 		}
 
 	def validate_username(self, value):
+		return self._validate_name(value, field_name='Username')
+
+	def validate_display_name(self, value):
+		return self._validate_name(value, field_name='Display name')
+
+	def _validate_name(self, value, field_name):
 		if len(value) < 3:
-			raise serializers.ValidationError("Username must be at least 3 characters long")
+			raise serializers.ValidationError(f"{field_name} must be at least 3 characters long")
 		if len(value) > 12:
-			raise serializers.ValidationError("Username must not exceed 12 characters long")
+			raise serializers.ValidationError(f"{field_name} must not exceed 12 characters long")
 		if not re.match("^[a-zA-Z0-9-._]+$", value):
-			raise serializers.ValidationError("The username can only contain letters, numbers, hyphens, dots and underscores.")
+			raise serializers.ValidationError(f"{field_name} can only contain letters, numbers, hyphens, dots, and underscores.")
 		return value
 
 	def validate_password(self, value):
