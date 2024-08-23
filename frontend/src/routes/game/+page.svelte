@@ -296,7 +296,7 @@
             
         }
 
-        let url = `ws://localhost:8000/ws/pong/`
+        let url = 'ws://localhost:8000/ws/pong/?token=' + localStorage.getItem('access_token');
 		const chatSocket = new WebSocket(url)
 
 		chatSocket.onmessage = function(e) {

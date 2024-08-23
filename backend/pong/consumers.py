@@ -4,8 +4,6 @@ from asgiref.sync import async_to_sync
 from django.shortcuts import get_object_or_404
 from .models import PongGroup
 
-
-
 class PongConsumer(WebsocketConsumer):
 	def connect(self):
 		self.room_group_name = 'test'
@@ -21,8 +19,8 @@ class PongConsumer(WebsocketConsumer):
 			self.channel_name
 		)
 
-		#if self.user not in self.pongroom.users_online.all():
-		#	self.pongroom.users_online.add(self.user)
+		if self.user not in self.pongroom.users_online.all():
+			self.pongroom.users_online.add(self.user)
 
 		self.accept()
 
@@ -31,8 +29,8 @@ class PongConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-		#if self.user in self.pongroom.users_online.all():
-		#	self.pongroom.users_online.remove(self.user)
+		if self.user in self.pongroom.users_online.all():
+			self.pongroom.users_online.remove(self.user)
 
 
 	def receive(self, text_data):
@@ -47,7 +45,6 @@ class PongConsumer(WebsocketConsumer):
 				'type':'Pong_event',
 				'message':message,
 				'event':event,
-				#'count':int(self.pongroom.users_online.count())
 			}
 		)
 
@@ -58,5 +55,6 @@ class PongConsumer(WebsocketConsumer):
 		self.send(text_data=json.dumps({
 			'type':'Pong',
 			'message':message,
-			'event':event
+			'event':event,
+			'count':self.pongroom.users_online.count()
 		}))
