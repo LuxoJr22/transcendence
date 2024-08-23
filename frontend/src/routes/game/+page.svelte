@@ -7,7 +7,6 @@
     import { shade } from "./watershader";
     let canvas;
     var scoring = 0;
-    export var ls = 0;
 
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
@@ -350,7 +349,11 @@
             {
                 er.move();
             }
-            moveBall();
+			chatSocket.send(JSON.stringify({
+				'event':'frame',
+				'message':'oui'
+			}))
+            //moveBall();
             bots.forEach(element => {
                 element.update();
                 element.scoring = scoring;
