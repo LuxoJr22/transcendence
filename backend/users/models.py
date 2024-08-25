@@ -28,13 +28,13 @@ class User(AbstractBaseUser):
 	display_name = models.CharField(max_length=12, unique=False, blank=True)
 	email = models.EmailField(max_length=254, unique=True)
 
-	is_online = models.BooleanField(default=True)
+	is_active = models.BooleanField(default=True)
 	is_superuser = models.BooleanField(default=False)
 
 	objects = UserManager()
 
 	USERNAME_FIELD = 'username'
-	REQUIRED_FIELDS = []
+	REQUIRED_FIELDS = ['email']
 
 	def __str__(self):
 		return self.username
