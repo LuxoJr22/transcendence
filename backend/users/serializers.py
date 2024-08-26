@@ -35,7 +35,7 @@ class UserSerializer(ValidationMixin, serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		fields = ['id', 'username', 'email', 'password']
+		fields = ['id', 'username', 'display_name', 'email', 'password']
 		extra_kwargs = {
 			'id': {'read_only':True},
 			'password': {'write_only': True},
@@ -58,7 +58,7 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		fields = ['username', 'email', 'password', 'current_password', 'display_name']
+		fields = ['username', 'display_name', 'email', 'password', 'current_password']
 		extra_kwargs = {
 			'username': {'required': False},
 			'email': {'required': False},
@@ -80,10 +80,10 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 		if 'password' in attrs:
 			current_password = attrs.get('current_password')
 			if not current_password:
-				raise serializers.ValidationError("Current password is required to set a new password")
+				raise serializers.ValidationError({'current_password': ["Current password is required to set a new password"]})
 			user = self.instance
 			if not user.check_password(current_password):
-				raise serializers.ValidationError("Current password is incorrect")
+				raise serializers.ValidationError({'current_password': ["Current password is incorrect"]})
 		return attrs
 
 	def update(self, instance, validated_data):

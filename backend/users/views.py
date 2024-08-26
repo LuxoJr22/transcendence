@@ -35,8 +35,14 @@ class LoginView(TokenObtainPairView):
 			}
 		})
 
+class UserDetailView(generics.RetrieveAPIView):
+	serializer_class = UserSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_object(self):
+		return self.request.user
+
 class UserUpdateView(generics.UpdateAPIView):
-	queryset = User.objects.all()
 	serializer_class = UserUpdateSerializer
 	permission_classes = [IsAuthenticated]
 
