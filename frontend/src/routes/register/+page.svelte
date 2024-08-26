@@ -1,33 +1,82 @@
 <script>
-    let password1 = "";
-    let password2 = "";
+    import { goto } from '$app/navigation';
 
-    $: samePassword = (password1 === password2 || password2 === "");
+    let username = '';
+    let email = '';
+    let password = '';
+    let errors = '';
+
+    async function register() {
+        const response = await fetch('/api/register/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                password: password,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log('User creation success');
+            goto('/login');
+        } else {
+            console.error(data);
+            errors = data;
+        }
+    }
 </script>
 
 <div class="container-fluid" style="height:100vh;">
     <div class="d-flex justify-content-center align-items-center" style="height:100%;">
-        <div class="p-5 border rounded">
+        <form on:submit|preventDefault="{register}" class="p-5 border rounded">
             <div class="mb-3">
-                <label for="Pseudonyme" class="form-label text-light"><h5>Pseudonyme</h5></label>
-                <input type="text" class="form-control" id="Pseudonyme" placeholder="Enter pseudonyme">
+                <label class="form-label text-light">
+                    <h5>Pseudo</h5>
+                    <input type="text" bind:value="{username}" required class="form-control" placeholder="Enter pseudo">
+                </label>
             </div>
+            {#if errors.username} 
+                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill pe-2" style="font-size: 0.8rem; color: var(--bs-danger-bg);"></i>                        <div>
+                    {errors.username[0]}
+                    </div>
+                </div>
+            {/if}
             <div class="mb-3">
-                <label for="password1" class="form-label text-light"><h5>Password</h5></label>
-                <input bind:value={password1} type="password" class="form-control" id="password1" placeholder="Enter password">
+                <label class="form-label text-light">
+                    <h5>Email</h5>
+                    <input type="email" bind:value="{email}" required class="form-control" placeholder="Enter email">
+                    
+                </label>
             </div>
+            {#if errors.email} 
+                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill pe-2" style="font-size: 0.8rem; color: var(--bs-danger-bg);"></i>                        <div>
+                    <p>{errors.email[0]}</p>
+                    </div>
+                </div>
+            {/if}
             <div class="mb-3">
-                <label for="password2" class="form-label text-light"><h5>Confirm your password</h5></label>
-                <input bind:value={password2} type="password" class="form-control" id="password2" placeholder="Enter password">
-                {#if samePassword}
-                    <p class="text-light">yesss</p>
-                {:else}
-                    <p class="text-light">Nooo</p>
-                {/if}
+                <label class="form-label text-light">
+                    <h5>Password</h5>
+                    <input type="password" bind:value="{password}" required class="form-control" placeholder="Enter password">
+                </label>
             </div>
+            {#if errors.password} 
+                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill pe-2" style="font-size: 0.8rem; color: var(--bs-danger-bg);"></i>                        <div>
+                    {errors.password[0]}
+                    </div>
+                </div>
+            {/if}
             <div class="btn-group-vertical col-12" role="group" aria-label="Vertical button group">
-                <button type="button" class="m-1 btn btn-primary">Create my account</button>
+                <button type="submit" class="m-1 btn btn-primary">Create my account</button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
