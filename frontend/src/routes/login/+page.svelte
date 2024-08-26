@@ -1,4 +1,4 @@
-<script>;
+<script lang="ts">;
     import { goto } from '$app/navigation';
     import { login } from '../../stores/auth';
 
@@ -6,23 +6,8 @@
     let password = '';
 
     async function handleLogin() {
-        const response = await fetch('/api/login/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log('Login success');
-            login(data.access, data.refresh, data.user);
-            goto('/');
-        } else {
-            console.error('Login failed');
-        }
+        login(username, password);
+		goto('/')
     }
 
     const logo42 = new URL('$lib/assets/42_Logo.svg', import.meta.url).href
