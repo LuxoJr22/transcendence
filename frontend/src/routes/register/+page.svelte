@@ -50,7 +50,7 @@
             <div class="mb-3">
                 <label class="form-label text-light">
                     <h5>Email</h5>
-                    <input type="email" bind:value="{email}" required class="form-control" placeholder="Enter email">
+                    <input type="text" bind:value="{email}" class="form-control" placeholder="Enter email">
                     
                 </label>
             </div>

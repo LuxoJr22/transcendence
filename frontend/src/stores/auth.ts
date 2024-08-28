@@ -56,6 +56,28 @@ export async function login(username: string, password: string): Promise<void> {
     }
 }
 
+export async function updateInformations(email: string, display_name: string): Promise<void> {
+    const { accessToken } = get(auth);
+    if (!accessToken) {
+        throw new Error('Username update failed');
+        return;
+    }
+    const response = await fetch('/api/user/update/', {
+		method: 'PATCH',
+        headers: { 'Content-Type': 'application/json',  'Authorization': `Bearer ${accessToken}` },
+        body: JSON.stringify({ email, display_name }),
+    });
+    
+   
+    const data = await response.json();
+
+    if (response.ok) {
+        fetchUser();
+    } else {
+        return (data);
+    }
+}
+
 export async function fetchUser(): Promise<void> {
     const { accessToken } = get(auth);
 
