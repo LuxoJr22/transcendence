@@ -73,6 +73,7 @@ export class Player {
 		}
 		else
 			this.charging = THREE.MathUtils.lerp(this.charging, 1, 0.1)
+		this.movelegs()
 	}
 	movelegs()
 	{
@@ -122,27 +123,6 @@ export class Player {
 			this.right.rotation.y = 0;
 			this.left.rotation.z = THREE.MathUtils.lerp(this.left.rotation.z, this.animleg, 0.1)
 			this.right.rotation.z = THREE.MathUtils.lerp(this.right.rotation.z, this.animleg + Math.PI, 0.1)
-		}
-	}
-	move () {
-		this.movelegs();
-		let ym, xm;
-		this.bb = new THREE.Box3().setFromObject(this.mesh);
-		xm = this.controller.xn + this.controller.xp + this.knockback;
-		ym = this.controller.yn + this.controller.yp;
-
-		if (this.charge)
-		{
-			ym /= 2;
-			xm /= 2;
-		}
-		if (this.mesh.position.y - ym > this.limit.ny && this.mesh.position.y - ym < this.limit.py)
-		{
-			this.mesh.translateX(ym);
-		}
-		if (this.mesh.position.x - xm > this.limit.nx && this.mesh.position.x - xm < this.limit.px)
-		{
-			this.mesh.translateZ(xm);
 		}
 	}
 	keydown (keyCode) {
