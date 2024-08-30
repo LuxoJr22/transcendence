@@ -32,6 +32,7 @@ class LoginView(TokenObtainPairView):
 				"username": user.username,
 				"display_name": user.display_name,
 				"email": user.email,
+				"profile_picture": user.profile_picture.url,
 			}
 		})
 
@@ -41,6 +42,16 @@ class UserDetailView(generics.RetrieveAPIView):
 
 	def get_object(self):
 		return self.request.user
+
+	def get(self, request):
+		user = self.get_object()
+		return Response({
+			"id": user.id,
+			"username": user.username,
+			"display_name": user.display_name,
+			"email": user.email,
+			"profile_picture": user.profile_picture.url,
+		})
 
 class UserUpdateView(generics.UpdateAPIView):
 	serializer_class = UserUpdateSerializer
