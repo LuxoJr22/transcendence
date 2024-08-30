@@ -24,11 +24,14 @@ class UserManager(BaseUserManager):
 		user.save(using=self._db)
 		return user
 
+def user_profile_picture_path(instance, filename):
+	return f'profile_pictures/{instance.username}/{filename}'
+
 class User(AbstractBaseUser):
 	username = models.CharField(max_length=12, unique=True)
 	display_name = models.CharField(max_length=12, unique=False, blank=True)
 	email = models.EmailField(max_length=254, unique=True)
-	profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True)
+	profile_picture = models.ImageField(upload_to=user_profile_picture_path, blank=True, null=True)
 
 	is_active = models.BooleanField(default=True)
 	is_superuser = models.BooleanField(default=False)
@@ -40,3 +43,12 @@ class User(AbstractBaseUser):
 
 	def __str__(self):
 		return self.username
+
+	def save(self, *args, **kwargs):
+		if self.pk:
+			old_user = User.objects.get(pk=self.pk)
+
+			if old_user.profile_picture != 'profile_pictures/default.jpg' and old_user.profile_picture != self.profile_picture:
+				old_user.profile_picture.delete(save=False)
+
+		super().save(*args, **kwargs)
