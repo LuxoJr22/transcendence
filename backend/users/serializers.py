@@ -35,7 +35,7 @@ class UserSerializer(ValidationMixin, serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		fields = ['id', 'username', 'display_name', 'email', 'password']
+		fields = ['id', 'username', 'display_name', 'email', 'password', 'profile_picture']
 		extra_kwargs = {
 			'id': {'read_only':True},
 			'password': {'write_only': True},
@@ -58,17 +58,12 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		fields = ['username', 'display_name', 'email', 'password', 'current_password']
+		fields = ['email', 'password', 'current_password', 'display_name', 'profile_picture']
 		extra_kwargs = {
-			'username': {'required': False},
 			'email': {'required': False},
 			'password': {'write_only': True, 'required': False},
 			'current_password': {'write_only': True, 'required': False},
-			'display_name': {'required': False},
 		}
-
-	def validate_username(self, value):
-		return self._validate_name(value, field_name='Username')
 
 	def validate_display_name(self, value):
 		return self._validate_name(value, field_name='Display name')
