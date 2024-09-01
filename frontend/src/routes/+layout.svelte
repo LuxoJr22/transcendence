@@ -22,7 +22,7 @@
 
 <style>
     .layout-title {
-        font-family: "Bungee", sans-serif;
+        font-family: "Nabla", sans-serif;
     }
 
     .opacity:hover {
@@ -62,7 +62,7 @@
                     <img src={img} alt="User profile" class="border border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">{state.user?.displayName}
                 </a>
                 <ul class="dropdown-menu" style="min-width: 0;">
-                    <li><a class="dropdown-item text-start ps-2" href="/profile"><i class="bi-gear pe-2" style="font-size: 1.3rem; color: grey;"></i>settings</a></li>
+                    <li><a class="dropdown-item text-start ps-2" href="/profile"><i class="bi-person-fill pe-2" style="font-size: 1.3rem; color: grey;"></i>profile</a></li>
                     <li><a class="dropdown-item text-danger text-start ps-2" href="/" on:click={handleLogout}><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</a></li>
                 </ul>
             </div>

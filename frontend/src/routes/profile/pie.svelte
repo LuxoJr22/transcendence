@@ -13,14 +13,14 @@
         datasets: [{
             data: [victories, defeats],
             backgroundColor: [
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(255, 159, 64, 0.2)',
+                'rgba(13, 110, 253, 1)',
+                'rgba(220, 53, 69, 1)',
             ],
             borderColor: [
-                'rgba(75, 192, 192, 1)',
-                'rgba(255, 159, 64, 1)',
+                'rgba(13, 170, 253, 1)',
+                'rgba(255, 153, 125, 1)',
             ],
-            borderWidth: 1
+            borderWidth: 3
         }]
     };
 
@@ -44,6 +44,4 @@
     });
 </script>
 
-<div style="width: 35vw; height: 35vh;">
-    <canvas id="myChart"></canvas>
-</div>
+<canvas id="myChart"></canvas>
