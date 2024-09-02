@@ -6,6 +6,10 @@
 	let state: AuthState;
 	$: $auth, state = $auth;
 
+    auth.subscribe((value : AuthState) =>{
+        state = value
+    });
+
 	onMount(async () => {
 		if (localStorage.getItem('access_token')) {
 			await fetchUser();
@@ -15,9 +19,6 @@
 	const handleLogout = () => {
 		logout();
 	};
-
-    const img = new URL('$lib/assets/sforesti.jpg', import.meta.url).href
-    const img1 = new URL('$lib/assets/img.webp', import.meta.url).href
 </script>
 
 <style>
@@ -59,7 +60,7 @@
         {#if state.isAuthenticated}
             <div class="dropdown">
                 <a href="/" class="navbar-item navbar-brand text-primary-subtle opacity dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src={img} alt="User profile" class="border border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">{state.user?.displayName}
+                    <img src={state.user?.profile_picture} alt="User profile" class="border border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">{state.user?.displayName}
                 </a>
                 <ul class="dropdown-menu" style="min-width: 0;">
                     <li><a class="dropdown-item text-start ps-2" href="/profile"><i class="bi-person-fill pe-2" style="font-size: 1.3rem; color: grey;"></i>profile</a></li>

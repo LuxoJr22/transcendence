@@ -5,6 +5,7 @@ interface User {
     username: string;
     displayName: string;
     email: string;
+    profile_picture: string;
 }
 
 export interface AuthState {
@@ -44,6 +45,8 @@ export async function login(username: string, password: string): Promise<void> {
                 username: data.user.username,
                 displayName: data.user.display_name,
                 email: data.user.email,
+                profile_picture: data.user.profile_picture,
+
             },
             accessToken: data.access,
             refreshToken: data.refresh,
@@ -73,8 +76,35 @@ export async function updateInformations(email: string, display_name: string): P
 
     if (response.ok) {
         fetchUser();
+        return ;
     } else {
         return (data);
+    }
+}
+
+export async function updateProfilePicture(profile_picture: File) {
+    
+    const { accessToken } = get(auth);
+    if (!accessToken) {
+        throw new Error('Username update failed');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('profile_picture', profile_picture);
+    const response = await fetch('/api/user/update/', {
+        method: 'PATCH',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+        body: formData,
+    });
+
+    if (response.ok) {
+        fetchUser();
+    }
+    else {
+        throw new Error("Fetch user failed");
     }
 }
 
@@ -100,8 +130,10 @@ export async function fetchUser(): Promise<void> {
                 username: user.username,
                 displayName: user.display_name,
                 email: user.email,
+                profile_picture: user.profile_picture,
             }
         }));
+        console.log(user.profile_picture);
     } else if (response.status === 401) {
         await refresh_token();
     }
