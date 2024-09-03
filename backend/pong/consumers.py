@@ -63,17 +63,22 @@ class PongConsumer(WebsocketConsumer):
 			{
 				'type':'Pong_event',
 				'event':event,
+				'frames':text_data_json['frames']
 			}
 		)
 
 
 	def Pong_event(self, event):
+		frames = event['frames']
 		event = event['event']
+		
 
 		self.send(text_data=json.dumps({
 			'type':'Pong',
+			'frames':frames,
 			'event':event,
 			'ball':self.game.ballx,
+			'controller':self.game.player1.controller,
 			'player1':[self.game.player1.x, self.game.player1.y],
 			'player2':[self.game.player2.x, self.game.player2.y],
 			'count':self.pongroom.users_online.count(),

@@ -302,6 +302,7 @@
 			}
 		}
 
+		var frames = 0
 		let url = 'ws://localhost:8000/ws/pong/?token=' + localStorage.getItem('access_token');
 		const chatSocket = new WebSocket(url)
 
@@ -311,11 +312,25 @@
 			//console.log('Data:', data)
 			if (data.event == 'Connected')
 				id = data.id
+				if (id == 1)
+				{
+				chatSocket.send(JSON.stringify({
+					'event':'frame',
+					'player1':play.controller,
+					'frames':frames
+				}))
+				}
 			if (data.event == 'frame')
 			{
+				console.log('frames:', data.frames, ', ', frames)
 				play.mesh.position.set(data.player1[0], data.player1[1], -1.5)
 				er.mesh.position.set(data.player2[0], data.player2[1], -1.5)
 				sphere.position.set(data.ball, sphere.position.y, sphere.position.z);
+				chatSocket.send(JSON.stringify({
+					'event':'frame',
+					'player1':play.controller,
+					'frames':frames
+				}))
 			}
 		}
 
@@ -345,13 +360,13 @@
 			play.update(dt)
 			er.update(dt)
 
-			if (id == 1)
+			/*if (id == 1)
 			{
 				chatSocket.send(JSON.stringify({
 					'event':'frame',
 					'player1':play.controller,
 				}))
-			}
+			}*/
 			/*else if (id == 2)
 			{
 			chatSocket.send(JSON.stringify({
@@ -364,6 +379,7 @@
 				element.update();
 				element.scoring = scoring;
 			});
+			frames ++;
 			checkCollision();
 			renderer.render( scene, camera );
 		}
