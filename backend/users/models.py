@@ -48,7 +48,7 @@ class User(AbstractBaseUser):
 		if self.pk:
 			old_user = User.objects.get(pk=self.pk)
 
-			if old_user.profile_picture != 'profile_pictures/default.jpg' and old_user.profile_picture != self.profile_picture:
+			if old_user.profile_picture and old_user.profile_picture != 'profile_pictures/default.jpg' and old_user.profile_picture != self.profile_picture:
 				old_user.profile_picture.delete(save=False)
 
 		super().save(*args, **kwargs)

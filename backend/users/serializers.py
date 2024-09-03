@@ -1,16 +1,18 @@
 import re
 from django.contrib.auth.password_validation import validate_password as django_validate_password
 from rest_framework import serializers
+from PIL import Image
 from .models import User
 
 class ValidationMixin:
 	def _validate_name(self, value, field_name):
-		if len(value) < 3:
-			raise serializers.ValidationError(f"{field_name} must be at least 3 characters long")
-		if len(value) > 12:
-			raise serializers.ValidationError(f"{field_name} must not exceed 12 characters long")
-		if not re.match("^[a-zA-Z0-9-._]+$", value):
-			raise serializers.ValidationError(f"{field_name} can only contain letters, numbers, hyphens, dots, and underscores.")
+		if value:
+			if len(value) < 3:
+				raise serializers.ValidationError(f"{field_name} must be at least 3 characters long")
+			if len(value) > 12:
+				raise serializers.ValidationError(f"{field_name} must not exceed 12 characters long")
+			if not re.match("^[a-zA-Z0-9-._]+$", value):
+				raise serializers.ValidationError(f"{field_name} can only contain letters, numbers, hyphens, dots, and underscores.")
 		return value
 	
 	def _validate_password(self, value):
@@ -28,6 +30,16 @@ class ValidationMixin:
 			if not re.search("[!@#$%^&*()_+=-]", value):
 				raise serializers.ValidationError("Password must contain at least one special character")
 			django_validate_password(value)
+		return value
+
+	def _validate_profile_picture(self, value):
+		if value:
+			try:
+				image = Image.open(value)
+				if image.width > 1024 or image.height > 1024:
+					raise serializers.ValidationError("Profile picture size cannot exceed 1024x1024 pixels")
+			except Exception as e:
+					raise serializers.ValidationError(f"Error processing image: {e}")
 		return value
 
 class UserSerializer(ValidationMixin, serializers.ModelSerializer):
@@ -71,6 +83,9 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 	def validate_password(self, value):
 		return self._validate_password(value)
 
+	def validate_profile_picture(self, value):
+		return self._validate_profile_picture(value)
+
 	def validate(self, attrs):
 		if 'password' in attrs:
 			current_password = attrs.get('current_password')
@@ -90,3 +105,8 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 			instance.set_password(password)
 		instance.save()
 		return instance
+
+class PublicUserSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = User
+		fields = ['username', 'display_name', 'profile_picture']

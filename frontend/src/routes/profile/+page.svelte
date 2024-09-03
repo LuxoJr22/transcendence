@@ -14,16 +14,15 @@
 	let state: AuthState;
 	$: $auth, state = $auth;
 
-    auth.subscribe((value : AuthState) =>{
-        state = value
-    });
-
 	onMount(async () => {
 		if (localStorage.getItem('access_token')) {
 			await fetchUser();
 		}
         await fetchHistoryMatches();
         truncHistory();
+		auth.subscribe((value : AuthState) =>{
+        state = value
+    });
 	});
     
     

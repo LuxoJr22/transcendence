@@ -5,7 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import User
-from .serializers import UserSerializer, UserUpdateSerializer
+from .serializers import UserSerializer, UserUpdateSerializer, PublicUserSerializer
 
 class RegisterView(generics.CreateAPIView):
 	queryset = User.objects.all()
@@ -59,3 +59,13 @@ class UserUpdateView(generics.UpdateAPIView):
 
 	def get_object(self):
 		return self.request.user
+
+class UserProfileView(generics.RetrieveAPIView):
+	queryset = User.objects.all()
+	serializer_class = PublicUserSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_object(self):
+		username = self.kwargs['username']
+		user = generics.get_object_or_404(User, username=username)
+		return user

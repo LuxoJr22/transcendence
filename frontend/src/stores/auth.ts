@@ -158,7 +158,6 @@ export async function fetchUser(): Promise<void> {
                 profile_picture: user.profile_picture,
             }
         }));
-        console.log(user.profile_picture);
     } else if (response.status === 401) {
         await refresh_token();
     }
