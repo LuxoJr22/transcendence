@@ -82,6 +82,29 @@ export async function updateInformations(email: string, display_name: string): P
     }
 }
 
+export async function updatePassword(password: string, current_password: string): Promise<void> {
+    const { accessToken } = get(auth);
+    if (!accessToken) {
+        throw new Error('Username update failed');
+        return;
+    }
+    const response = await fetch('/api/user/update/', {
+		method: 'PATCH',
+        headers: { 'Content-Type': 'application/json',  'Authorization': `Bearer ${accessToken}` },
+        body: JSON.stringify({ password, current_password }),
+    });
+    
+   
+    const data = await response.json();
+
+    if (response.ok) {
+        fetchUser();
+        return ('success');
+    } else {
+        return (data);
+    }
+}
+
 export async function updateProfilePicture(profile_picture: File) {
     
     const { accessToken } = get(auth);
@@ -102,9 +125,11 @@ export async function updateProfilePicture(profile_picture: File) {
 
     if (response.ok) {
         fetchUser();
+        return ('success');
     }
     else {
-        throw new Error("Fetch user failed");
+        return ('failed');
+        throw new Error("Change picture failed");
     }
 }
 

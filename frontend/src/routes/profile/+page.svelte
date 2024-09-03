@@ -4,7 +4,7 @@
     import Pie from './pie.svelte';
 
     const img = new URL('$lib/assets/sforesti.jpg', import.meta.url).href;
-    import { auth, fetchUser, logout, updateInformations, updateProfilePicture } from '../../stores/auth';
+    import { auth, fetchUser, logout, updateInformations, updateProfilePicture , updatePassword } from '../../stores/auth';
     import type { AuthState } from '../../stores/auth';
 
     let victories = 15;
@@ -71,14 +71,15 @@
     /********updateProfilePicture********/
 
     let newProfilePicture : File;
-
+    let errorPicture = '';
     function handleFileChange(event: Event) {
             newProfilePicture = event.target.files[0]; // Assigne le fichier sélectionné
     }
 
     async function updateNewProfilePicture(){
         if (newProfilePicture)
-            await updateProfilePicture(newProfilePicture);
+            errorPicture = await updateProfilePicture(newProfilePicture);
+        console.log(errorPicture);
     }
 
     /********updateEmailAndDisplayName********/
@@ -123,6 +124,30 @@
         newDisplayName = '';
     }
     
+    /********updatePassword********/
+
+    let newPassword : string;
+    let currentPassword : string;
+    let errorsPassword : string;
+
+    async function updateNewPassword() {
+       const response = await updatePassword(newPassword, currentPassword);
+       console.log(response)
+        if (response.password)
+        {
+            errorsPassword = response.password;
+        }
+        else if (response.current_password)
+        {
+            console.log('a');
+            errorsPassword = response.current_password;
+        }
+        else if (response == 'success')
+        {
+            errorsPassword = 'success';
+        }
+    }
+
     
 </script>
 
@@ -139,9 +164,19 @@
                             <div class="modal-body">
                                 <input type="file" on:change={handleFileChange}>
                             </div>
+                            
+                            {#if errorPicture == 'failed'}
+                            <div class="alert alert-danger mx-3" role="alert">
+                                An error has been occurred. Please check that the file is an image.
+                            </div>
+                            {:else if errorPicture == 'success'}
+                            <div class="alert alert-success mx-3" role="alert">
+                                Image successfully changed.
+                            </div>
+                            {/if}
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Save changes</button>
+                                <button type="submit" class="btn btn-success">Save changes</button>
                             </div>
                         </form>
                       </div>
@@ -200,11 +235,21 @@
                         <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangePassword" aria-expanded="false" aria-controls="collapseExample">Change password</button>
                         <div class="collapse" id="collapseChangePassword">
                             <div class="card card-body">
-                                <form>
+                                <form on:submit|preventDefault="{updateNewPassword}">
                                     <h4 class="py-3">New password</h4>
-                                    <input type="text" class="form-control">
-                                    <h4 class="py-3">Old password</h4>
-                                    <input type="text" class="form-control">
+                                    <input type="text" class="form-control" bind:value={newPassword}>
+                                    <h4 class="py-3">Current password</h4>
+                                    <input type="text" class="form-control" bind:value={currentPassword}>
+                                    {#if errorsPassword == 'success'}
+                                    <div class="alert alert-success" role="alert">
+                                        Password changed with success
+                                    </div>
+                                    {:else if errorsPassword}
+                                    <div class="alert alert-danger" role="alert">
+                                        {errorsPassword}
+                                    </div>
+                                    {/if}
+                                    <button class="btn btn-success my-2" type="submit">Confirm</button>
                                 </form>
                             </div>
                         </div>
