@@ -11,7 +11,6 @@ class UserManager(BaseUserManager):
 			raise ValueError('The password must be set')
 		email = self.normalize_email(email)
 		user = self.model(username=username, email=email)
-		user.display_name = username
 		user.profile_picture = 'profile_pictures/default.jpg'
 		user.set_password(password)
 		user.save(using=self._db)
@@ -29,7 +28,6 @@ def user_profile_picture_path(instance, filename):
 
 class User(AbstractBaseUser):
 	username = models.CharField(max_length=12, unique=True)
-	display_name = models.CharField(max_length=12, unique=False, blank=True)
 	email = models.EmailField(max_length=254, unique=True)
 	profile_picture = models.ImageField(upload_to=user_profile_picture_path, blank=True, null=True)
 

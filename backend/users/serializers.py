@@ -5,14 +5,14 @@ from PIL import Image
 from .models import User
 
 class ValidationMixin:
-	def _validate_name(self, value, field_name):
+	def _validate_username(self, value):
 		if value:
 			if len(value) < 3:
-				raise serializers.ValidationError(f"{field_name} must be at least 3 characters long")
+				raise serializers.ValidationError("Username must be at least 3 characters long")
 			if len(value) > 12:
-				raise serializers.ValidationError(f"{field_name} must not exceed 12 characters long")
+				raise serializers.ValidationError("Username must not exceed 12 characters long")
 			if not re.match("^[a-zA-Z0-9-._]+$", value):
-				raise serializers.ValidationError(f"{field_name} can only contain letters, numbers, hyphens, dots, and underscores.")
+				raise serializers.ValidationError("Username can only contain letters, numbers, hyphens, dots, and underscores.")
 		return value
 	
 	def _validate_password(self, value):
@@ -47,14 +47,14 @@ class UserSerializer(ValidationMixin, serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		fields = ['id', 'username', 'display_name', 'email', 'password', 'profile_picture']
+		fields = ['id', 'username', 'email', 'password', 'profile_picture']
 		extra_kwargs = {
 			'id': {'read_only':True},
 			'password': {'write_only': True},
 		}
 
 	def validate_username(self, value):
-		return self._validate_name(value, field_name='Username')
+		return self._validate_username(value)
 
 	def validate_password(self, value):
 		return self._validate_password(value)
@@ -70,15 +70,16 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		fields = ['email', 'password', 'current_password', 'display_name', 'profile_picture']
+		fields = ['username', 'email', 'password', 'current_password', 'profile_picture']
 		extra_kwargs = {
+			'username': {'required': False},
 			'email': {'required': False},
 			'password': {'write_only': True, 'required': False},
 			'current_password': {'write_only': True, 'required': False},
 		}
 
-	def validate_display_name(self, value):
-		return self._validate_name(value, field_name='Display name')
+	def validate_username(self, value):
+		return self._validate_username(value)
 
 	def validate_password(self, value):
 		return self._validate_password(value)
@@ -109,4 +110,4 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 class PublicUserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ['username', 'display_name', 'profile_picture']
+		fields = ['username', 'profile_picture']

@@ -3,7 +3,6 @@ import { writable, get } from 'svelte/store';
 interface User {
     id: number;
     username: string;
-    displayName: string;
     email: string;
     profile_picture: string;
 }
@@ -43,7 +42,6 @@ export async function login(username: string, password: string): Promise<void> {
             user: {
                 id: data.user.id,
                 username: data.user.username,
-                displayName: data.user.display_name,
                 email: data.user.email,
                 profile_picture: data.user.profile_picture,
 
@@ -59,19 +57,17 @@ export async function login(username: string, password: string): Promise<void> {
     }
 }
 
-export async function updateInformations(email: string, display_name: string): Promise<void> {
+export async function updateInformations(email: string, username: string): Promise<void> {
     const { accessToken } = get(auth);
     if (!accessToken) {
         throw new Error('Username update failed');
         return;
     }
     const response = await fetch('/api/user/update/', {
-		method: 'PATCH',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json',  'Authorization': `Bearer ${accessToken}` },
-        body: JSON.stringify({ email, display_name }),
+        body: JSON.stringify({ email, username }),
     });
-    
-   
     const data = await response.json();
 
     if (response.ok) {
@@ -89,7 +85,7 @@ export async function updatePassword(password: string, current_password: string)
         return;
     }
     const response = await fetch('/api/user/update/', {
-		method: 'PATCH',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json',  'Authorization': `Bearer ${accessToken}` },
         body: JSON.stringify({ password, current_password }),
     });
@@ -141,7 +137,7 @@ export async function fetchUser(): Promise<void> {
     }
 
     const response = await fetch('/api/user/', {
-		method: 'GET',
+        method: 'GET',
         headers: { 'Authorization': `Bearer ${accessToken}` },
     });
 
@@ -149,11 +145,10 @@ export async function fetchUser(): Promise<void> {
         const user = await response.json();
         auth.update(state => ({
             ...state,
-			isAuthenticated: true,
+            isAuthenticated: true,
             user: {
                 id: user.id,
                 username: user.username,
-                displayName: user.display_name,
                 email: user.email,
                 profile_picture: user.profile_picture,
             }

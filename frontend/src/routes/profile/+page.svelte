@@ -11,19 +11,19 @@
     let defeats = 3;
     let games = [];
 
-	let state: AuthState;
-	$: $auth, state = $auth;
+    let state: AuthState;
+    $: $auth, state = $auth;
 
-	onMount(async () => {
-		if (localStorage.getItem('access_token')) {
-			await fetchUser();
-		}
+    onMount(async () => {
+        if (localStorage.getItem('access_token')) {
+            await fetchUser();
+        }
         await fetchHistoryMatches();
         truncHistory();
-		auth.subscribe((value : AuthState) =>{
+        auth.subscribe((value : AuthState) =>{
         state = value
     });
-	});
+    });
     
     
 
@@ -81,46 +81,46 @@
         console.log(errorPicture);
     }
 
-    /********updateEmailAndDisplayName********/
+    /********updateEmailAndUsername********/
 
-    let newDisplayName : string;
+    let newUsername : string;
     let newEmail : string;
     let errorsMessage : string;
     let errorsEmail = false;
-    let errorsDisplayName = false;
+    let errorsUsername = false;
 
     function resetValue(){
         errorsMessage = '';
-        errorsDisplayName = false;
+        errorsUsername = false;
         errorsEmail = false;
     }
 
-    async function updateEmailAndDisplayName(){
-        const data = await updateInformations((newEmail == '' ? state.user?.email : newEmail), (newDisplayName == '' ? state.user?.displayName : newDisplayName));
+    async function updateEmailAndUsername(){
+        const data = await updateInformations((newEmail == '' ? state.user?.email : newEmail), (newUsername == '' ? state.user?.username : newUsername));
         console.log(data);
         if (!data)
         {
             errorsMessage = 'success';
             if (newEmail)
                 errorsEmail = true;
-            if (newDisplayName)
-                errorsDisplayName = true;
+            if (newUsername)
+                errorsUsername = true;
         }
         else if (data.email)
         {
             errorsMessage = data.email;
             errorsEmail = true;
         }
-        else if (data.display_name)
+        else if (data.username)
         {
-            errorsMessage = data.display_name;
-            errorsDisplayName = true;
+            errorsMessage = data.username;
+            errorsUsername = true;
         }
         else
             errorsMessage = '';
         console.log(errorsMessage);
         newEmail = '';
-        newDisplayName = '';
+        newUsername = '';
     }
     
     /********updatePassword********/
@@ -183,7 +183,7 @@
                 </div>
             </div>
             <div class="p-4">
-                <h5 class="text-light"><i class="bi-person pe-3"></i>{state.user?.displayName}</h5>
+                <h5 class="text-light"><i class="bi-person pe-3"></i>{state.user?.username}</h5>
                 
                 <h5 class="text-light"><i class="bi-person pe-3"></i>{state.user?.email}</h5>
             </div>
@@ -195,17 +195,17 @@
             <div class="modal-dialog">
               <div class="modal-content">
                     <div class="modal-body">
-                        <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeDisplayName" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change display name</button><br>
-                        <div class="collapse" id="collapseChangeDisplayName">
+                        <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeUsername" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change username</button><br>
+                        <div class="collapse" id="collapseChangeUsername">
                             <div class="card card-body">
-                                <form on:submit|preventDefault="{updateEmailAndDisplayName}">
-                                    <input type="text" class="form-control" bind:value={newDisplayName}>
+                                <form on:submit|preventDefault="{updateEmailAndUsername}">
+                                    <input type="text" class="form-control" bind:value={newUsername}>
                                     <button class="btn btn-success my-2" type="submit" on:click={resetValue}>Confirm</button>
-                                    {#if errorsMessage == 'success' && errorsDisplayName}
+                                    {#if errorsMessage == 'success' && errorsUsername}
                                         <div class="alert alert-success" role="alert">
-                                            Display name changed with success
+                                            Username changed with success
                                         </div>
-                                    {:else if errorsMessage && errorsDisplayName == true}
+                                    {:else if errorsMessage && errorsUsername == true}
                                     <div class="alert alert-danger" role="alert">
                                         {errorsMessage}
                                     </div>
@@ -216,7 +216,7 @@
                         <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeEmail" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change Email</button><br>
                         <div class="collapse" id="collapseChangeEmail">
                             <div class="card card-body">
-                                <form on:submit|preventDefault="{updateEmailAndDisplayName}">
+                                <form on:submit|preventDefault="{updateEmailAndUsername}">
                                     <input type="text" class="form-control" bind:value={newEmail}>
                                     <button class="btn btn-success my-2" type="submit" on:click={resetValue}>Confirm</button>
                                     {#if errorsMessage == 'success' && errorsEmail == true}

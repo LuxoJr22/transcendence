@@ -30,7 +30,6 @@ class LoginView(TokenObtainPairView):
 			"user": {
 				"id": user.id,
 				"username": user.username,
-				"display_name": user.display_name,
 				"email": user.email,
 				"profile_picture": user.profile_picture.url,
 			}
@@ -48,7 +47,6 @@ class UserDetailView(generics.RetrieveAPIView):
 		return Response({
 			"id": user.id,
 			"username": user.username,
-			"display_name": user.display_name,
 			"email": user.email,
 			"profile_picture": user.profile_picture.url,
 		})
