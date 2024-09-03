@@ -13,5 +13,7 @@ re: clean all
 
 prune: fclean
 	@docker system prune -af
+	@find backend/media/profile_pictures/ -type f ! -name 'default.jpg' -delete
+	@find backend/media/profile_pictures/ -type d -empty -delete
 
 .PHONY: all clean fclean re prune
