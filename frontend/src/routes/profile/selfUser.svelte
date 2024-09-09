@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
     import Pie from './pie.svelte';
 
@@ -70,15 +69,22 @@
     /********updateProfilePicture********/
 
     let newProfilePicture : File;
-    let errorPicture = '';
+    let errorPicture;
     function handleFileChange(event: Event) {
             newProfilePicture = event.target.files[0]; // Assigne le fichier sélectionné
     }
 
+    function resetErrorsPicture() {
+        errorPicture = '';
+    }
+
     async function updateNewProfilePicture(){
         if (newProfilePicture)
+        {
             errorPicture = await updateProfilePicture(newProfilePicture);
-        console.log(errorPicture);
+        }
+        if (errorPicture && errorPicture != 'success')
+            errorPicture = errorPicture.profile_picture;
     }
 
     /********updateEmailAndUsername********/
@@ -155,7 +161,7 @@
     <div class="d-flex h-100">
         <div class="flex-column col-3 border-end my-3">
             <div class="border-bottom mx-3 me-4 pb-3">
-                <a href="" type="button" data-bs-toggle="modal" data-bs-target="#pictureModal"><img src={state.user?.profile_picture} class="img-circle rounded-circle ms-2"></a>
+                <a href="" type="button" data-bs-toggle="modal" data-bs-target="#pictureModal"><img src={state.user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2"></a>
                 <div class="modal fade" id="pictureModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                       <div class="modal-content">
@@ -163,10 +169,9 @@
                             <div class="modal-body">
                                 <input type="file" on:change={handleFileChange}>
                             </div>
-                            
-                            {#if errorPicture == 'failed'}
+                            {#if errorPicture != 'success' && errorPicture}
                             <div class="alert alert-danger mx-3" role="alert">
-                                An error has been occurred. Please check that the file is an image.
+                                {errorPicture}
                             </div>
                             {:else if errorPicture == 'success'}
                             <div class="alert alert-success mx-3" role="alert">
@@ -174,8 +179,8 @@
                             </div>
                             {/if}
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-success">Save changes</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" on:click={resetErrorsPicture}>Close</button>
+                                <button type="submit" class="btn btn-success" on:click={resetErrorsPicture}>Save changes</button>
                             </div>
                         </form>
                       </div>
@@ -184,18 +189,16 @@
             </div>
             <div class="p-4">
                 <h5 class="text-light"><i class="bi-person pe-3"></i>{state.user?.username}</h5>
-                
-                <h5 class="text-light"><i class="bi-person pe-3"></i>{state.user?.email}</h5>
             </div>
         </div>
         <div class="align-self-end align-img-end mb-3">
-            <a href="" type="button" data-bs-toggle="modal" data-bs-target="#userDataModal" style="text-decoration: none"><i class="bi bi-pencil" style="color: grey; font-size: 1.3em"></i></a>
+            <a href="" type="button" data-bs-toggle="modal" data-bs-target="#userDataModal" style="text-decoration: none"><i class="bi bi-pencil hover-effect" style="color: grey; font-size: 1.3em"></i></a>
         </div>
         <div class="modal fade" id="userDataModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
               <div class="modal-content">
                     <div class="modal-body">
-                        <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeUsername" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change username</button><br>
+                        <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeUsername" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change username</button>
                         <div class="collapse" id="collapseChangeUsername">
                             <div class="card card-body">
                                 <form on:submit|preventDefault="{updateEmailAndUsername}">
@@ -213,7 +216,7 @@
                                 </form>
                             </div>
                         </div>
-                        <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeEmail" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change Email</button><br>
+                        <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeEmail" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change Email</button>
                         <div class="collapse" id="collapseChangeEmail">
                             <div class="card card-body">
                                 <form on:submit|preventDefault="{updateEmailAndUsername}">
@@ -235,9 +238,9 @@
                         <div class="collapse" id="collapseChangePassword">
                             <div class="card card-body">
                                 <form on:submit|preventDefault="{updateNewPassword}">
-                                    <h4 class="py-3">New password</h4>
+                                    <h5 class="py-3">New password</h5>
                                     <input type="text" class="form-control" bind:value={newPassword}>
-                                    <h4 class="py-3">Current password</h4>
+                                    <h5 class="py-3">Current password</h5>
                                     <input type="text" class="form-control" bind:value={currentPassword}>
                                     {#if errorsPassword == 'success'}
                                     <div class="alert alert-success" role="alert">
@@ -334,5 +337,9 @@
     }
     .align-img-end {
         transform: translateX(-200%);
+    }
+
+    .hover-effect:hover {
+        opacity: 0.5;
     }
 </style>

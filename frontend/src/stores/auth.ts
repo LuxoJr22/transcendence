@@ -35,8 +35,9 @@ export async function login(username: string, password: string): Promise<void> {
         body: JSON.stringify({ username, password }),
     });
 
+    const data = await response.json();
+
     if (response.ok) {
-        const data = await response.json();
         auth.set({
             isAuthenticated: true,
             user: {
@@ -52,8 +53,9 @@ export async function login(username: string, password: string): Promise<void> {
 
         localStorage.setItem('access_token', data.access);
         localStorage.setItem('refresh_token', data.refresh);
+        return ('success');
     } else {
-        throw new Error('Login failed');
+        return (data);
     }
 }
 
@@ -101,6 +103,7 @@ export async function updatePassword(password: string, current_password: string)
     }
 }
 
+
 export async function updateProfilePicture(profile_picture: File) {
     
     const { accessToken } = get(auth);
@@ -119,13 +122,14 @@ export async function updateProfilePicture(profile_picture: File) {
         body: formData,
     });
 
+    const data = response.json();
+
     if (response.ok) {
         fetchUser();
         return ('success');
     }
     else {
-        return ('failed');
-        throw new Error("Change picture failed");
+        return (data);
     }
 }
 

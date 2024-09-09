@@ -41,9 +41,9 @@
                 </label>
             </div>
             {#if errors.username} 
-                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill pe-2" style="font-size: 0.8rem; color: var(--bs-danger-bg);"></i>                        <div>
-                    {errors.username[0]}
+                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">                      
+                    <div>
+                        {errors.username[0]}
                     </div>
                 </div>
             {/if}
@@ -55,9 +55,9 @@
                 </label>
             </div>
             {#if errors.email} 
-                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill pe-2" style="font-size: 0.8rem; color: var(--bs-danger-bg);"></i>                        <div>
-                    <p>{errors.email[0]}</p>
+                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">                       
+                    <div>
+                        <p>{errors.email[0]}</p>
                     </div>
                 </div>
             {/if}
@@ -68,9 +68,9 @@
                 </label>
             </div>
             {#if errors.password} 
-                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill pe-2" style="font-size: 0.8rem; color: var(--bs-danger-bg);"></i>                        <div>
-                    {errors.password[0]}
+                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">                       
+                    <div>
+                        {errors.password[0]}
                     </div>
                 </div>
             {/if}
