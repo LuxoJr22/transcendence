@@ -352,4 +352,13 @@
     });
 </script>
 
-<canvas bind:this={canvas} class=""></canvas>
+<canvas bind:this={canvas} class="game"></canvas>
+
+<style>
+    .game {
+        border-radius: 3% !important;
+        margin-left: 10% !important;
+        width: 80% !important;
+        height: 80% !important; 
+    }
+</style>

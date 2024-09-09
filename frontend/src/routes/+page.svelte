@@ -9,7 +9,7 @@
       if (linkGame == "/game")
         linkGame = "/game2"
       else
-        linkGame = "game"
+        linkGame = "/game"
     }
 </script>
 
@@ -60,7 +60,7 @@
             <div class="card-body">
               <h5 class="card-title">Online Mode</h5>
               <p class="card-text">Play online against other players.</p>
-              <button href={linkGame} class="btn btn-dark mt-4">Play</button>
+              <a href={linkGame} class="btn btn-dark mt-4">Play</a>
             </div>
           </div>
           <div class="card mycard bg-warning-subtle">
