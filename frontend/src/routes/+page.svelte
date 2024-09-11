@@ -13,23 +13,6 @@
     }
 </script>
 
-<style>
-  .container-game {
-    width: 100%;
-    display: flex;
-  }
-
-  .container-game img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .mycard {
-    width: 42%;
-  }
-</style>
-
 <div class="container-fluid">
   <div class="row">
     <div class="col-xl-6 col-12 d-flex mt-xxl-3 mt-5 ps-xl-4 pt-xl-5 justify-content-start align-items-start">
@@ -91,3 +74,20 @@
     </div>
   </div>
 </div>
+
+<style>
+  .container-game {
+    width: 100%;
+    display: flex;
+  }
+
+  .container-game img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .mycard {
+    width: 42%;
+  }
+</style>

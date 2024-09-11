@@ -36,7 +36,7 @@
             user = value;
         });
         console.log(state.user?.profile_picture);
-        console.log(user?.profile_picture.substring(19));
+        console.log(user?.profile_picture);
     });
 
 </script>
@@ -45,4 +45,8 @@
     <SelfUser />
 {:else if user?.username == currentUser}
     <OtherUser />
+{:else}
+    <div class="col-12 h-100 d-flex justify-content-center" style="color:grey;">
+        <h2 class='p-5'>Error<br>Profile not found</h2>
+    </div>
 {/if}

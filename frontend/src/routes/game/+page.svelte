@@ -1,4 +1,5 @@
 <script lang= "ts">
+    import { onDestroy } from "svelte";
     import { onMount } from 'svelte';
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -349,6 +350,11 @@
         }
         animate(); 
     })();
+    });
+    onDestroy(() => {
+        if (canvas && canvas.parentNode) {
+            canvas.parentNode.removeChild(canvas);
+        }
     });
 </script>
 

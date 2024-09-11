@@ -65,7 +65,7 @@
     <div class="d-flex h-100">
             <div class="flex-column col-3 border-end my-3">
                 <div class="border-bottom mx-3 me-4 pb-3">
-                    <img src={user?.profile_picture.substring(19)} class="img-circle rounded-circle hover-effect ms-2">
+                    <img src={user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2">
                 </div>
                 <div class="p-4">
                     <h5 class="text-light"><i class="bi-person pe-3"></i>{user?.username}</h5>
@@ -146,9 +146,5 @@
     }
     .align-img-end {
         transform: translateX(-200%);
-    }
-
-    .hover-effect:hover {
-        opacity: 0.5;
     }
 </style>
