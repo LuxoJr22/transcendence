@@ -122,7 +122,7 @@ export async function updateProfilePicture(profile_picture: File) {
         body: formData,
     });
 
-    const data = response.json();
+    const data = await response.json();
 
     if (response.ok) {
         fetchUser();
