@@ -21,10 +21,26 @@ class AcceptFriendRequestView(generics.UpdateAPIView):
 		instance = self.get_object()
 		if instance.receiver != request.user:
 			return Response({"error": "You are not authorized to accept this request"}, status=status.HTTP_403_FORBIDDEN)
-		
+
 		instance.accepted = True
 		instance.save()
 		return Response({"message": "Friend request accepted"})
+
+class RejectFriendRequestView(generics.DestroyAPIView):
+	queryset = Friendship.objects.all()
+	serializer_class = FriendshipSerializer
+	permission_classes = [IsAuthenticated]
+
+	def delete(self, request, pk):
+		instance = self.get_object()
+		if instance.receiver != request.user:
+			return Response({"error": "You are not authorized to accept this request"}, status=status.HTTP_403_FORBIDDEN)
+		try:
+			friendship = Friendship.objects.get(pk=pk, receiver=request.user, accepted=False)
+			friendship.delete()
+			return Response({"message": "Friend request rejected"})
+		except Friendship.DoesNotExist:
+			return Response({"error": "Friend request not found or accepted"})
 
 class FriendsListView(generics.ListAPIView):
 	serializer_class = FriendshipSerializer
