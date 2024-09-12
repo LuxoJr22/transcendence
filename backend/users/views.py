@@ -67,10 +67,11 @@ class UserProfileView(generics.RetrieveAPIView):
 		username = self.kwargs['username']
 		user = generics.get_object_or_404(User, username=username)
 		return user
-	
+
 	def get(self, request, *args, **kwargs):
 		user = self.get_object()
 		return Response({
+			"id": user.id,
 			"username": user.username,
 			"profile_picture": user.profile_picture.url,
 		})

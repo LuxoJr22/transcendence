@@ -36,10 +36,10 @@ class ValidationMixin:
 		if value:
 			try:
 				image = Image.open(value)
-				if image.width > 1024 or image.height > 1024:
-					raise serializers.ValidationError("Profile picture size cannot exceed 1024x1024 pixels")
 			except Exception as e:
 					raise serializers.ValidationError(f"Error processing image: {e}")
+			if image.width > 1024 or image.height > 1024:
+					raise serializers.ValidationError("Profile picture size cannot exceed 1024x1024 pixels")
 		return value
 
 class UserSerializer(ValidationMixin, serializers.ModelSerializer):
@@ -110,4 +110,4 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 class PublicUserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ['username', 'profile_picture']
+		fields = ['id', 'username', 'profile_picture']
