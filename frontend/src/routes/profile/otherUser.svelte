@@ -58,6 +58,17 @@
         }
     }
     
+    /******************HandleFriend******************/
+
+    async function addFriend() {
+        const receiver = user[currentUser]?.id;
+        const response = await fetch('/api/send/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}`},
+            body: JSON.stringify({ receiver }),
+        });
+    }
+
 </script>
 
 
@@ -70,6 +81,9 @@
                 <div class="p-4">
                     <h5 class="text-light"><i class="bi-person pe-3"></i>{user?.username}</h5>
                 </div>
+            </div>
+            <div class="align-self-end align-img-end mb-3">
+                <a href="" type="button" style="text-decoration: none" on:click={addFriend}><i class="bi bi-person-add hover-effect" style="color: grey; font-size: 1.3em"></i></a>
             </div>
         <div class="flex-column col-4 border-end my-3 ">
             <div>
