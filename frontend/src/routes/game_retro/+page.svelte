@@ -23,34 +23,16 @@
 		var ui = document.getElementById("ui");
 		var score1 = document.getElementById("player1")
 		var score2 = document.getElementById("player2")
-		
-		var endscoring = 0;
-
-		const uppertribune = new THREE.Mesh(new THREE.PlaneGeometry(34, 1), new THREE.MeshStandardMaterial);
-		uppertribune.position.set(0, 9, -0.5);
-
-		const lowertribune = new THREE.Mesh(new THREE.PlaneGeometry(34, 1), new THREE.MeshStandardMaterial);
-		lowertribune.position.set(0, -9, -0.5);
-
-		const righttribune = new THREE.Mesh(new THREE.PlaneGeometry(1, 14), new THREE.MeshStandardMaterial);
-		righttribune.position.set(17, 0, -0.5);
-
-		const lefttribune = new THREE.Mesh(new THREE.PlaneGeometry(1, 14), new THREE.MeshStandardMaterial);
-		lefttribune.position.set(-17.5, 0, -0.5);
-		const collisions = [righttribune, uppertribune, lefttribune, lowertribune];
 
 		//#region LoadModel
 
 		const loader = new GLTFLoader()
 
 
-		const gltf = await loader.loadAsync('src/routes/game_retro/public/pop.glb');
-
-		gltf.scene.position.set(-25, 0, -0.8);
-		gltf.scene.scale.set(0.5, 0.5, 0.5);
+		const gltf = await loader.loadAsync('src/routes/game_retro/public/blank.glb');
 
 
-		gltf.scene.position.set(-10, 0, -1.5);
+		gltf.scene.position.set(-17, 0, -1.5);
 		gltf.scene.scale.set(0.5, 0.5, 0.5);
 		gltf.scene.rotation.y = Math.PI / 2;
 		gltf.scene.rotation.x = Math.PI / 2;
@@ -61,9 +43,9 @@
 
 
 
-		const gl = await loader.loadAsync('src/routes/game_retro/public/sty.glb');
+		const gl = await loader.loadAsync('src/routes/game_retro/public/blank.glb');
 
-		gl.scene.position.set(10, 0, -1.5);
+		gl.scene.position.set(17, 0, -1.5);
 		gl.scene.scale.set(0.5, 0.5, 0.5);
 		gl.scene.rotation.y = Math.PI * 3 / 2;
 		gl.scene.rotation.x = Math.PI / 2;
@@ -84,7 +66,14 @@
 		let spherebb = new THREE.Sphere(sphere.position, 1);
 
 
-		const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial( { color: 0x000000 }));
+		const textur = new THREE.TextureLoader().load( "src/routes/game_retro/public/pong.png" );
+		textur.wrapS = THREE.RepeatWrapping;
+
+		textur.wrapT = THREE.RepeatWrapping;
+
+		const plain = new THREE.Mesh(new THREE.PlaneGeometry(50, 30), new THREE.MeshStandardMaterial( { map :textur }));
+
+
 
 		plain.position.set(0, 0, -0.8);
 		plain.overdraw = true;
@@ -252,6 +241,7 @@
 				chatSocket.send(JSON.stringify({
 					'event':'frame',
 					'player1':play.controller,
+					'game':"pong_retro"
 				}))
 				}
 				if (id == 2)

@@ -55,10 +55,10 @@ class Game:
 			self.balldir = lerp(self.balldir, self.ballspeed, 0.05, dt)
 		if (self.bally >= 7 or self.bally <= -7):
 			self.balldiry *= -1
-		if (self.ballx >= 16 or self.ballx <= -16):
-			if (self.ballx >= 16):
+		if (self.ballx >= 18 or self.ballx <= -18):
+			if (self.ballx >= 18):
 				self.player1.score += 1
-			if (self.ballx <= -16):
+			if (self.ballx <= -18):
 				self.player2.score += 1
 			self.scoring = 1
 			self.ballx = 0

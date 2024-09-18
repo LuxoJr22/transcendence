@@ -113,7 +113,6 @@
 
         play.cam.addEventListener( 'unlock', function () {
             el.style.display = '';
-
         } );
 
         scene.add(play.cam.getObject());
@@ -235,7 +234,13 @@
                 {
                     play.sphere.position.set(intersects[i].point.x, intersects[i].point.y ,intersects[i].point.z );
                     if (play.target.includes(intersects[i].object))
-                        er.mesh.position.set(Math.random() * 20, Math.random() * 2, Math.random() * 10)
+                    {
+                        chatSocket.send(JSON.stringify({
+                        'event':'hit',
+                        'id':id
+                        }))
+                        console.log("oui")
+                    }
                 }
             }
             if (event.which == 3)
@@ -274,19 +279,20 @@
                 console.log(id)
                 if (id == 1)
 				{
-                    camera.position.z = 34;
-                    camera.position.y = 3;
-                    camera.position.x = 27;
+                    camera.position.z = 0;
+                    camera.position.y = 1;
+                    camera.position.x = 107;
 				}
 				if (id == 2)
 				{
-                    camera.position.z = 4;
-                    camera.position.y = 11;
-                    camera.position.x = 27;
+                    camera.position.z = 0;
+                    camera.position.y = 1;
+                    camera.position.x = -100;
 				}
                 chatSocket.send(JSON.stringify({
 					'event':'frame',
 					'player':[play.cam.getObject().position, play.direction],
+                    'controller':play.controller,
                     'id':id
 				}))
 			}
@@ -296,15 +302,33 @@
                 if (id == 1)
                 {
                     er.mesh.position.set(data.player2[0].x, data.player2[0].y - 2, data.player2[0].z)
-                    er.mesh.rotation.y = data.player2[1].x
+                    if (data.player2[1].y < 0)
+                        er.mesh.rotation.y = Math.acos(data.player2[1].x) + (Math.PI / 2)
+                    else
+                        er.mesh.rotation.y = -Math.acos(data.player2[1].x) + (Math.PI / 2)
+                    er.controller = data.controller2
                 }
                 if (id == 2)
+                {
                     er.mesh.position.set(data.player1[0].x, data.player1[0].y - 2, data.player1[0].z)
+                    if (data.player1[1].y < 0)
+                        er.mesh.rotation.y = Math.acos(data.player1[1].x) + (Math.PI / 2)
+                    else
+                        er.mesh.rotation.y = -Math.acos(data.player1[1].x) + (Math.PI / 2)
+                    er.controller = data.controller1
+                }
 				chatSocket.send(JSON.stringify({
 					'event':'frame',
-					'player':[play.cam.getObject().position, play.direction],
+					'player':[play.cam.getObject().position, play.direc],
+                    'controller':play.controller,
                     'id':id
 				}))
+            }
+            if (data.event == "hit")
+            {
+                play.cam.getObject().position.x = data.position.x
+                play.cam.getObject().position.y = data.position.y
+                play.cam.getObject().position.z = data.position.z
             }
 		}
 
@@ -312,13 +336,13 @@
         function onDocumentKeyDown(event) {
             var keyCode = event.which;
             play.keydown(keyCode);
-            er.keydown(keyCode);
+            //er.keydown(keyCode);
         };
 
         function onDocumentKeyUp(event) {
             var keyCode = event.which;
             play.keyup(keyCode);
-            er.keyup(keyCode);
+            //er.keyup(keyCode);
         };
 
         //#endregion
