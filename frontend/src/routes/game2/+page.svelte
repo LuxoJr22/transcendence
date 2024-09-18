@@ -15,9 +15,7 @@
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
-        camera.position.z = 34;
-        camera.position.y = 3;
-        camera.position.x = 27;
+
 
         let t = 0;
         const clock = new THREE.Clock();
@@ -37,6 +35,9 @@
         var bind2 = {up: 90, down: 83, left:81, right:68, jump:32}
         var bind = {up: 40, down: 38, left:39, right:37, jump:96}
 
+
+        var id = 0
+        
         createmap(scene);
 
 
@@ -74,28 +75,6 @@
         mount.scene.children[0].children[0].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
         mount.scene.children[0].children[1].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
         mount.scene.children[0].children[0].geometry.computeVertexNormals();
-        //const helper = new VertexNormalsHelper(  mount.scene.children[0].children[0], 1, 0xff0000 );
-        
-        /*helper.scale.set(20, 20, 20)
-        helper.update()
-        scene.add(helper)*/
-
-
-        const tri = new THREE.Triangle(); // for re-use
-        const indices = new THREE.Vector3(); // for re-use
-        const outNormal = new THREE.Vector3(); // this is the output normal you need
-        const triangles = [];
-
-        for( let f = 0; f < 22434; f++ ){
-
-            indices.fromArray(mount.scene.children[0].children[1].geometry.index.array, f * 3);
-            tri.setFromAttributeAndIndices(mount.scene.children[0].children[1].geometry.attributes.position,
-                indices.x,
-                indices.y,
-                indices.z);
-            triangles.push(tri)
-            tri.getNormal(outNormal);
-        }
 
 
         const gl = await loader.loadAsync('src/routes/game2/public/sty.glb');
@@ -122,8 +101,9 @@
         gltf.scene.position.set(0, 0.5, 3);
         gltf.scene.scale.set(0.5, 0.5, 0.5);
 
+
         var play = new Shooter(gltf, bind2, 0.15, camera, scene, er.mesh, pickables);
-        //scene.add(play.mesh);
+            //scene.add(play.mesh);
 
         el.addEventListener('click', function () {
             el.style.display = "none";
@@ -241,6 +221,7 @@
                 renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
         }
 
+        
         function onMouse(event) {
             if (event.which == 1 && reload == 0)
             {
@@ -280,6 +261,53 @@
             }
         }
 
+        let url = 'ws://localhost:8000/ws/shooter/?token=' + localStorage.getItem('access_token');
+		const chatSocket = new WebSocket(url)
+        
+		chatSocket.onmessage = function(e) {
+	
+			let data = JSON.parse(e.data)
+			if (data.event == 'Connected')
+			{
+                id = data.id
+				console.log('connected')
+                console.log(id)
+                if (id == 1)
+				{
+                    camera.position.z = 34;
+                    camera.position.y = 3;
+                    camera.position.x = 27;
+				}
+				if (id == 2)
+				{
+                    camera.position.z = 4;
+                    camera.position.y = 11;
+                    camera.position.x = 27;
+				}
+                chatSocket.send(JSON.stringify({
+					'event':'frame',
+					'player':[play.cam.getObject().position, play.direction],
+                    'id':id
+				}))
+			}
+            if (data.event == 'frame')
+            {
+                
+                if (id == 1)
+                {
+                    er.mesh.position.set(data.player2[0].x, data.player2[0].y - 2, data.player2[0].z)
+                    er.mesh.rotation.y = data.player2[1].x
+                }
+                if (id == 2)
+                    er.mesh.position.set(data.player1[0].x, data.player1[0].y - 2, data.player1[0].z)
+				chatSocket.send(JSON.stringify({
+					'event':'frame',
+					'player':[play.cam.getObject().position, play.direction],
+                    'id':id
+				}))
+            }
+		}
+
 
         function onDocumentKeyDown(event) {
             var keyCode = event.which;
@@ -301,6 +329,10 @@
                 flagposs += dt;
         }
 
+
+        
+        
+        
         function animate() {
             requestAnimationFrame( animate );
             const dt = clock.getDelta();

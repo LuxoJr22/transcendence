@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 	'pong',
+	'shooter',
     'rest_framework',
     'rest_framework_simplejwt',
     'users',

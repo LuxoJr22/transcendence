@@ -51,7 +51,7 @@ export class Player {
 		
 		this.mixer.update( dt );
 
-		this.movelegs()
+		//this.movelegs()
 	}
 	movelegs()
 	{
@@ -108,29 +108,12 @@ export class Player {
 			this.controller.yp = this.ySpeed;
 		if (keyCode == this.bind.down)
 			this.controller.yn = -this.ySpeed;
-		if (keyCode == this.bind.left)
-			this.controller.xn = -this.xSpeed;
-		if (keyCode == this.bind.right)
-			this.controller.xp = this.xSpeed;
-		if (keyCode == this.bind.charge)
-		{
-			this.controller.charge = 1;
-		}
 	}
 	keyup (keyCode) {
 		if (keyCode == this.bind.up)
 			this.controller.yp = 0;
 		if (keyCode == this.bind.down)
 			this.controller.yn = 0;
-		if (keyCode == this.bind.left)
-			this.controller.xn = 0;
-		if (keyCode == this.bind.right)
-			this.controller.xp = 0;
-
-		if (keyCode == this.bind.charge)
-		{
-			this.controller.charge = 0;
-		}
 	}
 	action() {
 		if (this.controllanims.charge == 1 && !this.isfalling)

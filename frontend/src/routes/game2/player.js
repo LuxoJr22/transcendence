@@ -33,7 +33,7 @@ export class Player {
 		let d = Math.acos(this.direction.x)
 		if (this.direction.z < 0)
 			d *= -1;
-		this.mesh.rotation.y = -d + Math.PI / 2;
+		//this.mesh.rotation.y = -d + Math.PI / 2;
 		this.knockback = THREE.MathUtils.lerp(this.knockback, 0, 0.1)
 		this.action();
 		if (this.canmove)

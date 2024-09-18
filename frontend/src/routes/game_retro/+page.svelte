@@ -1,10 +1,10 @@
 <script lang= "ts">
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
-	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';;
+	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+	import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
+	import { RenderPixelatedPass } from  'three/examples/jsm/postprocessing/RenderPixelatedPass';
 	import { Player } from "./player.js";
-	import { Bot } from "./bot.js";
-	import { shade } from "./watershader";
 	let canvas;
 	var scoring = 0;
 
@@ -19,7 +19,6 @@
 		var limit = {px: 0, py:8, nx:-18, ny:-8}
 		var limit2 = {px: 18, py:8, nx: 0, ny:-8}
 		var scores = [0, 0];
-		var bots = [];
 		var id = 0;
 		var ui = document.getElementById("ui");
 		var score1 = document.getElementById("player1")
@@ -45,18 +44,10 @@
 		const loader = new GLTFLoader()
 
 
-		const gltf = await loader.loadAsync('src/routes/game/public/pop.glb');
+		const gltf = await loader.loadAsync('src/routes/game_retro/public/pop.glb');
 
 		gltf.scene.position.set(-25, 0, -0.8);
 		gltf.scene.scale.set(0.5, 0.5, 0.5);
-
-		let i = 0;
-		while (i < 4)
-		{
-			bots.push(new Bot(gltf.scene, collisions));
-			scene.add(bots[i].mesh);
-			i ++;
-		}
 
 
 		gltf.scene.position.set(-10, 0, -1.5);
@@ -70,7 +61,7 @@
 
 
 
-		const gl = await loader.loadAsync('src/routes/game/public/sty.glb');
+		const gl = await loader.loadAsync('src/routes/game_retro/public/sty.glb');
 
 		gl.scene.position.set(10, 0, -1.5);
 		gl.scene.scale.set(0.5, 0.5, 0.5);
@@ -80,32 +71,20 @@
 		var er = new Player(gl, bind, limit2, 0.15, -1);
 		scene.add(er.mesh);
 
-
-
-
-	
-		const bouee = await loader.loadAsync('src/routes/game/public/bue.glb');
-		bouee.scene.position.set(0, -9, -0.8);
-		bouee.scene.rotation.x = Math.PI / 2
-		bouee.scene.rotation.y = Math.PI / 2
-
-		scene.add(bouee.scene);
-
 		//#endregion
 
 
 		//#region CreateMesh
 
 		const geo = new THREE.SphereGeometry( 0.8, 32, 16); 
-		const mat = new THREE.MeshStandardMaterial( { color: 0xffc200 } ); 
+		const mat = new THREE.MeshStandardMaterial( { color: 0xFFFFFF } ); 
 		const sphere = new THREE.Mesh( geo, mat );
 		scene.add( sphere );
 
 		let spherebb = new THREE.Sphere(sphere.position, 1);
 
 
-
-		const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), shade);
+		const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial( { color: 0x000000 }));
 
 		plain.position.set(0, 0, -0.8);
 		plain.overdraw = true;
@@ -285,7 +264,6 @@
 			}
 			else if (data.event == 'frame')
 			{
-				console.log(data.time)
 				play.mesh.position.set(data.player1[0], data.player1[1], -1.5)
 				er.mesh.position.set(data.player2[0], data.player2[1], -1.5)
 				if (data.player1[2] != scores[0])
@@ -320,21 +298,15 @@
 		}
 
 		//#endregion
-
-		//var composer = new EffectComposer( renderer );
+		var composer = new EffectComposer( renderer );
 		//composer.addPass( new RenderPass( scene, camera ) );
 
-		/*var afterimagePass = new AfterimagePass();
-		composer.addPass( afterimagePass );*/
-
-
-		//var renderPixelatedPass = new RenderPixelatedPass( 2, scene, camera );
-		//composer.addPass( renderPixelatedPass );
+		var renderPixelatedPass = new RenderPixelatedPass( 3.5, scene, camera );
+		composer.addPass( renderPixelatedPass );
 
 		function animate() {
 			requestAnimationFrame( animate );
 			const dt = clock.getDelta();
-			plain.material.uniforms.time.value = t * 70;
 			t += dt;
 			if (gamepads[0])
 			{
@@ -344,14 +316,9 @@
 			}
 			play.update(dt)
 			er.update(dt)
-
-			bots.forEach(element => {
-				element.update();
-				element.scoring = scoring;
-			});
 			frames ++;
 			checkCollision();
-			renderer.render( scene, camera );
+			composer.render( scene, camera );
 		}
 		animate();
 	})();
@@ -359,8 +326,8 @@
 </script>
 
 <style>
-	/*@import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');*/
-	@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+	/*@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');*/
+	@import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');
     #ui {
         position: absolute;
 		width: 10px;
@@ -377,17 +344,12 @@
 	}
 
 	.text {
-		/*font-family: "Lilita One", sans-serif;*/
-		font-family: "Luckiest Guy", cursive;
+		/*font-family: "Silkscreen", sans-serif;*/
+		font-family: "Tiny5", sans-serif;
   		font-weight: 400;
   		font-style: normal;
 		color:white;
 		font-size: 70px;
-		text-shadow:
-		2px 2px 0 #000,
-		-2px 2px 0 #000,
-		-2px -2px 0 #000,
-		2px -2px 0 #000;
 	}
 
 
