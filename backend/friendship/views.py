@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Friendship
 from .serializers import FriendshipSerializer, CreateFriendshipSerializer
+from users.serializers import PublicUserSerializer
 
 class SendFriendRequestView(generics.CreateAPIView):
 	serializer_class = CreateFriendshipSerializer
@@ -43,14 +44,21 @@ class RejectFriendRequestView(generics.DestroyAPIView):
 			return Response({"error": "Friend request not found or accepted"})
 
 class FriendsListView(generics.ListAPIView):
-	serializer_class = FriendshipSerializer
+	serializer_class = PublicUserSerializer
 	permission_classes = [IsAuthenticated]
 
 	def get_queryset(self):
-		return Friendship.objects.filter(
+		friendships = Friendship.objects.filter(
 			(models.Q(requester=self.request.user) | models.Q(receiver=self.request.user)),
 			accepted=True
 		)
+		friends = []
+		for friendship in friendships:
+			if friendship.requester == self.request.user:
+				friends.append(friendship.receiver)
+			else:
+				friends.append(friendship.requester)
+		return friends
 
 class FriendRequestsListView(generics.ListAPIView):
 	serializer_class = FriendshipSerializer
