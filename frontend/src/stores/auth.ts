@@ -1,6 +1,6 @@
 import { writable, get } from 'svelte/store';
 
-interface User {
+export interface User { // AAAA
     id: number;
     username: string;
     email: string;
@@ -10,6 +10,7 @@ interface User {
 export interface AuthState {
     isAuthenticated: boolean;
     user: User | null;
+	friends: User[]; // AAAA
     accessToken: string | null;
     refreshToken: string | null;
 }

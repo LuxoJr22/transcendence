@@ -1,41 +1,40 @@
-<script>
+<script lang='ts'>
     import { onMount } from 'svelte';
+    import { writable } from 'svelte/store';
+    import { auth, fetchUser } from '../../stores/auth';
+    import type { AuthState, User } from '../../stores/auth';
+    import FriendsList from './FriendsList.svelte';
+    import ChatBox from './ChatBox.svelte';
 
-    let message = '';
-    let messages = [];
-    let socket;
+    let state: AuthState;
+    $: state = $auth;
 
-    onMount(() => {
-        socket = new WebSocket('/ws/chat/');
+    let selectedFriend = writable<User | null>(null);
 
-        socket.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            messages = [...messages, data.message];
-        };
-
-        socket.onclose = function(e) {
-            console.error('Chat socket closed unexpectedly');
-        };
+    onMount(async () => {
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            await fetchUser();
+        }
+        auth.subscribe((value : AuthState) =>{
+            state = value
+        });
     });
 
-    function sendMessage() {
-        socket.send(JSON.stringify({
-            'message': message
-        }));
-        message = '';
-    }
+    const handleFriendSelected = (event) => {
+        selectedFriend.set(event.detail.friend);
+    };
 </script>
 
-<style>
-    /* Ton style CSS ici */
-</style>
-
-<div>
-    <div>
-        {#each messages as msg}
-            <p style="color: white;">{msg}</p>
-        {/each}
+<div class="chat-container">
+    <div class="friends-list">
+        <FriendsList on:friendSelected={handleFriendSelected} />
     </div>
-    <input type="text" bind:value={message} on:keydown="{(e) => e.key === 'Enter' && sendMessage()}" />
-    <button on:click={sendMessage}>Envoyer</button>
+    <div class="chat-box">
+        {#if $selectedFriend}
+            <ChatBox friend={$selectedFriend} />
+        {:else}
+        <p>Select a friend to start chatting</p>
+        {/if}
+    </div>
 </div>
