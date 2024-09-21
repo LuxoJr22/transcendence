@@ -1,8 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { get } from 'svelte/store'
     import Pie from './pie.svelte';
-
-    const img = new URL('$lib/assets/sforesti.jpg', import.meta.url).href;
     import { auth, fetchUser, logout, updateInformations, updateProfilePicture , updatePassword } from '../../stores/auth';
     import type { AuthState } from '../../stores/auth';
 
@@ -18,6 +17,7 @@
             await fetchUser();
         }
         await fetchHistoryMatches();
+        await fetchFriendList();
         truncHistory();
         auth.subscribe((value : AuthState) =>{
         state = value
@@ -153,7 +153,27 @@
         }
     }
 
-    
+    /******************friend******************/
+
+    let friendList = '';
+
+    async function fetchFriendList(){
+        const { accessToken } = get(auth);
+
+        if (!accessToken)
+            return;
+
+        const response = await fetch('/api/friends/', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${accessToken}` },
+        });
+
+        if (response.ok){
+            const data = await response.json();
+            friendList = data;
+            console.log(data);
+        }
+    }
 </script>
 
 
@@ -189,6 +209,16 @@
             </div>
             <div class="p-4">
                 <h5 class="text-light"><i class="bi-person pe-3"></i>{state.user?.username}</h5>
+            </div>
+            <div class="border-top mx-3 me-4">
+                {#each friendList as friend}
+                    <div class="border rounded d-flex mt-2">
+                        <img src={friend.requester.profile_picture.substr(19)} class="rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
+                        <div>
+                            <p class="text-light align-self-center" style="font-size:100%;">{friend.requester.username}</p>
+                        </div>
+                    </div>
+                {/each}
             </div>
         </div>
         <div class="align-self-end align-img-end mb-3">
