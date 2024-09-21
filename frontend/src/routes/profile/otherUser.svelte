@@ -60,15 +60,19 @@
     
     /******************HandleFriend******************/
 
+    let statusAddFriendRequest;
+
     async function addFriend() {
-        const receiver = user[currentUser]?.id;
+        const receiver = user.id;
         const response = await fetch('/api/send/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}`},
             body: JSON.stringify({ receiver }),
         });
+        statusAddFriendRequest = await response.json();
+        console.log(statusAddFriendRequest);
     }
-
+    
 </script>
 
 
@@ -83,7 +87,7 @@
                 </div>
             </div>
             <div class="align-self-end align-img-end mb-3">
-                <a href="" type="button" style="text-decoration: none" on:click={addFriend}><i class="bi bi-person-add hover-effect" style="color: grey; font-size: 1.3em"></i></a>
+                <button href="" type="button" style="text-decoration: none" class="p-0 btn" on:click={addFriend}><i class="bi bi-person-add hover-effect" style="color: grey; font-size: 1.3em"></i></button>
             </div>
         <div class="flex-column col-4 border-end my-3 ">
             <div>
@@ -161,4 +165,9 @@
     .align-img-end {
         transform: translateX(-200%);
     }
+
+    .hover-effect:hover {
+        opacity: 0.5;
+    }
+
 </style>
