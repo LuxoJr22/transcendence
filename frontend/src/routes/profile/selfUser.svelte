@@ -208,15 +208,19 @@
                     </div>
                 </div>
             </div>
-            <div class="p-4">
+            <div class="p-4 border-bottom mx-3 me-4 mb-4">
                 <h5 class="text-light"><i class="bi-person pe-3"></i>{state.user?.username}</h5>
             </div>
-            <div class="border-top mx-3 me-4">
+            <div class="mb-3">
+                <h5 class="text-light friend-title d-flex justify-content-center">Friends</h5>
+            </div>
+            <div class="mx-3 me-4 friend-container">
                 {#each friendList as friend}
-                    <div class="border rounded d-flex mt-2">
-                        <img src={friend.requester.profile_picture.substr(19)} class="rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
-                        <div>
-                            <p class="text-light align-self-center" style="font-size:100%;">{friend.requester.username}</p>
+                    <div class="border rounded d-flex mt-2 me-2">
+                        <img src={friend.requester.profile_picture.substr(19)} class="img-circle rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
+                        <div class="d-flex">
+                            <p class="text-light ms-2 mt-3" style="font-size:100%;">{friend.requester.username}</p>
+                            <button class="btn"><i class="bi bi-x-lg" style="color:red;"></i></button>
                         </div>
                     </div>
                 {/each}
@@ -239,7 +243,6 @@
                                         <div class="alert alert-success" role="alert">
                                             Username changed with success
                                         </div>
-                                        {goto('/profile/' + state.user?.username)}
                                     {:else if errorsMessage && errorsUsername == true}
                                     <div class="alert alert-danger" role="alert">
                                         {errorsMessage}
@@ -373,5 +376,24 @@
 
     .hover-effect:hover {
         opacity: 0.5;
+    }
+
+    .friend-container{
+        width: 90%;
+        height: 30%;
+        overflow: auto;
+        scrollbar-width: thin;
+        scrollbar-color: black grey;
+    }
+
+    div::-webkit-scrollbar-thumb {
+        border: 4px solid;
+        border-radius: 10px;       
+        background-clip: padding-box; 
+    }
+
+    .friend-title{
+        font-family: Nabla;
+        font-size: 175%;
     }
 </style>
