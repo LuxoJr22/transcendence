@@ -9,8 +9,8 @@ export interface Profile {
 
 export const profile = writable<Profile>();
 
-export async function profileData(username: string, token: string): Promise<void> {
-   const response = await fetch('/api/user/profile/' + username + '/', {
+export async function profileData(id: string, token: string): Promise<void> {
+   const response = await fetch('/api/user/profile/' + parseInt(id) + '/', {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token}` },
    });

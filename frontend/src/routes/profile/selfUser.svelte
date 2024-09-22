@@ -1,8 +1,9 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
     import { get } from 'svelte/store'
     import Pie from './pie.svelte';
-    import { auth, fetchUser, logout, updateInformations, updateProfilePicture , updatePassword } from '../../stores/auth';
+    import { auth, fetchUser, updateInformations, updateProfilePicture , updatePassword } from '../../stores/auth';
     import type { AuthState } from '../../stores/auth';
 
     let victories = 15;
@@ -20,8 +21,8 @@
         await fetchFriendList();
         truncHistory();
         auth.subscribe((value : AuthState) =>{
-        state = value
-    });
+            state = value
+        });
     });
     
     
@@ -238,6 +239,7 @@
                                         <div class="alert alert-success" role="alert">
                                             Username changed with success
                                         </div>
+                                        {goto('/profile/' + state.user?.username)}
                                     {:else if errorsMessage && errorsUsername == true}
                                     <div class="alert alert-danger" role="alert">
                                         {errorsMessage}

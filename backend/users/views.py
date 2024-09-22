@@ -64,8 +64,8 @@ class UserProfileView(generics.RetrieveAPIView):
 	permission_classes = [IsAuthenticated]
 
 	def get_object(self):
-		username = self.kwargs['username']
-		user = generics.get_object_or_404(User, username=username)
+		id = self.kwargs['id']
+		user = generics.get_object_or_404(User, id=id)
 		return user
 
 	def get(self, request, *args, **kwargs):

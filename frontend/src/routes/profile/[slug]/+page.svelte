@@ -22,6 +22,10 @@
     let user : Profile;
     $: user = $profile;
     
+    auth.subscribe((value : AuthState) =>{
+            state = value
+        });
+    
     onMount(async () => {
         if (localStorage.getItem('access_token')) {
             await fetchUser();
@@ -35,15 +39,13 @@
         profile.subscribe((value : Profile) =>{
             user = value;
         });
-        console.log(state.user?.profile_picture);
-        console.log(user?.profile_picture);
     });
 
 </script>
 
-{#if currentUser == state.user?.username}
+{#if parseInt(currentUser) == state.user?.id}
     <SelfUser />
-{:else if user?.username == currentUser}
+{:else if user?.id == parseInt(currentUser)}
     <OtherUser />
 {:else}
     <div class="col-12 h-100 d-flex justify-content-center" style="color:grey;">
