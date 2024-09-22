@@ -11,7 +11,7 @@
 	onMount(() => { (async () => {
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
-		scene.background = new THREE.Color(0x54A0E4);
+		scene.background = new THREE.Color(0x717171);
 
 		
 		var bind = {up: 90, down: 83, left:81, right:68, charge:32}
@@ -66,16 +66,16 @@
 		let spherebb = new THREE.Sphere(sphere.position, 1);
 
 
-		const textur = new THREE.TextureLoader().load( "src/routes/game_retro/public/pong.png" );
+		const textur = new THREE.TextureLoader().load( "src/routes/game_retro/public/suh.png" );
 		textur.wrapS = THREE.RepeatWrapping;
 
 		textur.wrapT = THREE.RepeatWrapping;
 
-		const plain = new THREE.Mesh(new THREE.PlaneGeometry(50, 30), new THREE.MeshStandardMaterial( { map :textur }));
+		const plain = new THREE.Mesh(new THREE.PlaneGeometry(64, 36), new THREE.MeshStandardMaterial( { map :textur }));
 
 
 
-		plain.position.set(0, 0, -0.8);
+		plain.position.set(0, 0, -4.8);
 		plain.overdraw = true;
 		plain.receiveShadow = true;
 
@@ -173,7 +173,7 @@
 
 		window.onresize = function(event){
 			if (window.innerWidth * 0.7 < 1920 * 0.7)
-				renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+				renderer.setSize( window.innerWidth * 0.7, (window.innerWidth * 0.7) / 16 * 9);
 		}
 
 		function onDocumentKeyDown(event) {
@@ -226,7 +226,7 @@
 		}
 
 		var frames = 0
-		let url = 'ws://localhost:8000/ws/pong/?token=' + localStorage.getItem('access_token');
+		let url = 'ws://localhost:8000/ws/pong/pong_retro/?token=' + localStorage.getItem('access_token');
 		const chatSocket = new WebSocket(url)
 
 		chatSocket.onmessage = function(e) {
@@ -291,7 +291,7 @@
 		var composer = new EffectComposer( renderer );
 		//composer.addPass( new RenderPass( scene, camera ) );
 
-		var renderPixelatedPass = new RenderPixelatedPass( 3.5, scene, camera );
+		var renderPixelatedPass = new RenderPixelatedPass(3.5, scene, camera );
 		composer.addPass( renderPixelatedPass );
 
 		function animate() {
@@ -316,13 +316,20 @@
 </script>
 
 <style>
-	/*@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');*/
-	@import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');
+	@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
+	/*@import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');*/
     #ui {
         position: absolute;
 		width: 10px;
 		height: 10px;
 
+    }
+
+	.game {
+        border-radius: 3% !important;
+        margin-left: 10% !important;
+        width: 70% !important;
+        height: 70% !important; 
     }
 
 	#score {
@@ -334,8 +341,8 @@
 	}
 
 	.text {
-		/*font-family: "Silkscreen", sans-serif;*/
-		font-family: "Tiny5", sans-serif;
+		font-family: "Silkscreen", sans-serif;
+		/*font-family: "Tiny5", sans-serif;*/
   		font-weight: 400;
   		font-style: normal;
 		color:white;
@@ -355,4 +362,4 @@
 </div>
 
 
-<canvas bind:this={canvas} class=""></canvas>
+<canvas bind:this={canvas} class="game"></canvas>

@@ -4,18 +4,23 @@ from .player_class import Player
 from .utils import lerp
 
 class Game:
-	def __init__(self):
+	def __init__(self, gamemode):
 		self.t = -time.perf_counter()
 		self.endscoring = 0
 		self.scoring = 0
+		self.gamemode = gamemode
 		self.ballx = 0
 		self.bally = 0
 		self.balldir = 1.5
 		self.last = 0
 		self.balldiry = 0
 		self.ballspeed = 1
-		self.player1 = Player(-10, 0, {"px": 0, "py":8, "nx":-18, "ny":-8}, 1)
-		self.player2 = Player(10, 0, {"px": 18, "py":8, "nx": 0, "ny":-8}, -1)
+		if (self.gamemode == "pong"):
+			self.player1 = Player(-10, 0, {"px": 0, "py":8, "nx":-18, "ny":-8}, 1)
+			self.player2 = Player(10, 0, {"px": 18, "py":8, "nx": 0, "ny":-8}, -1)
+		else :
+			self.player1 = Player(-17, 0, {"px": 0, "py":8, "nx":-18, "ny":-8}, 1)
+			self.player2 = Player(17, 0, {"px": 18, "py":8, "nx": 0, "ny":-8}, -1)
 
 
 	def update(self):
@@ -74,8 +79,15 @@ class Game:
 		self.balldir = 1.5
 		self.balldiry = 0
 		self.ballspeed = 1
-		self.player1.x = -10
-		self.player1.y = 0
-		self.player2.x = 10
+		
 		self.player2.y = 0
+		self.player1.y = 0
+		if (self.gamemode == 'pong'):
+			self.player1.x = -10
+			self.player2.x = 10
+		else:
+			self.player1.x = -17
+			self.player2.x = 17
+		
+		
 

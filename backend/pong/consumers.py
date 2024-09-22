@@ -10,6 +10,7 @@ dictio = {}
 class PongConsumer(WebsocketConsumer):
 	def connect(self):
 		self.room_group_name = 'tests'
+		self.gamemode = self.scope['url_route']['kwargs']['gamemode']
 		self.user = self.scope['user']
 		self.id = 0
 
@@ -28,7 +29,7 @@ class PongConsumer(WebsocketConsumer):
 			self.pongroom.users_online.add(self.user)
 		if self.pongroom.users_online.count() == 1:
 			self.id = 1
-			dictio[self.room_group_name] = Game()
+			dictio[self.room_group_name] = Game(self.gamemode)
 		else:
 			self.id = 2
 		self.game = dictio[self.room_group_name]

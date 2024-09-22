@@ -258,7 +258,7 @@
 		}
 
 		var frames = 0
-		let url = 'ws://localhost:8000/ws/pong/?token=' + localStorage.getItem('access_token');
+		let url = 'ws://localhost:8000/ws/pong/pong/?token=' + localStorage.getItem('access_token');
 		const chatSocket = new WebSocket(url)
 
 		chatSocket.onmessage = function(e) {

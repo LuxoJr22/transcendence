@@ -9,7 +9,7 @@ dictio = {}
 
 class ShooterConsumer(WebsocketConsumer):
 	def connect(self):
-		self.room_group_name = 't'
+		self.room_group_name = 'est'
 		self.user = self.scope['user']
 		self.id = 0
 
@@ -54,50 +54,35 @@ class ShooterConsumer(WebsocketConsumer):
 		event = text_data_json['event']
 		if (event == "hit"):
 			if text_data_json['id'] == 1:
-				self.game.player2.hit = 1
-				self.game.player2.position = self.game.player2.spawn
+				self.game.players[1].hit = 1
+				self.game.players[1].position = self.game.players[1].spawn
 			if text_data_json['id'] == 2:
-				self.game.player1.hit = 1
-				self.game.player1.position = self.game.player1.spawn
+				self.game.players[0].hit = 1
+				self.game.players[0].position = self.game.players[0].spawn
 			return 
-
-		if text_data_json['id'] == 1:
-			if (self.game.player1.hit != 1):
-				self.game.player1.position = text_data_json['player'][0]
-			else:
-				self.send(text_data=json.dumps({
-					'type':'Shooter',
-					'event':'hit',
-					'position': self.game.player1.position
-				}))
-				self.game.player1.hit = 0
-			self.game.player1.direction = text_data_json['player'][1]
-			self.game.player1.controller = text_data_json['controller']
-			if self.id == 1:
-				self.Shooter_event(event)
-		if text_data_json['id'] == 2:
-			if (self.game.player2.hit != 1):
-				self.game.player2.position = text_data_json['player'][0]
-			else:
-				self.send(text_data=json.dumps({
-					'type':'Shooter',
-					'event':'hit',
-					'position': self.game.player2.position
-				}))
-				self.game.player2.hit = 0
-			self.game.player2.direction = text_data_json['player'][1]
-			self.game.player2.controller = text_data_json['controller']
-			self
-			if self.id == 2:
-				self.Shooter_event(event)
+		id = text_data_json['id'] - 1
+		if (self.game.players[id].hit != 1):
+			self.game.players[id].position = text_data_json['player'][0]
+		else:
+			self.send(text_data=json.dumps({
+				'type':'Shooter',
+				'event':'hit',
+				'position': self.game.players[id].position,
+				'rotation': self.game.players[id].rotaspawn
+			}))
+			self.game.players[id].hit = 0
+		self.game.players[id].direction = text_data_json['player'][1]
+		self.game.players[id].controller = text_data_json['controller']
+		if self.id == id + 1:
+			self.Shooter_event(event)
 
 	def Shooter_event(self, event):
 
 		self.send(text_data=json.dumps({
 			'type':'Shooter',
 			'event':event,
-			'player1':[self.game.player1.position, self.game.player1.direction],
-			'player2':[self.game.player2.position, self.game.player2.direction],
-			'controller1':self.game.player1.controller,
-			'controller2':self.game.player2.controller,
+			'player1':[self.game.players[0].position, self.game.players[0].direction],
+			'player2':[self.game.players[1].position, self.game.players[1].direction],
+			'controller1':self.game.players[0].controller,
+			'controller2':self.game.players[1].controller,
 		}))

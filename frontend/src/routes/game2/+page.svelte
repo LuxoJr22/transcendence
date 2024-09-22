@@ -77,12 +77,12 @@
         mount.scene.children[0].children[0].geometry.computeVertexNormals();
 
 
-        const gl = await loader.loadAsync('src/routes/game2/public/sty.glb');
+        const gl = await loader.loadAsync('src/routes/game2/public/pirate.glb');
 
         gl.scene.position.set(10, 0, -1.5);
         gl.scene.scale.set(0.5, 0.5, 0.5);
 
-        var er = new Player(gl, bind, 0.15, 0);
+        var er = new Player(gl, bind, 0.15, 0, scene);
         er.mesh.traverse(function(node) {
             if (node.isMesh)
                 node.castShadow = true;
@@ -95,7 +95,7 @@
         let skeletonCollider = new SkeletonCollider(er.mesh, scene, pickables)
 
 
-        const gltf = await loader.loadAsync('src/routes/game2/public/pop.glb');
+        const gltf = await loader.loadAsync('src/routes/game2/public/pirate.glb');
 
 
         gltf.scene.position.set(0, 0.5, 3);
@@ -103,6 +103,7 @@
 
 
         var play = new Shooter(gltf, bind2, 0.15, camera, scene, er.mesh, pickables);
+        er.target = er.target.concat(pickables)
             //scene.add(play.mesh);
 
         el.addEventListener('click', function () {
@@ -197,6 +198,16 @@
                 play.controller.yp = -axes[1] * ySpeed;
             else
                 play.controller.yp = 0;
+
+            /*if (axes[2] < -0.2)
+                play.cam.getObject().rotation.y -= axes[2] * xSpeed;
+            if (axes[2] > 0.2)
+                play.cam.getObject().rotation.y -= axes[2] * xSpeed;
+
+            if (axes[3] < -0.2)
+                play.cam.getObject().rotation.x -= axes[3] * xSpeed;
+            if (axes[3] > 0.2)
+                play.cam.getObject().rotation.x -= axes[3] * xSpeed;*/
         }
 
         window.addEventListener(
@@ -239,7 +250,6 @@
                         'event':'hit',
                         'id':id
                         }))
-                        console.log("oui")
                     }
                 }
             }
@@ -282,12 +292,18 @@
                     camera.position.z = 0;
                     camera.position.y = 1;
                     camera.position.x = 107;
+                    camera.rotation.x = 0;
+                    camera.rotation.y = Math.PI / 2;
+                    camera.rotation.z = 0;
 				}
 				if (id == 2)
 				{
                     camera.position.z = 0;
                     camera.position.y = 1;
                     camera.position.x = -100;
+                    camera.rotation.x = 0;
+                    camera.rotation.y = -Math.PI / 2;
+                    camera.rotation.z = 0;
 				}
                 chatSocket.send(JSON.stringify({
 					'event':'frame',
@@ -329,6 +345,10 @@
                 play.cam.getObject().position.x = data.position.x
                 play.cam.getObject().position.y = data.position.y
                 play.cam.getObject().position.z = data.position.z
+                play.cam.getObject().rotation.x = data.rotation.x
+                play.cam.getObject().rotation.y = data.rotation.y
+                play.cam.getObject().rotation.z = data.rotation.z
+
             }
 		}
 
@@ -336,13 +356,11 @@
         function onDocumentKeyDown(event) {
             var keyCode = event.which;
             play.keydown(keyCode);
-            //er.keydown(keyCode);
         };
 
         function onDocumentKeyUp(event) {
             var keyCode = event.which;
             play.keyup(keyCode);
-            //er.keyup(keyCode);
         };
 
         //#endregion
