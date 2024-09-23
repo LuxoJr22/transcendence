@@ -4,7 +4,6 @@ from asgiref.sync import sync_to_async
 from users.models import User
 from .models import Message
 
-
 class ChatConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
 		self.receiver = self.scope['url_route']['kwargs']['username']
@@ -21,7 +20,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			self.channel_name
 		)
 		await self.accept()
-		print("Connected", file=sys.stderr)
 
 	async def disconnect(self, close_code):
 		await self.channel_layer.group_discard(
@@ -32,7 +30,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 	async def receive(self, text_data):
 		text_data_json = json.loads(text_data)
 		message = text_data_json['message']
-    
+
 		await self.save_message(self.sender, self.receiver, message)
 
 		await self.channel_layer.group_send(
@@ -48,7 +46,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		message = event['message']
 		sender = event['sender']
 
-		# Envoyer le message au WebSocket
 		await self.send(text_data=json.dumps({
 			'message': message,
 			'sender': sender

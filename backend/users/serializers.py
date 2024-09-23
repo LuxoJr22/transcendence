@@ -108,6 +108,13 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 		return instance
 
 class PublicUserSerializer(serializers.ModelSerializer):
+	profile_picture_url = serializers.SerializerMethodField()
+
 	class Meta:
 		model = User
-		fields = ['id', 'username', 'profile_picture']
+		fields = ['id', 'username', 'profile_picture_url']
+
+	def get_profile_picture_url(self, obj):
+		if obj.profile_picture:
+			return obj.profile_picture.url
+		return None

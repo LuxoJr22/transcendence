@@ -31,7 +31,7 @@ class LoginView(TokenObtainPairView):
 				"id": user.id,
 				"username": user.username,
 				"email": user.email,
-				"profile_picture": user.profile_picture.url,
+				"profile_picture_url": user.profile_picture.url,
 			}
 		})
 
@@ -64,14 +64,6 @@ class UserProfileView(generics.RetrieveAPIView):
 	permission_classes = [IsAuthenticated]
 
 	def get_object(self):
-		id = self.kwargs['id']
-		user = generics.get_object_or_404(User, id=id)
+		user_id = self.kwargs['id']
+		user = generics.get_object_or_404(User, id=user_id)
 		return user
-
-	def get(self, request, *args, **kwargs):
-		user = self.get_object()
-		return Response({
-			"id": user.id,
-			"username": user.username,
-			"profile_picture": user.profile_picture.url,
-		})
