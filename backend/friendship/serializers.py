@@ -22,6 +22,8 @@ class CreateFriendshipSerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError("You cannot send a friend request to yourself.")
 		if Friendship.objects.filter(requester=request.user, receiver=receiver).exists():
 			raise serializers.ValidationError("Friend request already sent.")
+		if Friendship.objects.filter(receiver=request.user, requester=receiver).exists():
+			raise serializers.ValidationError("This user has already sent you a friend request.")
 		return attrs
 
 	def create(self, validated_data):
