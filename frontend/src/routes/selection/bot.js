@@ -1,31 +1,51 @@
 import * as THREE from 'three';
+import { SkeletonCollider } from "./skeletoncollider.js"
+import { equal } from "./utils.js"
 
 export class Bot{
 	constructor(mesh, scene){
 		this.scene = scene
 		this.mesh = mesh
+		this.mesh.traverse(function(node) {
+            if (node.isMesh)
+                node.castShadow = true;
+            if (node.isSkinnedMesh)
+                node.frustumCulled = false;
+        })
+		const pick = []
+		this.skeletoncollider = new SkeletonCollider(this.mesh, this.scene, pick)
+		this.target = this.mesh.getObjectByName("Bone001").children;
+		this.target.concat(this.pick)
+		this.scene.add(this.mesh)
 		this.left = this.mesh.getObjectByName("Bone003L");
 		this.right = this.mesh.getObjectByName("Bone003R");
 		this.bone = this.mesh.getObjectByName("Bone");
 		this.gravity = -9.81
 		this.movements =  {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
+		this.lastmove = 0
 		this.isground = 1
 		this.rotation = 0
 		this.rotationy = 0
+		this.targetx = 0;
+		this.targetz = 0
 		this.dir = 0;
 		this.animleg = 0
 		this.ispicked = 0
+		this.throwed = 0
 		this.moving = 0
-		this.foot = new THREE.Raycaster();
-		this.foot.far = 0.5
-		this.footdir = new THREE.Vector3(0, -1 ,0)
 
 	}
-	update(dt)
+	update(dt, t)
 	{
-		this.foot.set(new THREE.Vector3(this.mesh.position.x, this.mesh.position.y + 0.5, this.mesh.position.z), this.footdir)
-		var inter = this.foot.intersectObjects( this.scene.children);
-		if ((!(inter.length > 0) || (inter.length == 1 && inter[0].object.name == "frontplane")) && !this.ispicked)
+		this.skeletoncollider.update()
+		if (t > this.lastmove + 6)
+		{
+			this.move()
+			this.lastmove = t
+		}
+		if (t > this.lastmove + 3)
+			this.moving = 0
+		if (this.mesh.position.y > 0)
 		{
 			this.mesh.position.y += this.gravity * dt * 3
 			this.mesh.rotation.x = THREE.MathUtils.lerp(this.mesh.rotation.x, 0, 0.1)
@@ -42,10 +62,20 @@ export class Bot{
 		}
 		else
 			this.movements.xp = 0
+
+		if (this.throwed)
+			this.throw()
 		if (!this.ispicked)
 			this.movelegs()
 		else
 			this.picked()
+	}
+	throw()
+	{
+		this.mesh.position.x = THREE.MathUtils.lerp(this.mesh.position.x , this.targetx, 0.1);
+		this.mesh.position.z = THREE.MathUtils.lerp(this.mesh.position.z, this.targetz, 0.1);
+		if (equal(this.mesh.position.x, this.targetx) && equal(this.mesh.position.z, this.targetz))
+			this.throwed = 0
 	}
 	picked()
 	{

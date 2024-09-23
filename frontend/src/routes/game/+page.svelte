@@ -45,18 +45,21 @@
 		const loader = new GLTFLoader()
 
 
-		const gltf = await loader.loadAsync('src/routes/game/public/pop.glb');
-
-		gltf.scene.position.set(-25, 0, -0.8);
-		gltf.scene.scale.set(0.5, 0.5, 0.5);
+		const g = await loader.loadAsync('src/routes/game/public/pop.glb');
 
 		let i = 0;
+		g.scene.scale.set(0.5, 0.5, 0.5);
 		while (i < 4)
 		{
-			bots.push(new Bot(gltf.scene, collisions));
+			bots.push(new Bot(g.scene, collisions));
 			scene.add(bots[i].mesh);
 			i ++;
 		}
+
+		const gltf = await loader.loadAsync('src/routes/game/public/pir.glb');
+
+		gltf.scene.position.set(-25, 0, -0.8);
+		gltf.scene.scale.set(0.5, 0.5, 0.5);
 
 
 		gltf.scene.position.set(-10, 0, -1.5);

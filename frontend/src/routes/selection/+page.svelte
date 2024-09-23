@@ -19,39 +19,22 @@
 
 		const loader = new GLTFLoader()
 
+		var bots = [];
+
 
 		const gltf = await loader.loadAsync('src/routes/selection/public/pop.glb');
-		gltf.scene.traverse(function(node) {
-            if (node.isMesh)
-                node.castShadow = true;
-            if (node.isSkinnedMesh)
-                node.frustumCulled = false;
-        })
-		scene.add(gltf.scene);
-		var first = new Bot(gltf.scene, scene)
+		bots.push(new Bot(gltf.scene, scene))
 
 
 		const gm = await loader.loadAsync('src/routes/selection/public/sty.glb');
-		gm.scene.traverse(function(node) {
-            if (node.isMesh)
-                node.castShadow = true;
-            if (node.isSkinnedMesh)
-                node.frustumCulled = false;
-        })
-		scene.add(gm.scene);
-		var second = new Bot(gm.scene, scene)
+		bots.push(new Bot(gm.scene, scene))
 
 		gm.scene.position.set(10, 0, 0)
 
-		const pick1 = [];
-        let skeleton1 = new SkeletonCollider(gltf.scene, scene, pick1)
-		var target1 = gm.scene.getObjectByName("Bone001").children;
-		target1 = target1.concat(pick1)
+		const dd = await loader.loadAsync('src/routes/selection/public/pir.glb');
+		bots.push(new Bot(dd.scene, scene))
 
-		const pick2 = [];
-        let skeleton2 = new SkeletonCollider(gm.scene, scene, pick2)
-		var target2 = gltf.scene.getObjectByName("Bone001").children;
-		target2 = target2.concat(pick2)
+		dd.scene.position.set(-10, 0, 0)
 
 
 
@@ -173,9 +156,28 @@
 		window.addEventListener('click', event => {
 			if (draggable)
 			{
-				first.ispicked = 0;
-				second.ispicked = 0;
-				draggable = null
+				
+				const found = raycaster.intersectObjects(scene.children);
+				var i = 0;
+				var drop = 0
+				while (found[i] && drop == 0)
+				{
+					if (found[i].object.name == "floor")
+						drop = 1
+					else
+						i ++;
+				}
+				if (drop == 1)
+				{
+					draggable.ispicked = 0;
+					draggable.throwed = 1;
+					draggable.targetx = found[i].point.x 
+					draggable.targetz = found[i].point.z
+
+					draggable = null
+				}
+
+				
 				return
 			}
 			clickmouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1
@@ -186,15 +188,15 @@
 			if (found.length > 1)
 			{
 				var obj = found[1].object
-				if (target1.includes(obj))
+				var i = 0
+				while (bots[i])
 				{
-					draggable = gm.scene
-					second.ispicked = 1
-				}
-				if (target2.includes(obj))
-				{
-					draggable = gltf.scene
-					first.ispicked = 1
+					if (bots[i].target.includes(obj))
+					{
+						draggable = bots[i]
+						bots[i].ispicked = 1
+					}
+					i++
 				}
 			}
 		})
@@ -211,38 +213,25 @@
 				if (found.length > 0){
 					for (let o of found) {
 						if (o.object.name == "frontplane"){
-							draggable.position.x = THREE.MathUtils.lerp(draggable.position.x, o.point.x, 0.1)
-							draggable.position.z = THREE.MathUtils.lerp(draggable.position.z, o.point.z, 0.1)
-							draggable.position.y = THREE.MathUtils.lerp(draggable.position.y, o.point.y, 0.1)
-							draggable.rotation.y = THREE.MathUtils.lerp(draggable.rotation.y, 0, 0.1)
-							draggable.rotation.x = THREE.MathUtils.lerp(draggable.rotation.x, -Math.PI / 3.5, 0.1)
+							draggable.mesh.position.x = THREE.MathUtils.lerp(draggable.mesh.position.x, o.point.x, 0.1)
+							draggable.mesh.position.z = THREE.MathUtils.lerp(draggable.mesh.position.z, o.point.z, 0.1)
+							draggable.mesh.position.y = THREE.MathUtils.lerp(draggable.mesh.position.y, o.point.y, 0.1)
+							draggable.mesh.rotation.y = THREE.MathUtils.lerp(draggable.mesh.rotation.y, 0, 0.1)
+							draggable.mesh.rotation.x = THREE.MathUtils.lerp(draggable.mesh.rotation.x, -Math.PI / 3.5, 0.1)
 						}
 					}
 				}
 			}
 		}
-		var lastmove = 0
 		function animate() {
 			dragObject()
 			requestAnimationFrame( animate );
-			skeleton1.update()
-			skeleton2.update()
 			//controls.update();
 			const dt = clock.getDelta();
-			first.update(dt);
-			second.update(dt);
 			t += dt;
-			if (t > lastmove + 6)
-			{
-				first.move()
-				second.move()
-				lastmove = t
-			}
-			if (t > lastmove + 3)
-			{
-				first.moving = 0
-				second.moving = 0
-			}
+			bots.forEach(element => {
+				element.update(dt, t);
+			});
 
 			if (gamepads[0])
 			{

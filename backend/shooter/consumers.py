@@ -52,15 +52,18 @@ class ShooterConsumer(WebsocketConsumer):
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
 		event = text_data_json['event']
+		id = text_data_json['id'] - 1
 		if (event == "hit"):
 			if text_data_json['id'] == 1:
 				self.game.players[1].hit = 1
 				self.game.players[1].position = self.game.players[1].spawn
+				self.game.players[id].score += 100
 			if text_data_json['id'] == 2:
 				self.game.players[0].hit = 1
 				self.game.players[0].position = self.game.players[0].spawn
+				self.game.players[id].score += 100
 			return 
-		id = text_data_json['id'] - 1
+		
 		if (self.game.players[id].hit != 1):
 			self.game.players[id].position = text_data_json['player'][0]
 		else:

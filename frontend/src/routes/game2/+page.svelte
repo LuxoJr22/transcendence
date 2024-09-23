@@ -77,7 +77,7 @@
         mount.scene.children[0].children[0].geometry.computeVertexNormals();
 
 
-        const gl = await loader.loadAsync('src/routes/game2/public/pirate.glb');
+        const gl = await loader.loadAsync('src/routes/game2/public/pir.glb');
 
         gl.scene.position.set(10, 0, -1.5);
         gl.scene.scale.set(0.5, 0.5, 0.5);
@@ -95,7 +95,7 @@
         let skeletonCollider = new SkeletonCollider(er.mesh, scene, pickables)
 
 
-        const gltf = await loader.loadAsync('src/routes/game2/public/pirate.glb');
+        const gltf = await loader.loadAsync('src/routes/game2/public/pir.glb');
 
 
         gltf.scene.position.set(0, 0.5, 3);
