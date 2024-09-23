@@ -15,9 +15,7 @@
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
-        camera.position.z = 34;
-        camera.position.y = 3;
-        camera.position.x = 27;
+
 
         let t = 0;
         const clock = new THREE.Clock();
@@ -37,6 +35,9 @@
         var bind2 = {up: 90, down: 83, left:81, right:68, jump:32}
         var bind = {up: 40, down: 38, left:39, right:37, jump:96}
 
+
+        var id = 0
+        
         createmap(scene);
 
 
@@ -74,36 +75,14 @@
         mount.scene.children[0].children[0].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
         mount.scene.children[0].children[1].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
         mount.scene.children[0].children[0].geometry.computeVertexNormals();
-        //const helper = new VertexNormalsHelper(  mount.scene.children[0].children[0], 1, 0xff0000 );
-        
-        /*helper.scale.set(20, 20, 20)
-        helper.update()
-        scene.add(helper)*/
 
 
-        const tri = new THREE.Triangle(); // for re-use
-        const indices = new THREE.Vector3(); // for re-use
-        const outNormal = new THREE.Vector3(); // this is the output normal you need
-        const triangles = [];
-
-        for( let f = 0; f < 22434; f++ ){
-
-            indices.fromArray(mount.scene.children[0].children[1].geometry.index.array, f * 3);
-            tri.setFromAttributeAndIndices(mount.scene.children[0].children[1].geometry.attributes.position,
-                indices.x,
-                indices.y,
-                indices.z);
-            triangles.push(tri)
-            tri.getNormal(outNormal);
-        }
-
-
-        const gl = await loader.loadAsync('src/routes/game2/public/sty.glb');
+        const gl = await loader.loadAsync('src/routes/game2/public/pir.glb');
 
         gl.scene.position.set(10, 0, -1.5);
         gl.scene.scale.set(0.5, 0.5, 0.5);
 
-        var er = new Player(gl, bind, 0.15, 0);
+        var er = new Player(gl, bind, 0.15, 0, scene);
         er.mesh.traverse(function(node) {
             if (node.isMesh)
                 node.castShadow = true;
@@ -116,14 +95,16 @@
         let skeletonCollider = new SkeletonCollider(er.mesh, scene, pickables)
 
 
-        const gltf = await loader.loadAsync('src/routes/game2/public/pop.glb');
+        const gltf = await loader.loadAsync('src/routes/game2/public/pir.glb');
 
 
         gltf.scene.position.set(0, 0.5, 3);
         gltf.scene.scale.set(0.5, 0.5, 0.5);
 
+
         var play = new Shooter(gltf, bind2, 0.15, camera, scene, er.mesh, pickables);
-        //scene.add(play.mesh);
+        er.target = er.target.concat(pickables)
+            //scene.add(play.mesh);
 
         el.addEventListener('click', function () {
             el.style.display = "none";
@@ -133,7 +114,6 @@
 
         play.cam.addEventListener( 'unlock', function () {
             el.style.display = '';
-
         } );
 
         scene.add(play.cam.getObject());
@@ -218,6 +198,16 @@
                 play.controller.yp = -axes[1] * ySpeed;
             else
                 play.controller.yp = 0;
+
+            /*if (axes[2] < -0.2)
+                play.cam.getObject().rotation.y -= axes[2] * xSpeed;
+            if (axes[2] > 0.2)
+                play.cam.getObject().rotation.y -= axes[2] * xSpeed;
+
+            if (axes[3] < -0.2)
+                play.cam.getObject().rotation.x -= axes[3] * xSpeed;
+            if (axes[3] > 0.2)
+                play.cam.getObject().rotation.x -= axes[3] * xSpeed;*/
         }
 
         window.addEventListener(
@@ -241,6 +231,7 @@
                 renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
         }
 
+        
         function onMouse(event) {
             if (event.which == 1 && reload == 0)
             {
@@ -254,7 +245,12 @@
                 {
                     play.sphere.position.set(intersects[i].point.x, intersects[i].point.y ,intersects[i].point.z );
                     if (play.target.includes(intersects[i].object))
-                        er.mesh.position.set(Math.random() * 20, Math.random() * 2, Math.random() * 10)
+                    {
+                        chatSocket.send(JSON.stringify({
+                        'event':'hit',
+                        'id':id
+                        }))
+                    }
                 }
             }
             if (event.which == 3)
@@ -280,17 +276,91 @@
             }
         }
 
+        let url = 'ws://localhost:8000/ws/shooter/?token=' + localStorage.getItem('access_token');
+		const chatSocket = new WebSocket(url)
+        
+		chatSocket.onmessage = function(e) {
+	
+			let data = JSON.parse(e.data)
+			if (data.event == 'Connected')
+			{
+                id = data.id
+				console.log('connected')
+                console.log(id)
+                if (id == 1)
+				{
+                    camera.position.z = 0;
+                    camera.position.y = 1;
+                    camera.position.x = 107;
+                    camera.rotation.x = 0;
+                    camera.rotation.y = Math.PI / 2;
+                    camera.rotation.z = 0;
+				}
+				if (id == 2)
+				{
+                    camera.position.z = 0;
+                    camera.position.y = 1;
+                    camera.position.x = -100;
+                    camera.rotation.x = 0;
+                    camera.rotation.y = -Math.PI / 2;
+                    camera.rotation.z = 0;
+				}
+                chatSocket.send(JSON.stringify({
+					'event':'frame',
+					'player':[play.cam.getObject().position, play.direction],
+                    'controller':play.controller,
+                    'id':id
+				}))
+			}
+            if (data.event == 'frame')
+            {
+                
+                if (id == 1)
+                {
+                    er.mesh.position.set(data.player2[0].x, data.player2[0].y - 2, data.player2[0].z)
+                    if (data.player2[1].y < 0)
+                        er.mesh.rotation.y = Math.acos(data.player2[1].x) + (Math.PI / 2)
+                    else
+                        er.mesh.rotation.y = -Math.acos(data.player2[1].x) + (Math.PI / 2)
+                    er.controller = data.controller2
+                }
+                if (id == 2)
+                {
+                    er.mesh.position.set(data.player1[0].x, data.player1[0].y - 2, data.player1[0].z)
+                    if (data.player1[1].y < 0)
+                        er.mesh.rotation.y = Math.acos(data.player1[1].x) + (Math.PI / 2)
+                    else
+                        er.mesh.rotation.y = -Math.acos(data.player1[1].x) + (Math.PI / 2)
+                    er.controller = data.controller1
+                }
+				chatSocket.send(JSON.stringify({
+					'event':'frame',
+					'player':[play.cam.getObject().position, play.direc],
+                    'controller':play.controller,
+                    'id':id
+				}))
+            }
+            if (data.event == "hit")
+            {
+                play.cam.getObject().position.x = data.position.x
+                play.cam.getObject().position.y = data.position.y
+                play.cam.getObject().position.z = data.position.z
+                play.cam.getObject().rotation.x = data.rotation.x
+                play.cam.getObject().rotation.y = data.rotation.y
+                play.cam.getObject().rotation.z = data.rotation.z
+
+            }
+		}
+
 
         function onDocumentKeyDown(event) {
             var keyCode = event.which;
             play.keydown(keyCode);
-            er.keydown(keyCode);
         };
 
         function onDocumentKeyUp(event) {
             var keyCode = event.which;
             play.keyup(keyCode);
-            er.keyup(keyCode);
         };
 
         //#endregion
@@ -301,6 +371,10 @@
                 flagposs += dt;
         }
 
+
+        
+        
+        
         function animate() {
             requestAnimationFrame( animate );
             const dt = clock.getDelta();

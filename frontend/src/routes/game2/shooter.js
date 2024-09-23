@@ -41,6 +41,7 @@ export class Shooter {
 
 		this.canmove = 1;
 		this.isfalling = 0;
+		this.direc = new THREE.Vector2()
 		this.direction = new THREE.Vector3();
 		this.footdir = new THREE.Vector3(0, -1 ,0)
 	
@@ -50,6 +51,9 @@ export class Shooter {
 	}
 	update (dt) {
 		this.cam.getDirection(this.direction);
+		if ((this.direction.x >= 0.1 || this.direction.x <= -0.1) || (this.direction.z >= 0.1 || this.direction.z <= -0.1))
+			this.direc = new THREE.Vector2(this.direction.x, this.direction.z).normalize()
+		//console.log(this.direc)
 		this.raycaster.set(this.cam.getObject().position, this.direction)
 		this.foot.set(this.cam.getObject().position, this.footdir)
 		let feet = this.cam.getObject().position.clone();
@@ -128,10 +132,10 @@ export class Shooter {
 		if (this.cam && !test[0])
 		{
 			//console.log((this.velocity.x * dt * this.direction.z * -1) + (this.velocity.z * dt * this.direction.x))
-			this.cam.getObject().position.x += this.velocity.x * dt * this.direction.z * -1;
-			this.cam.getObject().position.z += this.velocity.x * dt * this.direction.x;
-			this.cam.getObject().position.x += this.velocity.z * dt * this.direction.x;
-			this.cam.getObject().position.z += this.velocity.z * dt * this.direction.z;
+			this.cam.getObject().position.x += this.velocity.x * dt * this.direc.y * -1;
+			this.cam.getObject().position.z += this.velocity.x * dt * this.direc.x;
+			this.cam.getObject().position.x += this.velocity.z * dt * this.direc.x;
+			this.cam.getObject().position.z += this.velocity.z * dt * this.direc.y;
 
 			this.cam.getObject().position.x += this.force.x * dt;
 			this.cam.getObject().position.z += this.force.z * dt;
@@ -139,9 +143,9 @@ export class Shooter {
 
 		}
 
-		this.movement.x = this.velocity.x * dt * this.direction.z * -1 + this.velocity.z * dt * this.direction.x + this.force.x * dt;
+		this.movement.x = this.velocity.x * dt * this.direc.y * -1 + this.velocity.z * dt * this.direc.x + this.force.x * dt;
 		this.movement.y = this.velocity.y * dt + this.force.y * dt;
-		this.movement.z = this.velocity.x * dt * this.direction.x + this.velocity.z * dt * this.direction.z + this.force.z * dt;
+		this.movement.z = this.velocity.x * dt * this.direc.x + this.velocity.z * dt * this.direc.y + this.force.z * dt;
 
 	}
 	keydown (keyCode) {
