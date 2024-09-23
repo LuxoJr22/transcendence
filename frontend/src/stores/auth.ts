@@ -37,6 +37,7 @@ export async function login(username: string, password: string): Promise<void> {
     });
 
     const data = await response.json();
+    console.log(data);
 
     if (response.ok) {
         auth.set({
@@ -45,7 +46,7 @@ export async function login(username: string, password: string): Promise<void> {
                 id: data.user.id,
                 username: data.user.username,
                 email: data.user.email,
-                profile_picture: data.user.profile_picture,
+                profile_picture: data.user.profile_picture_url,
 
             },
             accessToken: data.access,

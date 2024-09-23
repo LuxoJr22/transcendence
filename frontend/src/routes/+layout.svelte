@@ -13,8 +13,8 @@
 			await fetchUser();
 		}
 		auth.subscribe((value : AuthState) =>{
-        state = value
-    });
+            state = value
+        });
 	});
 
 	const handleLogout = () => {
