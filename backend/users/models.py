@@ -12,6 +12,7 @@ class UserManager(BaseUserManager):
 		email = self.normalize_email(email)
 		user = self.model(username=username, email=email)
 		user.profile_picture = 'profile_pictures/default.jpg'
+		user.skin = 'default.glb'
 		user.set_password(password)
 		user.save(using=self._db)
 		return user
@@ -30,6 +31,7 @@ class User(AbstractBaseUser):
 	username = models.CharField(max_length=12, unique=True)
 	email = models.EmailField(max_length=254, unique=True)
 	profile_picture = models.ImageField(upload_to=user_profile_picture_path, blank=True, null=True)
+	skin = models.CharField(max_length=254, blank=True, null=True)
 
 	is_active = models.BooleanField(default=True)
 	is_superuser = models.BooleanField(default=False)

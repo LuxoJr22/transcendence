@@ -118,3 +118,13 @@ class PublicUserSerializer(serializers.ModelSerializer):
 		if obj.profile_picture:
 			return obj.profile_picture.url
 		return None
+
+class UserGameDataSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = User
+		fields = ['id', 'username', 'skin']
+
+class UserSkinSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = User
+		fields = ['skin']
