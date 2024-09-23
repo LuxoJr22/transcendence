@@ -21,7 +21,7 @@ export async function profileData(id: string, token: string): Promise<void> {
          id: profileData.id,
          username: profileData.username,
          email: profileData.email,
-         profile_picture: profileData.profile_picture,
+         profile_picture: profileData.profile_picture_url,
       });
    } else {
       console.error('Failed to fetch profile data:');

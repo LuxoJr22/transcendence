@@ -12,15 +12,11 @@
     let games = [];
 
     let state: AuthState;
-    $: $auth, state = $auth;
+    state = $auth;
 
     let listOfFriend : friendInterface;
-    $: $friendList, listOfFriend = $friendList; 
+    listOfFriend = $friendList; 
 
-    
-    friendList.subscribe((value : friendInterface) => {
-        listOfFriend = value;
-    });
 
     onMount(async () => {
         if (localStorage.getItem('access_token')) {
@@ -206,9 +202,8 @@
                 <h5 class="text-light friend-title d-flex justify-content-center">Friends</h5>
             </div>
             <div class="mx-3 me-4 friend-container">
-                {#each listOfFriend as friend}  
-                    {console.log(friend)}
-                    <div class="border rounded d-flex me-2">
+                {#each listOfFriend as friend}
+                    <div class="border rounded d-flex me-3 mb-2">
                         <img src={friend.profile_picture_url} class="img-circle rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
                         <div class="d-flex">
                             <p class="text-light ms-2 mt-3" style="font-size:100%;">{friend.username}</p>

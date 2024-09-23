@@ -1,15 +1,27 @@
 body: find a good font-family
 password, add eye to view
+
 game2: manage responsive
 friendship
+
 tournament and customGame card on homepage: change sidebar to popup
-profile: passer d'un other profile a selfprofile depuis layout dashboard, ne change pas le nom
-demander a matteo si possible de parse les request list avec id receiver
+
+profile: 
+-passer d'un other profile a selfprofile depuis layout dashboard, ne change pas le nom
+-demander a matteo si possible de parse les request list avec id receiver
 homepage plus responsive
-friendship: add petit bouton si notif sur layout, et des notif pour envoie reussie, envoie failed, demande accpete avec succes etc
-block login and register if connected
-verifier que requestkist montre demande propre a l'utilisateur
-ne pas fermer dropdown si requete friend accepte ou decline
-change history like friends list
-store: si acces_token not found, recreer access token si refresh token existant
-profile_photo: ne s'affiche pas juste apres connexion, mais apres refresh
+-friendlist:img not responsive
+
+friendship: 
+-add petit bouton si notif sur layout, et des notif pour envoie reussie, envoie failed, demande accpete avec succes etc
+-block login and register if connected
+-verifier que requestkist montre demande propre a l'utilisateur
+-ne pas fermer dropdown si requete friend accepte ou decline
+-change history like friends list
+
+store: 
+-si acces_token not found, recreer access token si refresh token existant
+
+chat: 
+-listFriends pas mis a jour selon les dernieres acceptations d'invitation
+erreur de montage svelte-config.js, recuperer dans les premier commit
