@@ -407,3 +407,4 @@
 
 
 <canvas bind:this={canvas} class=""></canvas>
+

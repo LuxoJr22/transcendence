@@ -2,24 +2,16 @@
     import CustomCanva from "$lib/static/customGameCanva.svelte"
     const img = new URL('$lib/assets/pong.png', import.meta.url).href
     const img1 = new URL('$lib/assets/game2.png', import.meta.url).href
+
+    let linkGame = "/game";
+
+    function changeLink() {
+      if (linkGame == "/game")
+        linkGame = "/game2"
+      else
+        linkGame = "/game"
+    }
 </script>
-
-<style>
-  .container-game {
-    width: 100%;
-    display: flex;
-  }
-
-  .container-game img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .mycard {
-    width: 42%;
-  }
-</style>
 
 <div class="container-fluid">
   <div class="row">
@@ -33,24 +25,25 @@
             <img src={img1} class="d-block" alt="">
           </div>
         </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+        <button on:click={changeLink} class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
           <span class="carousel-control-prev-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Previous</span>
         </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+        <button on:click={changeLink} 
+        class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
           <span class="carousel-control-next-icon" aria-hidden="true"></span>
           <span class="visually-hidden">Next</span>
         </button>
       </div>
     </div>
-    <div class="container col-xl-6 col-12 mt-xl-5 pt-xl-5 ms-xl-0 ms-2 mb-xl-0 mb-5">
+    <div class="container col-xl-6 col-12 mt-xl-5 pt-xl-3 ms-xl-0 ms-2 mb-xl-0 mb-5">
       <div class="pt-4">
         <div class="row mx-auto mb-3">
           <div class="card mycard me-3 ms-sm-5 ms-3 bg-warning-subtle">
             <div class="card-body">
               <h5 class="card-title">Online Mode</h5>
               <p class="card-text">Play online against other players.</p>
-              <a href="/game" class="btn btn-dark mt-4">Play</a>
+              <a href={linkGame} class="btn btn-dark mt-4">Play</a>
             </div>
           </div>
           <div class="card mycard bg-warning-subtle">
@@ -81,3 +74,20 @@
     </div>
   </div>
 </div>
+
+<style>
+  .container-game {
+    width: 100%;
+    display: flex;
+  }
+
+  .container-game img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .mycard {
+    width: 42%;
+  }
+</style>

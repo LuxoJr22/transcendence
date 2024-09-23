@@ -7,9 +7,11 @@ clean:
 fclean: clean
 #	@docker run -it -v ./:/trans alpine rm -rf /trans/database # Used for delete database folder at school
 	@git clean -dfX
-	@rm -f backend/users/migrations/0*.py
+	@rm -f backend/*/migrations/0*.py
+	@find backend/media/profile_pictures/ -type f ! -name 'default.jpg' -delete
+	@find backend/media/profile_pictures/ -type d -empty -delete
 
-re: fclean all
+re: clean all
 
 prune: fclean
 	@docker system prune -af
