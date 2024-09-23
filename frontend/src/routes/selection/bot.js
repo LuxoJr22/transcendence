@@ -3,8 +3,9 @@ import { SkeletonCollider } from "./skeletoncollider.js"
 import { equal } from "./utils.js"
 
 export class Bot{
-	constructor(mesh, scene){
+	constructor(mesh, scene, name){
 		this.scene = scene
+		this.name = name
 		this.mesh = mesh
 		this.mesh.traverse(function(node) {
             if (node.isMesh)

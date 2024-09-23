@@ -22,19 +22,23 @@
 		var bots = [];
 
 
-		const gltf = await loader.loadAsync('src/routes/selection/public/pop.glb');
-		bots.push(new Bot(gltf.scene, scene))
+		const pop = await loader.loadAsync('src/lib/assets/skins/vazy.glb');
+		bots.push(new Bot(pop.scene, scene, 'vazy.glb'))
 
 
-		const gm = await loader.loadAsync('src/routes/selection/public/sty.glb');
-		bots.push(new Bot(gm.scene, scene))
+		const gentleman = await loader.loadAsync('src/lib/assets/skins/gentleman.glb');
+		bots.push(new Bot(gentleman.scene, scene, 'gentleman.glb'))
 
-		gm.scene.position.set(10, 0, 0)
+		gentleman.scene.position.set(10, 0, 0)
 
-		const dd = await loader.loadAsync('src/routes/selection/public/pir.glb');
-		bots.push(new Bot(dd.scene, scene))
+		const pirate = await loader.loadAsync('src/lib/assets/skins/pirate.glb');
+		bots.push(new Bot(pirate.scene, scene, 'pirate.glb'))
 
-		dd.scene.position.set(-10, 0, 0)
+		pirate.scene.position.set(-10, 0, 0)
+
+		const def = await loader.loadAsync('src/lib/assets/skins/default.glb');
+		bots.push(new Bot(def.scene, scene, 'default.glb'))
+		def.scene.position.set(-20, 0, 0)
 
 
 
@@ -153,7 +157,7 @@
 		const moveMouse = new THREE.Vector2()
 		var draggable = null
 
-		window.addEventListener('click', event => {
+		window.addEventListener('click', async(event) => {
 			if (draggable)
 			{
 				
@@ -195,6 +199,13 @@
 					{
 						draggable = bots[i]
 						bots[i].ispicked = 1
+						const response = await fetch('api/user/skin/update/', {
+							method: 'PATCH',
+							headers: { 'Content-Type':'application/json','Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+							body: JSON.stringify({
+								"skin": bots[i].name
+							})
+						});
 					}
 					i++
 				}
