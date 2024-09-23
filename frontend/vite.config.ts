@@ -7,6 +7,7 @@ export default defineConfig({
         proxy: {
             '/api': 'http://backend:8000',
             '/ws': 'ws://backend:8000',
+            '/media': 'http://backend:8000',
         }
     }
 });

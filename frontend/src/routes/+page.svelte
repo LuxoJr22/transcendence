@@ -9,26 +9,9 @@
       if (linkGame == "/game")
         linkGame = "/game2"
       else
-        linkGame = "game"
+        linkGame = "/game"
     }
 </script>
-
-<style>
-  .container-game {
-    width: 100%;
-    display: flex;
-  }
-
-  .container-game img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .mycard {
-    width: 42%;
-  }
-</style>
 
 <div class="container-fluid">
   <div class="row">
@@ -53,7 +36,7 @@
         </button>
       </div>
     </div>
-    <div class="container col-xl-6 col-12 mt-xl-5 pt-xl-5 ms-xl-0 ms-2 mb-xl-0 mb-5">
+    <div class="container col-xl-6 col-12 mt-xl-5 pt-xl-3 ms-xl-0 ms-2 mb-xl-0 mb-5">
       <div class="pt-4">
         <div class="row mx-auto mb-3">
           <div class="card mycard me-3 ms-sm-5 ms-3 bg-warning-subtle">
@@ -91,3 +74,20 @@
     </div>
   </div>
 </div>
+
+<style>
+  .container-game {
+    width: 100%;
+    display: flex;
+  }
+
+  .container-game img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .mycard {
+    width: 42%;
+  }
+</style>

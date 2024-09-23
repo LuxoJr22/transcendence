@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { goto } from '$app/navigation';
 
     let username = '';
@@ -29,6 +29,12 @@
             errors = data;
         }
     }
+
+    let viewablePassword = false;
+
+    function buttonPassword(){
+        viewablePassword ? viewablePassword = false : viewablePassword = true;
+    }
 </script>
 
 <div class="container-fluid" style="height:100vh;">
@@ -41,36 +47,44 @@
                 </label>
             </div>
             {#if errors.username} 
-                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill pe-2" style="font-size: 0.8rem; color: var(--bs-danger-bg);"></i>                        <div>
-                    {errors.username[0]}
+                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">                      
+                    <div>
+                        {errors.username[0]}
                     </div>
                 </div>
             {/if}
             <div class="mb-3">
                 <label class="form-label text-light">
                     <h5>Email</h5>
-                    <input type="email" bind:value="{email}" required class="form-control" placeholder="Enter email">
+                    <input type="text" bind:value="{email}" class="form-control" placeholder="Enter email">
                     
                 </label>
             </div>
             {#if errors.email} 
-                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill pe-2" style="font-size: 0.8rem; color: var(--bs-danger-bg);"></i>                        <div>
-                    <p>{errors.email[0]}</p>
+                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">                       
+                    <div>
+                        <p>{errors.email[0]}</p>
                     </div>
                 </div>
             {/if}
             <div class="mb-3">
                 <label class="form-label text-light">
                     <h5>Password</h5>
-                    <input type="password" bind:value="{password}" required class="form-control" placeholder="Enter password">
-                </label>
+                        {#if !viewablePassword}
+                        <div class="d-flex row">
+                            <input type="password" bind:value="{password}" required class="form-control col ms-3" placeholder="Enter password">
+                            <a class="justify-content-end mt-1 hover-effect col-1" type="button" on:click={buttonPassword}><i class="bi bi-eye" style="color:grey;"></i></a>
+                        </div>
+                        {:else}
+                            <input type="text" bind:value="{password}" required class="form-control" placeholder="Enter password">
+                            <a class="d-flex justify-content-end m-0 mt-1 hover-effect p-1" type="button" on:click={buttonPassword} ><i class="bi bi-eye-slash" style="color:grey;"></i></a>
+                        {/if}
+                    </label>
             </div>
             {#if errors.password} 
-                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill pe-2" style="font-size: 0.8rem; color: var(--bs-danger-bg);"></i>                        <div>
-                    {errors.password[0]}
+                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">                       
+                    <div>
+                        {errors.password[0]}
                     </div>
                 </div>
             {/if}
@@ -80,3 +94,10 @@
         </form>
     </div>
 </div>
+
+
+<style>
+    .hover-effect:hover {
+        opacity: 0.5;
+    }
+</style>

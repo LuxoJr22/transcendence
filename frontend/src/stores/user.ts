@@ -1,15 +1,29 @@
 import { writable } from 'svelte/store';
 
-interface User {
-    id: number;
-    username: string;
+export interface Profile {
+   id: number;
+   username: string;
+   email: string;
+   profile_picture: string;
 }
 
-export const isAuthenticated = writable<boolean>(false);
-export const user = writable<User | null>(null);
+export const profile = writable<Profile>();
 
-export function getUser() {
-    const user_data = localStorage.getItem('user_data');
-    if (user_data)
-        user.set(JSON.parse(user_data));
+export async function profileData(id: string, token: string): Promise<void> {
+   const response = await fetch('/api/user/profile/' + parseInt(id) + '/', {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}` },
+   });
+   
+   if (response.ok) {
+      const profileData = await response.json();
+      profile.set({
+         id: profileData.id,
+         username: profileData.username,
+         email: profileData.email,
+         profile_picture: profileData.profile_picture,
+      });
+   } else {
+      console.error('Failed to fetch profile data:');
+   }
 }
