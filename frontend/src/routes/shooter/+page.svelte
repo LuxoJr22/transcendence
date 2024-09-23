@@ -141,9 +141,11 @@
         dl.shadow.camera.right = -size;
 
         const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
-        renderer.setSize( 1920 * 0.7 , 1080 * 0.7);
-        ui.style.width = 1920 * 0.7 + "px";
-        ui.style.height = 1080 * 0.7 + "px";
+        renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+        ui.style.width = window.innerWidth * 0.7 + "px";
+        ui.style.height = (window.innerWidth * 0.70) / 16 * 9 + "px";
+        ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+        ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		renderer.shadowMap.enabled = true;
         document.body.appendChild( renderer.domElement );
 
@@ -227,8 +229,12 @@
         );
 
         window.onresize = function(event){
-            if (window.innerWidth * 0.7 < 1920 * 0.7)
-                renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+            renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+            ui.style.width = window.innerWidth * 0.7 + "px";
+            ui.style.height = (window.innerWidth * 0.70) / 16 * 9 + "px";
+            ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+            ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+            
         }
 
         
@@ -314,7 +320,7 @@
 			}
             if (data.event == 'frame')
             {
-                
+                //console.log(data.test)
                 if (id == 1)
                 {
                     er.mesh.position.set(data.player2[0].x, data.player2[0].y - 2, data.player2[0].z)
@@ -427,11 +433,12 @@
 		height: 10px;
     }
     #blocker {
-				position: absolute;
-				width: 100%;
-				height: 100%;
-				background-color: rgba(0,0,0,0.1);
-			}
+        /*border-radius: 3% !important;*/
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0,0,0,0.1);
+	}
     #crosshair {
         position: absolute;
         top: 50%;
@@ -455,6 +462,10 @@
         border-radius: 50%;
         background: conic-gradient(#cccccc 0deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg);
     }
+    .game {
+        /*border-radius: 3% !important;*/
+        margin: auto !important;
+    }
 
     #flagicon {
         display: none;
@@ -475,4 +486,4 @@
     </div>
 </div>
 
-<canvas bind:this={canvas} class=""></canvas>
+<canvas bind:this={canvas} class="game"></canvas>

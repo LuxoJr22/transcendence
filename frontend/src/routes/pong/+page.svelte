@@ -141,9 +141,11 @@
 		scene.add( dl );
 
 		const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
-		ui.style.width = 1920 * 0.7 + "px";
-        ui.style.height = 1080 * 0.7 + "px";
-		renderer.setSize( 1920 * 0.7 , 1080 * 0.7);
+		renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+        ui.style.width = window.innerWidth * 0.7 + "px";
+        ui.style.height = (window.innerWidth * 0.70) / 16 * 9 + "px";
+        ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+        ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
 
@@ -221,8 +223,11 @@
 		);
 
 		window.onresize = function(event){
-			if (window.innerWidth * 0.7 < 1920 * 0.7)
-				renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+			renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+            ui.style.width = window.innerWidth * 0.7 + "px";
+            ui.style.height = (window.innerWidth * 0.70) / 16 * 9 + "px";
+            ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+            ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		}
 
 		function onDocumentKeyDown(event) {
@@ -392,6 +397,10 @@
 		justify-content: space-evenly;
 	}
 
+	.game {
+        margin: auto !important;
+    }
+
 	.text {
 		/*font-family: "Lilita One", sans-serif;*/
 		font-family: "Luckiest Guy", cursive;
@@ -419,5 +428,5 @@
 </div>
 
 
-<canvas bind:this={canvas} class=""></canvas>
+<canvas bind:this={canvas} class="game"></canvas>
 

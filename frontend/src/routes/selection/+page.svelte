@@ -64,10 +64,12 @@
 		scene.add( dl );
 
 		const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
-		renderer.setSize( 1920 * 0.7 , 1080 * 0.7);
+		renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+		var top = renderer.domElement.getBoundingClientRect().top
+		var left = renderer.domElement.getBoundingClientRect().left
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
-		var top = renderer.domElement.getBoundingClientRect().top
+		
 
 
 		//const controls = new OrbitControls( camera, renderer.domElement );
@@ -145,9 +147,9 @@
 		);
 
 		window.onresize = function(event){
-			if (window.innerWidth * 0.7 < 1920 * 0.7)
-				renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+			renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
 			top = renderer.domElement.getBoundingClientRect().top
+			left = renderer.domElement.getBoundingClientRect().left
 		}
 
 
@@ -184,7 +186,7 @@
 				
 				return
 			}
-			clickmouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1
+			clickmouse.x = ((event.clientX - left) / renderer.domElement.clientWidth) * 2 - 1
 			clickmouse.y = -(((event.clientY - top) / renderer.domElement.clientHeight) * 2 - 1)
 
 			raycaster.setFromCamera( clickmouse, camera)
@@ -213,7 +215,7 @@
 		})
 
 		window.addEventListener('mousemove', event => {
-			moveMouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1
+			moveMouse.x = ((event.clientX - left) / renderer.domElement.clientWidth) * 2 - 1
 			moveMouse.y = -(((event.clientY - top) / renderer.domElement.clientHeight) * 2 - 1)
 		})
 
@@ -258,4 +260,11 @@
 	});
 </script>
 
-<canvas bind:this={canvas} class=""></canvas>
+<style>
+	.game {
+	        /*border-radius: 3% !important;*/
+	        margin: auto !important;
+	    }
+</style>
+
+<canvas bind:this={canvas} class="game"></canvas>

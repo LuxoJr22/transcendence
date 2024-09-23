@@ -9,7 +9,7 @@ dictio = {}
 
 class ShooterConsumer(WebsocketConsumer):
 	def connect(self):
-		self.room_group_name = 'est'
+		self.room_group_name = 'test'
 		self.user = self.scope['user']
 		self.id = 0
 
@@ -26,11 +26,13 @@ class ShooterConsumer(WebsocketConsumer):
 		
 		if self.user not in self.pongroom.users_online.all():
 			self.pongroom.users_online.add(self.user)
-		if self.pongroom.users_online.count() == 1:
-			self.id = 1
+		if self.pongroom.users_online.count() == 1 and self.room_group_name not in dictio:
 			dictio[self.room_group_name] = Game()
+		if (self.user not in dictio[self.room_group_name].ids):
+			self.id = len(dictio[self.room_group_name].ids) + 1
+			dictio[self.room_group_name].ids[self.user] = self.id
 		else:
-			self.id = 2
+			self.id = dictio[self.room_group_name].ids[self.user]
 		self.game = dictio[self.room_group_name]
 		self.accept()
 		self.send(text_data=json.dumps({
