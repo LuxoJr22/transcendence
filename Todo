@@ -11,3 +11,5 @@ block login and register if connected
 verifier que requestkist montre demande propre a l'utilisateur
 ne pas fermer dropdown si requete friend accepte ou decline
 change history like friends list
+store: si acces_token not found, recreer access token si refresh token existant
+profile_photo: ne s'affiche pas juste apres connexion, mais apres refresh

@@ -5,7 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import User
-from .serializers import UserSerializer, UserUpdateSerializer, PublicUserSerializer
+from .serializers import UserSerializer, UserUpdateSerializer, PublicUserSerializer, UserGameDataSerializer, UserSkinSerializer
 
 class RegisterView(generics.CreateAPIView):
 	queryset = User.objects.all()
@@ -67,3 +67,18 @@ class UserProfileView(generics.RetrieveAPIView):
 		user_id = self.kwargs['id']
 		user = generics.get_object_or_404(User, id=user_id)
 		return user
+
+class UserGameDataView(generics.RetrieveAPIView):
+	queryset = User.objects.all()
+	serializer_class = UserGameDataSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_object(self):
+		return self.request.user
+
+class UserSkinUpdateView(generics.UpdateAPIView):
+	serializer_class = UserSkinSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_object(self):
+		return self.request.user

@@ -3,7 +3,7 @@
     import {get} from 'svelte/store';
     import { auth, fetchUser, logout } from '../stores/auth';
     import type { AuthState } from '../stores/auth';
-    //import { fetchFriendList } from './profile/selfUser.svelte'
+    import { acceptFriendRequest, declineFriendRequest } from '../stores/friendship'
 
 	let state: AuthState;
 	$: $auth, state = $auth;
@@ -37,45 +37,6 @@
         if (response.ok){
             const data = await response.json();
             requestsList = data;
-        }
-    }
-    
-    async function declineFriendRequest(id: number){
-        const { accessToken } = get(auth);
-
-        if (!accessToken)
-            return;
-
-        const response = await fetch('/api/reject/' + id + '/', {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${accessToken}` },
-        });
-
-        if (response.ok)
-        {
-            const data = await response.json();
-            console.log(data);
-        }
-    }
-    
-    async function acceptFriendRequest(id: number){
-        const { accessToken } = get(auth);
-
-        if (!accessToken)
-            return;
-
-        const response = await fetch('/api/accept/' + id + '/', {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${accessToken}` },
-        });
-
-        const data = await response.json();
-        console.log(data);
-
-        if (response.ok)
-        {
-            const data = await response.json();
-            //await fetchFriendList();
         }
     }
 

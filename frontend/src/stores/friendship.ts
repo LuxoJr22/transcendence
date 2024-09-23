@@ -1,14 +1,13 @@
 import { writable, get } from 'svelte/store';
 import { auth } from './auth';
 
-interface requestsList {
-    requester : {id: number, username: string, profile_picture: string};
-    receiver : {id: number, username: string, profile_picture: string};
-    status: boolean;
-    date: string;
+export interface friendInterface {
+    id: number;
+    username: string;
+    profile_picture: string;
 }
 
-export const friendRequestsList = writable<requestsList>([]);
+export let friendList = writable<friendInterface>([]);
 
 export async function fetchFriendList(){
     const { accessToken } = get(auth);
@@ -22,10 +21,60 @@ export async function fetchFriendList(){
     });
 
     if (response.ok){
-
-        
         const data = await response.json();
-        friendList = data;
+        friendList.set(data);
+        return data;
+    }
+}
+
+export async function declineFriendRequest(id: number){
+    const { accessToken } = get(auth);
+
+    if (!accessToken)
+        return;
+
+    const response = await fetch('/api/reject/' + id + '/', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+    });
+
+    if (response.ok)
+    {
+        const data = await response.json();
         console.log(data);
+    }
+}
+
+export async function acceptFriendRequest(id: number){
+    const { accessToken } = get(auth);
+
+    if (!accessToken)
+        return;
+
+    const response = await fetch('/api/accept/' + id + '/', {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+    });
+
+    if (response.ok) {
+        const newFriend = await response.json();
+        friendList.update((currentList : friendInterface[]) => [...currentList, newFriend]);
+        await fetchFriendList();
+    }
+}
+
+export async function deleteFriend(id: number){
+    const { accessToken } = get(auth);
+
+    if (!accessToken)
+        return;
+
+    const response = await fetch('/api/remove/' + id + '/', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+    });
+
+    if (response.ok) {
+        await fetchFriendList();
     }
 }

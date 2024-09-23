@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Friendship
 from .serializers import FriendshipSerializer, CreateFriendshipSerializer
+from users.models import User
 from users.serializers import PublicUserSerializer
 
 class SendFriendRequestView(generics.CreateAPIView):
@@ -35,7 +36,7 @@ class RejectFriendRequestView(generics.DestroyAPIView):
 	def delete(self, request, pk):
 		instance = self.get_object()
 		if instance.receiver != request.user:
-			return Response({"error": "You are not authorized to accept this request"}, status=status.HTTP_403_FORBIDDEN)
+			return Response({"error": "You are not authorized to reject this request"}, status=status.HTTP_403_FORBIDDEN)
 		try:
 			friendship = Friendship.objects.get(pk=pk, receiver=request.user, accepted=False)
 			friendship.delete()
@@ -66,3 +67,22 @@ class FriendRequestsListView(generics.ListAPIView):
 
 	def get_queryset(self):
 		return Friendship.objects.filter(receiver=self.request.user, accepted=False)
+
+class RemoveFriendshipView(generics.DestroyAPIView):
+	queryset = Friendship.objects.all()
+	serializer_class = FriendshipSerializer
+	permission_classes = [IsAuthenticated]
+
+	def delete(self, request, *args, **kwargs):
+		user = request.user
+		friend_id = kwargs.get('friend_id')
+
+		try:
+			friendship = Friendship.objects.get(
+				(models.Q(requester=user, receiver__id=friend_id) | models.Q(receiver=user, requester__id=friend_id)),
+				accepted=True
+			)
+			friendship.delete()
+			return Response({"message": "Friendship removed"})
+		except Friendship.DoesNotExist:
+			return Response({"error": "Friendship not found"})
