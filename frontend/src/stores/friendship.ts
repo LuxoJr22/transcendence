@@ -10,20 +10,22 @@ interface requestsList {
 
 export const friendRequestsList = writable<requestsList>([]);
 
-async function fetchFriendRequests(){
-
+export async function fetchFriendList(){
     const { accessToken } = get(auth);
 
-	if (!accessToken)
-		return;
+    if (!accessToken)
+        return;
 
-	const response = await fetch('/api/requests/', {
-		method: 'GET',
-		headers: { 'Authorization': `Bearer ${accessToken}` },
-	});
-    
+    const response = await fetch('/api/friends/', {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+    });
+
     if (response.ok){
-        const data = await response.json();
+
         
+        const data = await response.json();
+        friendList = data;
+        console.log(data);
     }
 }

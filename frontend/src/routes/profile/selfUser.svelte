@@ -217,7 +217,7 @@
             <div class="mx-3 me-4 friend-container">
                 {#each friendList as friend}
                     <div class="border rounded d-flex mt-2 me-2">
-                        <img src={friend.profile_picture.substr(19)} class="img-circle rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
+                        <img src={friend.profile_picture_url} class="img-circle rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
                         <div class="d-flex">
                             <p class="text-light ms-2 mt-3" style="font-size:100%;">{friend.username}</p>
                             <button class="btn"><i class="bi bi-x-lg" style="color:red;"></i></button>

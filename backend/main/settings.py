@@ -42,11 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-	  'pong',
-	  'shooter',
     'friendship',
+    'pong',
     'rest_framework',
     'rest_framework_simplejwt',
+    'shooter',
     'users',
 ]
 
