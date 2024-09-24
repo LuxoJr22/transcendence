@@ -37,6 +37,7 @@ export async function login(username: string, password: string): Promise<void> {
     });
 
     const data = await response.json();
+    console.log(data);
 
     if (response.ok) {
         auth.set({

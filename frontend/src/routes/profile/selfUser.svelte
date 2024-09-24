@@ -1,17 +1,22 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { goto } from '$app/navigation';
     import { get } from 'svelte/store'
     import Pie from './pie.svelte';
     import { auth, fetchUser, updateInformations, updateProfilePicture , updatePassword } from '../../stores/auth';
     import type { AuthState } from '../../stores/auth';
+    import { fetchFriendList, friendList, deleteFriend } from "../../stores/friendship";
+    import type { friendInterface } from '../../stores/friendship';
 
     let victories = 15;
     let defeats = 3;
     let games = [];
 
     let state: AuthState;
-    $: $auth, state = $auth;
+    state = $auth;
+
+    let listOfFriend : friendInterface;
+    listOfFriend = $friendList; 
+
 
     onMount(async () => {
         if (localStorage.getItem('access_token')) {
@@ -21,7 +26,10 @@
         await fetchFriendList();
         truncHistory();
         auth.subscribe((value : AuthState) =>{
-            state = value
+            state = value;
+        });
+        friendList.subscribe((value : friendInterface) => {
+            listOfFriend = value;
         });
     });
     
@@ -154,27 +162,6 @@
         }
     }
 
-    /******************friend******************/
-
-    let friendList = '';
-
-    async function fetchFriendList(){
-        const { accessToken } = get(auth);
-
-        if (!accessToken)
-            return;
-
-        const response = await fetch('/api/friends/', {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${accessToken}` },
-        });
-
-        if (response.ok){
-            const data = await response.json();
-            friendList = data;
-            console.log(data);
-        }
-    }
 </script>
 
 
@@ -215,15 +202,18 @@
                 <h5 class="text-light friend-title d-flex justify-content-center">Friends</h5>
             </div>
             <div class="mx-3 me-4 friend-container">
-                {#each friendList as friend}
-                    <div class="border rounded d-flex mt-2 me-2">
-                        <img src={friend.requester.profile_picture.substr(19)} class="img-circle rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
+                {#each listOfFriend as friend}
+                    <div class="border rounded d-flex me-3 mb-2 bg-gradient">
+                        <img src={friend.profile_picture_url} class="img-circle rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
                         <div class="d-flex">
-                            <p class="text-light ms-2 mt-3" style="font-size:100%;">{friend.requester.username}</p>
-                            <button class="btn"><i class="bi bi-x-lg" style="color:red;"></i></button>
+                            <p class="text-light ms-2 mt-3" style="font-size:100%;">{friend.username}</p>
+                            <button class="btn" on:click={deleteFriend(friend.id)}><i class="bi bi-x-lg" style="color:red;"></i></button>
                         </div>
                     </div>
                 {/each}
+                {#if !listOfFriend[0]}
+                    <p class="d-flex justify-content-center mt-3" style="color:grey;">Empty friend list</p>
+                {/if}
             </div>
         </div>
         <div class="align-self-end align-img-end mb-3">

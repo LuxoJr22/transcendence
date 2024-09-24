@@ -3,6 +3,7 @@
     import {get} from 'svelte/store';
     import { auth, fetchUser, logout } from '../stores/auth';
     import type { AuthState } from '../stores/auth';
+    import { acceptFriendRequest, declineFriendRequest } from '../stores/friendship'
 
 	let state: AuthState;
 	$: $auth, state = $auth;
@@ -12,8 +13,8 @@
 			await fetchUser();
 		}
 		auth.subscribe((value : AuthState) =>{
-        state = value
-    });
+            state = value
+        });
 	});
 
 	const handleLogout = () => {
@@ -38,45 +39,6 @@
             requestsList = data;
         }
     }
-    
-    async function declineFriendRequest(id: number){
-        const { accessToken } = get(auth);
-
-        if (!accessToken)
-            return;
-
-        const response = await fetch('/api/reject/' + id + '/', {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${accessToken}` },
-        });
-
-        if (response.ok)
-        {
-            const data = await response.json();
-            console.log(data);
-        }
-    }
-    
-    async function acceptFriendRequest(id: number){
-        const { accessToken } = get(auth);
-
-        if (!accessToken)
-            return;
-
-        const response = await fetch('/api/accept/' + id + '/', {
-            method: 'PATCH',
-            headers: { 'Authorization': `Bearer ${accessToken}` },
-        });
-
-        const data = await response.json();
-        console.log(data);
-
-        if (response.ok)
-        {
-            const data = await response.json();
-            console.log(data);
-        }
-    }
 
 </script>
 
@@ -94,10 +56,10 @@
                     {#if request.receiver.id == state.user?.id}
                     <div class="d-flex align-items-center p-2 m-2 mt-1 border rounded">
                         <p class="dropdown-item mb-0" style="">{request.requester.username} sent you a friend request</p>
-                        <a href="#" class="" style="" on:click={() => acceptFriendRequest(request.id)}>
+                        <a class="" style="" on:click={() => acceptFriendRequest(request.id)}>
                             <i class="bi bi-person-check-fill p-2" style="color:green; font-size:1.3rem;"></i>
                         </a>
-                        <a href="#" class="" style="" on:click={() => declineFriendRequest(request.id)}>
+                        <a class="" style="" on:click={() => declineFriendRequest(request.id)}>
                             <i class="bi bi-person-fill-x p-2" style="color:red; font-size:1.3rem;"></i>
                         </a>
                     </div>
