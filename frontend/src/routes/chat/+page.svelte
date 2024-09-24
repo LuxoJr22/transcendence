@@ -11,7 +11,7 @@
     let state: AuthState;
     state = $auth;
 
-    let listOfFriend : friendInterface;
+    let listOfFriend : friendInterface[];
     listOfFriend = $friendList;
 
     let chatMessages : Messages;
@@ -30,7 +30,7 @@
         auth.subscribe((value : AuthState) =>{
             state = value;
         });
-        friendList.subscribe((value : friendInterface) => {
+        friendList.subscribe((value : friendInterface[]) => {
             listOfFriend = value;
         });
         messages.subscribe((value : Messages) => {
@@ -38,21 +38,16 @@
         });
     });
     
-    let indexUserToChat = -1;
-
+    let userSelected = -1;
+    let ws;
     async function createRoom(username : string){
         for (let i = 0 ; listOfFriend[i] ; i++)
         {
             if (username == listOfFriend[i].username){
-                indexUserToChat = i;
+            userSelected = i;
                     break ;
             }
         }
-        const token = localStorage.getItem('access_token');
-        const ws = new WebSocket('/ws/chat/' + username + '/?token=' + token);
-        await fetchChatMessages(username);
-        ws.onmessage
-
     }
 
 
@@ -100,7 +95,7 @@
                 <h4 class="d-flex justify-content-center align-items-center" style="color:grey;">You haven't discussions</h4>
             {/if}
         </div>
-        <ChatBox indexFriend={indexUserToChat} friendListCb={friendList}/>
+        <ChatBox index={userSelected}/>
     </div>
 </div>
 

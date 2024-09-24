@@ -7,7 +7,7 @@ export interface friendInterface {
     profile_picture: string;
 }
 
-export let friendList = writable<friendInterface>([]);
+export let friendList = writable<friendInterface[]>([]);
 
 export async function fetchFriendList(){
     const { accessToken } = get(auth);
