@@ -1,11 +1,13 @@
-from .player_class import Player
+from .flag_class import Flag
 import math
 
 class Game:
 	def __init__(self):
+		self.last = 0
 		self.t = 0
 		self.ids = {}
 		self.players = []
+		self.flag = Flag()
 
 	def CreatePlayer(self, x, y, z, spawn, rotaspawn, skin):
 		return {

@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from .models import Shooter
 from .game_class import Game
 import math
+import time
 
 dictio = {}
 
@@ -58,6 +59,11 @@ class ShooterConsumer(WebsocketConsumer):
 
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
+
+		t = self.game.last
+		self.game.last = time.perf_counter()
+		dt = self.game.last - t
+
 		event = text_data_json['event']
 		id = text_data_json['id'] - 1
 		if (event == "hit"):
@@ -77,6 +83,21 @@ class ShooterConsumer(WebsocketConsumer):
 				'rotation': self.game.players[id]["rotaspawn"]
 			}))
 			self.game.players[id]["hit"] = 0
+
+		if (self.game.flag.player_id == 0):
+			self.game.flag.checkPlayer(self.game.players[id]["position"], id + 1, dt)
+			if (self.game.flag.player_id != 0):
+				async_to_sync(self.channel_layer.group_send)(
+					self.room_group_name,
+					{
+						'type':'Flag_picked',
+						'id':self.game.flag.player_id,
+					}
+				)
+		else:
+			self.game.players[self.game.flag.player_id - 1]["score"] += dt * 4
+				
+			
 		self.game.players[id]["direction"] = text_data_json['player'][1]
 		self.game.players[id]["controller"] = text_data_json['controller']
 		if self.id == id + 1:
@@ -91,10 +112,18 @@ class ShooterConsumer(WebsocketConsumer):
 			'id': event['id']
 		}))
 
+	def Flag_picked(self, event):
+		self.send(text_data=json.dumps({
+			'type':'Shooter',
+			'event':'Flag_picked',
+			'id':event['id'],
+		}))
+
 	def Shooter_event(self, event):
 
 		self.send(text_data=json.dumps({
 			'type':'Shooter',
 			'event':event,
 			'players':self.game.players,
+			'f':[self.game.flag.poss, self.game.flag.player_id]
 		}))

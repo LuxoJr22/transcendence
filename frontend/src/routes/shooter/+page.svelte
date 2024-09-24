@@ -329,6 +329,18 @@
                 }
                 createPlayer(data.id - 1, data.players[data.id - 1].skin)
             }
+            if (data.event == 'Flag_picked')
+            {
+                if (data.id == id)
+                    ficon.style.display = "block";
+                scene.remove(flag.scene);
+                if (Math.tan(sh.material.uniforms.time.value) > 2.0)
+                    scene.remove(sh)
+                if (Math.tan(tor.material.uniforms.time.value) > 2.0)
+                    scene.remove(tor)
+                if (Math.tan(toru.material.uniforms.time.value) > 2.0)
+                    scene.remove(toru)
+            }
             if (data.event == 'frame')
             {
                 let i = 0
@@ -391,17 +403,6 @@
         function animate() {
             requestAnimationFrame( animate );
             const dt = clock.getDelta();
-            if (flagposs >= 5)
-            {
-                ficon.style.display = "block";
-                scene.remove(flag.scene);
-                if (Math.tan(sh.material.uniforms.time.value) > 2.0)
-                    scene.remove(sh)
-                if (Math.tan(tor.material.uniforms.time.value) > 2.0)
-                    scene.remove(tor)
-                if (Math.tan(toru.material.uniforms.time.value) > 2.0)
-                    scene.remove(toru)
-            }
             t += dt;
             if (gamepads[0])
             {
