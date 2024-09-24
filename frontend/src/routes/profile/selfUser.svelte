@@ -203,7 +203,7 @@
             </div>
             <div class="mx-3 me-4 friend-container">
                 {#each listOfFriend as friend}
-                    <div class="border rounded d-flex me-3 mb-2">
+                    <div class="border rounded d-flex me-3 mb-2 bg-gradient">
                         <img src={friend.profile_picture_url} class="img-circle rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
                         <div class="d-flex">
                             <p class="text-light ms-2 mt-3" style="font-size:100%;">{friend.username}</p>
