@@ -33,6 +33,7 @@ class User(AbstractBaseUser):
 	profile_picture = models.ImageField(upload_to=user_profile_picture_path, blank=True, null=True)
 	skin = models.CharField(max_length=254, blank=True, null=True)
 
+	is_online = models.BooleanField(default=False)
 	is_active = models.BooleanField(default=True)
 	is_superuser = models.BooleanField(default=False)
 
