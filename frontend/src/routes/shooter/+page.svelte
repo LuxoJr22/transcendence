@@ -15,7 +15,8 @@
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
+        
+        var pointerLockActivated = 0
 
         let t = 0;
         const clock = new THREE.Clock();
@@ -25,6 +26,8 @@
         var ui = document.getElementById("ui");
         var circle = document.getElementById("circular");
         var ficon = document.getElementById("flagicon");
+
+        var players = []
 
 
         scene.background = new THREE.Color(0x54A0E4);
@@ -77,42 +80,23 @@
         mount.scene.children[0].children[0].geometry.computeVertexNormals();
 
 
-        const gl = await loader.loadAsync('src/lib/assets/skins/pirate.glb');
-
-        gl.scene.position.set(10, 0, -1.5);
-        gl.scene.scale.set(0.5, 0.5, 0.5);
-
-        var er = new Player(gl, bind, 0.15, 0, scene);
-        er.mesh.traverse(function(node) {
-            if (node.isMesh)
-                node.castShadow = true;
-            if (node.isSkinnedMesh)
-                node.frustumCulled = false;
-        })
-        scene.add(er.mesh);
-
-        const pickables = [];
-        let skeletonCollider = new SkeletonCollider(er.mesh, scene, pickables)
-
-
-        const gltf = await loader.loadAsync('src/lib/assets/skins/pirate.glb');
-
-
-        gltf.scene.position.set(0, 0.5, 3);
-        gltf.scene.scale.set(0.5, 0.5, 0.5);
-
-
-        var play = new Shooter(gltf, bind2, 0.15, camera, scene, er.mesh, pickables);
-        er.target = er.target.concat(pickables)
+        var play = new Shooter(bind2, 0.15, camera, scene);
+        
             //scene.add(play.mesh);
 
         el.addEventListener('click', function () {
+            let now = performance.now()
+            if (pointerLockActivated && now - pointerLockActivated < 1100)
+                return
             el.style.display = "none";
             play.cam.lock();
+            
+            
         });
 
 
         play.cam.addEventListener( 'unlock', function () {
+            pointerLockActivated = performance.now()
             el.style.display = '';
         } );
 
@@ -249,12 +233,14 @@
                     i ++;
                 if (intersects[i] && intersects[ i ].object != play.sphere)
                 {
+                    console.log(intersects[i].object)
                     play.sphere.position.set(intersects[i].point.x, intersects[i].point.y ,intersects[i].point.z );
                     if (play.target.includes(intersects[i].object))
                     {
                         chatSocket.send(JSON.stringify({
                         'event':'hit',
-                        'id':id
+                        'id':id,
+                        'target':intersects[i].object.userData.id
                         }))
                     }
                 }
@@ -282,18 +268,32 @@
             }
         }
 
+        async function createPlayer(play_id, skin) {
+            const gl = await loader.loadAsync('src/lib/assets/skins/' + skin);
+            gl.scene.position.set(10, 0, -1.5);
+            gl.scene.scale.set(0.5, 0.5, 0.5);
+            let pl = new Player(gl, 0.15, scene, play_id)
+            play.target = play.target.concat(pl.target)
+            players.push(pl);
+        }
+
         let url = '/ws/shooter/?token=' + localStorage.getItem('access_token');
 		const chatSocket = new WebSocket(url)
         
 		chatSocket.onmessage = function(e) {
 	
 			let data = JSON.parse(e.data)
-			if (data.event == 'Connected')
+			if (data.event == 'Connected' && id == 0)
 			{
                 id = data.id
-				console.log('connected')
-                console.log(id)
-                if (id == 1)
+                let i = 0;
+                while (data.players[i])
+                {
+                    if (i != id - 1)
+                        createPlayer(i, data.players[i].skin)
+                    i ++;
+                }
+                if (id % 2 == 1)
 				{
                     camera.position.z = 0;
                     camera.position.y = 1;
@@ -302,7 +302,7 @@
                     camera.rotation.y = Math.PI / 2;
                     camera.rotation.z = 0;
 				}
-				if (id == 2)
+				else
 				{
                     camera.position.z = 0;
                     camera.position.y = 1;
@@ -318,26 +318,33 @@
                     'id':id
 				}))
 			}
+            else if (data.event == 'Connected')
+            {
+                let i = 0
+                while (players[i])
+                {
+                    if (players[i].id == data.id - 1)
+                        players.splice(i, i)
+                    i ++
+                }
+                createPlayer(data.id - 1, data.players[data.id - 1].skin)
+            }
             if (data.event == 'frame')
             {
-                //console.log(data.test)
-                if (id == 1)
+                let i = 0
+                while (players[i])
                 {
-                    er.mesh.position.set(data.player2[0].x, data.player2[0].y - 2, data.player2[0].z)
-                    if (data.player2[1].y < 0)
-                        er.mesh.rotation.y = Math.acos(data.player2[1].x) + (Math.PI / 2)
-                    else
-                        er.mesh.rotation.y = -Math.acos(data.player2[1].x) + (Math.PI / 2)
-                    er.controller = data.controller2
-                }
-                if (id == 2)
-                {
-                    er.mesh.position.set(data.player1[0].x, data.player1[0].y - 2, data.player1[0].z)
-                    if (data.player1[1].y < 0)
-                        er.mesh.rotation.y = Math.acos(data.player1[1].x) + (Math.PI / 2)
-                    else
-                        er.mesh.rotation.y = -Math.acos(data.player1[1].x) + (Math.PI / 2)
-                    er.controller = data.controller1
+                    if (players[i].id != id - 1)
+                    {
+                        let actid = players[i].id
+                        players[i].mesh.position.set(data.players[actid].position.x, data.players[actid].position.y - 2, data.players[actid].position.z)
+                        if (data.players[actid].direction.y < 0)
+                            players[i].mesh.rotation.y = Math.acos(data.players[actid].direction.x) + (Math.PI / 2)
+                        else
+                            players[i].mesh.rotation.y = -Math.acos(data.players[actid].direction.x) + (Math.PI / 2)
+                        players[i].controller = data.players[actid].controller
+                    }
+                    i ++;
                 }
 				chatSocket.send(JSON.stringify({
 					'event':'frame',
@@ -413,9 +420,10 @@
                 circle.style.background = `conic-gradient(#cccccc 0deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
             }
             CheckCollision(dt);
-            skeletonCollider.update()
-            play.update(dt)
-            er.update(dt)
+            play.update(dt);
+            players.forEach(element => {
+				element.update(dt);
+			});
             sh.material.uniforms.time.value = t;
             tor.material.uniforms.time.value = t + 1;
             toru.material.uniforms.time.value = t + 2;
@@ -447,6 +455,7 @@
         pointer-events: none;
     }
     #crossimg {
+        pointer-events: none;
         width: 50%;
         position: relative;
         top: -100px;
@@ -454,6 +463,7 @@
     }
 
     #circular {
+        pointer-events: none;
         position: absolute;
         width: 30px;
         height: 30px;

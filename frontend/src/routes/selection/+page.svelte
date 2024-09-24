@@ -23,22 +23,27 @@
 
 
 		const pop = await loader.loadAsync('src/lib/assets/skins/vazy.glb');
-		bots.push(new Bot(pop.scene, scene, 'vazy.glb'))
+		pop.scene.scale.set(0.5, 0.5, 0.5);
+		pop.scene.position.set(0, 0, 5)
+		bots.push(new Bot(pop, scene, 'vazy.glb'))
 
 
 		const gentleman = await loader.loadAsync('src/lib/assets/skins/gentleman.glb');
-		bots.push(new Bot(gentleman.scene, scene, 'gentleman.glb'))
+		gentleman.scene.scale.set(0.5, 0.5, 0.5);
+		bots.push(new Bot(gentleman, scene, 'gentleman.glb'))
 
-		gentleman.scene.position.set(10, 0, 0)
+		gentleman.scene.position.set(10, 0, 5)
 
 		const pirate = await loader.loadAsync('src/lib/assets/skins/pirate.glb');
-		bots.push(new Bot(pirate.scene, scene, 'pirate.glb'))
+		pirate.scene.scale.set(0.5, 0.5, 0.5);
+		bots.push(new Bot(pirate, scene, 'pirate.glb'))
 
-		pirate.scene.position.set(-10, 0, 0)
+		pirate.scene.position.set(-10, 0, 5)
 
 		const def = await loader.loadAsync('src/lib/assets/skins/default.glb');
-		bots.push(new Bot(def.scene, scene, 'default.glb'))
-		def.scene.position.set(-20, 0, 0)
+		def.scene.scale.set(0.5, 0.5, 0.5);
+		bots.push(new Bot(def, scene, 'default.glb'))
+		def.scene.position.set(-20, 0, 5)
 
 
 
@@ -49,7 +54,7 @@
 		texture.repeat.set( 4, 4 );
 
 		var mat = new THREE.MeshStandardMaterial( { map : texture})
-		const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), mat);
+		const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 50), mat);
 		plain.rotation.x = -Math.PI / 2
 		scene.add(plain)
 		plain.name = "floor"
@@ -77,7 +82,7 @@
 
 
 		camera.position.z = 20;
-		camera.position.y = 30;
+		camera.position.y = 15;
 		camera.rotation.x = -Math.PI / 3.5
 
 		const plan = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), mat);
@@ -195,10 +200,12 @@
 			{
 				var obj = found[1].object
 				var i = 0
+				console.log(obj)
 				while (bots[i])
 				{
 					if (bots[i].target.includes(obj))
 					{
+						
 						draggable = bots[i]
 						bots[i].ispicked = 1
 						const response = await fetch('api/user/skin/update/', {

@@ -1,12 +1,22 @@
 import * as THREE from 'three';
+import { SkeletonCollider } from "./skeletoncollider.js"
 
 export class Player {
-	constructor (mesh, bind, speed, cam, scene) {
+	constructor (mesh, speed, scene, id) {
 		this.ySpeed = speed * 2;
-		this.cam = cam;
 		this.xSpeed = speed * 2;
+		this.id = id
 		this.scene = scene;
 		this.mesh = mesh.scene;
+		this.mesh.traverse(function(node) {
+            if (node.isMesh)
+                node.castShadow = true;
+            if (node.isSkinnedMesh)
+                node.frustumCulled = false;
+        })
+		const pickables = [];
+        this.skeletonCollider = new SkeletonCollider(this.mesh, this.scene, pickables)
+        this.scene.add(this.mesh);
 		this.bb = new THREE.Box3().setFromObject( mesh.scene);
 		this.left = this.mesh.getObjectByName("Bone003L");
 		this.right = this.mesh.getObjectByName("Bone003R");
@@ -28,13 +38,17 @@ export class Player {
 		this.direction = new THREE.Vector3();
 
 		this.target = this.mesh.getObjectByName("Bone001").children;
+		this.target = this.target.concat(pickables)
+		console.log(this.target)
+		this.target.forEach(function(element) {
+			element.userData.id = id
+		}, id)
 
-	
-		this.bind = bind;
 
 		this.controller = {xp: 0, xn: 0, yp: 0, yn: 0, jump: 0}
 	}
 	update (dt) {
+		this.skeletonCollider.update()
 		this.foot.set(new THREE.Vector3(this.mesh.position.x, this.mesh.position.y + 1 ,this.mesh.position.z), this.footdir)
 		var inter = this.foot.intersectObjects( this.scene.children );
 		
