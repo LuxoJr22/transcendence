@@ -9,6 +9,6 @@ class MessageListView(generics.ListAPIView):
 
 	def get_queryset(self):
 		sender = self.request.user
-		receiver_username = self.kwargs['username']
-		return Message.objects.filter(sender=sender, receiver__username=receiver_username) | \
-				Message.objects.filter(sender__username=receiver_username, receiver=sender)
+		receiver_id = self.kwargs['user_id']
+		return Message.objects.filter(sender=sender, receiver__id=receiver_id) | \
+				Message.objects.filter(sender__id=receiver_id, receiver=sender)

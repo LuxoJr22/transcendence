@@ -6,14 +6,14 @@ from .models import Message
 
 class ChatConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
-		self.receiver = self.scope['url_route']['kwargs']['username']
+		self.receiver = self.scope['url_route']['kwargs']['user_id']
 		self.sender = self.scope['user']
 
 		if not self.sender.is_authenticated:
 			await self.close()
 			return
 
-		self.room_group_name = f'chat_{self.sender.username}_{self.receiver}'
+		self.room_group_name = f'chat_{min(self.sender.id, int(self.receiver))}_{max(self.sender.id, int(self.receiver))}'
 
 		await self.channel_layer.group_add(
 			self.room_group_name,
@@ -52,6 +52,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		}))
 
 	@sync_to_async
-	def save_message(self, sender, receiver_username, message_content):
-		receiver = User.objects.get(username=receiver_username)
+	def save_message(self, sender, receiver_id, message_content):
+		receiver = User.objects.get(id=receiver_id)
 		Message.objects.create(sender=sender, receiver=receiver, content=message_content)
