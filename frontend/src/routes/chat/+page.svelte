@@ -6,6 +6,7 @@
     import type { friendInterface } from '../../stores/friendship';
     import { fetchChatMessages, messages, updateMessages } from '../../stores/chat';
     import type { Messages } from '../../stores/chat';
+    import { beforeUpdate, afterUpdate } from 'svelte';
     let state: AuthState;
     state = $auth;
 
@@ -36,7 +37,6 @@
         messages.subscribe((value : Messages) => {
             chatMessages = value;
         });
-        fetchChatMessages(state.user?.id);
     });
     
     let userSelected = -1;
@@ -62,26 +62,43 @@
             };
         };
         ws.onmessage = function (event){
-            let msg : Messages;
-            console.log(event.data);
             updateMessages(event.data);
             fetchChatMessages(listOfFriend[userSelected].id);
-            console.log('suh2');
+            
         };
+        fetchChatMessages(listOfFriend[userSelected].id);
     }
 
     function sendMessage(){
         if (ws && ws.readyState === WebSocket.OPEN && newMessage.trim() !== '')
         {
-            console.log('suh')
             let message = newMessage;
             ws.send(JSON.stringify({message}));
+            newMessage = '';
         }
     }
 
+
+    /****************autoScroll****************/
+
+    let div;
+    let autoscroll = false;
+    beforeUpdate(() => {
+        if (div){
+            const scrollableDistance = div.scrollHeight - div.offsetHeight;
+            autoscroll = div.scrollTop > scrollableDistance - 20;
+        }
+    });
+    
+    afterUpdate(() => {
+		if (autoscroll) {
+			div.scrollTo(0, div.scrollHeight);
+		}
+	});
+
 </script>
 
-<div class="container flex-fill justify-content-center">
+<div class="container flex-fill justify-content-center mycontainer">
     <div class="d-flex border rounded chat-container">
         <div class="col-3 border-end">
             <div class="d-flex m-4 row">
@@ -118,28 +135,44 @@
                 </div>
             </div>
             {#if chatMessages[0]}
-                <div>
-                    {#each chatMessages as msg}
-                        <p class="text-light">{msg.content}</p>
-                    {/each}
-                </div>
+                <p>suh</p>
             {:else}
                 <h4 class="d-flex justify-content-center align-items-center" style="color:grey;">You haven't discussions</h4>
             {/if}
         </div>
-        <div class="">
-            <div class="d-flex m-4">           
-                <img class="rounded-circle m-2 img-circle" src={listOfFriend[userSelected]?.profile_picture_url}>
-                <h4 class="text-light m-4">{listOfFriend[userSelected]?.username}</h4>
+        <div class="col-9">
+            <div class="d-flex m-4">
+                {#if userSelected == -1}
+                    <h4 style="color:grey">No discussion selectionned</h4>
+                {:else}
+                    <img class="rounded-circle m-2 img-circle" src={listOfFriend[userSelected]?.profile_picture_url}>
+                    <h4 class="text-light m-4">{listOfFriend[userSelected]?.username}</h4>
+                {/if}
             </div>
-        </div>
-        <div class="d-flex flex-column-reverse m-5">
+            {#if userSelected != -1}
+                <div class="d-flex m-5 chat-box border rounded flex-column justify-content-end" bind:this={div}>
+                    {#each chatMessages as msg}
+                        {#if msg.sender == state.user?.id}
+                            <div class="d-flex justify-content-end text-center">
+                                <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
+                            </div>
+                        {:else}
+                            <div class="d-flex justify-content-start text-center">
+                                <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
+                            </div>
+                        {/if}
+                    {/each}
+                </div>
+                {/if}
             <div>
-        
-            </div>
-            <div>
-                <input type="text" bind:value={newMessage} class="">
-                <button class="btn btn-primary" on:click={sendMessage}></button>
+                {#if userSelected != -1}
+                <div class="d-flex justify-content-bottom justify-content-end me-2">
+                    <form>
+                        <input type="text" bind:value={newMessage} class="inputMessage">
+                        <button class="btn btn-primary" on:click={sendMessage}>Send</button>
+                    </form>
+                </div>
+                {/if}
             </div>
         </div>
     </div>
@@ -153,7 +186,7 @@
 
     .friend-container{
         height: 20% !important;
-        overflow-y: scroll;
+        overflow-y: auto;
         scrollbar-width: thin;
         scrollbar-color: black grey;
     }
@@ -171,6 +204,24 @@
     }
 
     .modal-body {
-        height: 22vh !important;
+        height: 23vh !important;
+    }
+
+    .chat-box {
+        overflow-x: auto;
+        scrollbar-width: thin;
+        scrollbar-color: black grey;
+        height: 45%;
+    }
+
+    .mycontainer{
+        overflow: hidden;
+    }
+
+    .msgBox{
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 40%;
     }
 </style>
