@@ -6,10 +6,10 @@
     let linkGame = "/matchmaking/pong";
 
     function changeLink() {
-      if (linkGame == "/pong")
+      if (linkGame == "/matchmaking/pong")
         linkGame = "/shooter"
       else
-        linkGame = "/pong"
+        linkGame = "/matchmaking/pong"
     }
 </script>
 

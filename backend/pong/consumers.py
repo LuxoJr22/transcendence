@@ -33,8 +33,6 @@ class MatchmakingConsumer(WebsocketConsumer):
 		self.accept()
 		
 		if self.matchmaking_room.users_online.count() >= 2:
-
-			values = self.matchmaking_room.users_online.all().values_list("id", flat=True)
 			qs = self.matchmaking_room.users_online.all()
 			values = [item.id for item in qs]
 
