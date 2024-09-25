@@ -150,7 +150,7 @@
                 {/if}
             </div>
             {#if userSelected != -1}
-                <div class="d-flex m-5 chat-box border rounded flex-column justify-content-end" bind:this={div}>
+                <div class="m-5 chat-box border rounded" bind:this={div}>
                     {#each chatMessages as msg}
                         {#if msg.sender == state.user?.id}
                             <div class="d-flex justify-content-end text-center">
@@ -208,7 +208,7 @@
     }
 
     .chat-box {
-        overflow-x: auto;
+        overflow-y: auto;
         scrollbar-width: thin;
         scrollbar-color: black grey;
         height: 45%;
