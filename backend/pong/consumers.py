@@ -62,14 +62,6 @@ class PongConsumer(WebsocketConsumer):
 			if self.id == 2:
 				self.Pong_event(event)
 		self.game.update()
-		
-		#async_to_sync(self.channel_layer.group_send)(
-		#	self.room_group_name,
-		#	{
-		#		'type':'Pong_event',
-		#		'event':event,
-		#	}
-		#)
 
 
 	def Pong_event(self, event):

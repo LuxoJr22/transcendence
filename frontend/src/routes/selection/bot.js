@@ -3,9 +3,10 @@ import { SkeletonCollider } from "./skeletoncollider.js"
 import { equal } from "./utils.js"
 
 export class Bot{
-	constructor(mesh, scene){
+	constructor(mesh, scene, name){
 		this.scene = scene
-		this.mesh = mesh
+		this.name = name
+		this.mesh = mesh.scene
 		this.mesh.traverse(function(node) {
             if (node.isMesh)
                 node.castShadow = true;
@@ -14,12 +15,13 @@ export class Bot{
         })
 		const pick = []
 		this.skeletoncollider = new SkeletonCollider(this.mesh, this.scene, pick)
-		this.target = this.mesh.getObjectByName("Bone001").children;
-		this.target.concat(this.pick)
 		this.scene.add(this.mesh)
 		this.left = this.mesh.getObjectByName("Bone003L");
 		this.right = this.mesh.getObjectByName("Bone003R");
 		this.bone = this.mesh.getObjectByName("Bone");
+		this.target = this.mesh.getObjectByName("Bone001").children;
+		this.target = this.target.concat(pick)
+		console.log(this.target)
 		this.gravity = -9.81
 		this.movements =  {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
 		this.lastmove = 0
@@ -56,7 +58,7 @@ export class Bot{
 		if (this.moving && !this.ispicked)
 		{
 			this.movements.xp = 0.1
-			this.mesh.translateZ(0.06)
+			this.mesh.translateZ(0.04)
 			this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, this.rotationy, 0.1)
 			//this.rotationy += this.rotation
 		}
@@ -107,7 +109,7 @@ export class Bot{
 	}
 	move()
 	{
-		if (THREE.MathUtils.randInt(0, 2) == 0 && !this.ispicked && this.isground)
+		if (THREE.MathUtils.randInt(0, 2) == 0 && !this.ispicked && this.isground && !this.throwed)
 		{
 			this.moving = 1
 			this.rotationy = THREE.MathUtils.randFloat(0, 3.14)

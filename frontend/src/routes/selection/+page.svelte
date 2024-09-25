@@ -22,19 +22,28 @@
 		var bots = [];
 
 
-		const gltf = await loader.loadAsync('src/routes/selection/public/pop.glb');
-		bots.push(new Bot(gltf.scene, scene))
+		const pop = await loader.loadAsync('src/lib/assets/skins/vazy.glb');
+		pop.scene.scale.set(0.5, 0.5, 0.5);
+		pop.scene.position.set(0, 0, 5)
+		bots.push(new Bot(pop, scene, 'vazy.glb'))
 
 
-		const gm = await loader.loadAsync('src/routes/selection/public/sty.glb');
-		bots.push(new Bot(gm.scene, scene))
+		const gentleman = await loader.loadAsync('src/lib/assets/skins/gentleman.glb');
+		gentleman.scene.scale.set(0.5, 0.5, 0.5);
+		bots.push(new Bot(gentleman, scene, 'gentleman.glb'))
 
-		gm.scene.position.set(10, 0, 0)
+		gentleman.scene.position.set(10, 0, 5)
 
-		const dd = await loader.loadAsync('src/routes/selection/public/pir.glb');
-		bots.push(new Bot(dd.scene, scene))
+		const pirate = await loader.loadAsync('src/lib/assets/skins/pirate.glb');
+		pirate.scene.scale.set(0.5, 0.5, 0.5);
+		bots.push(new Bot(pirate, scene, 'pirate.glb'))
 
-		dd.scene.position.set(-10, 0, 0)
+		pirate.scene.position.set(-10, 0, 5)
+
+		const def = await loader.loadAsync('src/lib/assets/skins/default.glb');
+		def.scene.scale.set(0.5, 0.5, 0.5);
+		bots.push(new Bot(def, scene, 'default.glb'))
+		def.scene.position.set(-20, 0, 5)
 
 
 
@@ -45,7 +54,7 @@
 		texture.repeat.set( 4, 4 );
 
 		var mat = new THREE.MeshStandardMaterial( { map : texture})
-		const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), mat);
+		const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 50), mat);
 		plain.rotation.x = -Math.PI / 2
 		scene.add(plain)
 		plain.name = "floor"
@@ -60,10 +69,12 @@
 		scene.add( dl );
 
 		const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
-		renderer.setSize( 1920 * 0.7 , 1080 * 0.7);
+		renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+		var top = renderer.domElement.getBoundingClientRect().top
+		var left = renderer.domElement.getBoundingClientRect().left
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
-		var top = renderer.domElement.getBoundingClientRect().top
+		
 
 
 		//const controls = new OrbitControls( camera, renderer.domElement );
@@ -71,7 +82,7 @@
 
 
 		camera.position.z = 20;
-		camera.position.y = 30;
+		camera.position.y = 15;
 		camera.rotation.x = -Math.PI / 3.5
 
 		const plan = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), mat);
@@ -141,9 +152,9 @@
 		);
 
 		window.onresize = function(event){
-			if (window.innerWidth * 0.7 < 1920 * 0.7)
-				renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+			renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
 			top = renderer.domElement.getBoundingClientRect().top
+			left = renderer.domElement.getBoundingClientRect().left
 		}
 
 
@@ -153,7 +164,7 @@
 		const moveMouse = new THREE.Vector2()
 		var draggable = null
 
-		window.addEventListener('click', event => {
+		window.addEventListener('click', async(event) => {
 			if (draggable)
 			{
 				
@@ -180,7 +191,7 @@
 				
 				return
 			}
-			clickmouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1
+			clickmouse.x = ((event.clientX - left) / renderer.domElement.clientWidth) * 2 - 1
 			clickmouse.y = -(((event.clientY - top) / renderer.domElement.clientHeight) * 2 - 1)
 
 			raycaster.setFromCamera( clickmouse, camera)
@@ -189,12 +200,21 @@
 			{
 				var obj = found[1].object
 				var i = 0
+				console.log(obj)
 				while (bots[i])
 				{
 					if (bots[i].target.includes(obj))
 					{
+						
 						draggable = bots[i]
 						bots[i].ispicked = 1
+						const response = await fetch('api/user/skin/update/', {
+							method: 'PATCH',
+							headers: { 'Content-Type':'application/json','Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+							body: JSON.stringify({
+								"skin": bots[i].name
+							})
+						});
 					}
 					i++
 				}
@@ -202,7 +222,7 @@
 		})
 
 		window.addEventListener('mousemove', event => {
-			moveMouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1
+			moveMouse.x = ((event.clientX - left) / renderer.domElement.clientWidth) * 2 - 1
 			moveMouse.y = -(((event.clientY - top) / renderer.domElement.clientHeight) * 2 - 1)
 		})
 
@@ -247,4 +267,11 @@
 	});
 </script>
 
-<canvas bind:this={canvas} class=""></canvas>
+<style>
+	.game {
+	        /*border-radius: 3% !important;*/
+	        margin: auto !important;
+	    }
+</style>
+
+<canvas bind:this={canvas} class="game"></canvas>
