@@ -330,11 +330,18 @@
                 let i = 0
                 while (players[i])
                 {
-                    if (players[i].id == data.id - 1)
+                    if (players[i].id == id - 1)
                         players.splice(i, i)
                     i ++
                 }
-                createPlayer(data.id - 1, data.players[data.id - 1].skin)
+                createPlayer(id, data.players[id].skin)
+
+                var row = table_body.insertRow()
+                var usercell = row.insertCell(0)
+                var scorecell = row.insertCell(1)
+                usercell.innerHTML = data.players[id].username
+                scorecell.innerHTML = Math.round(data.players[id].score)
+                score_cells.push(scorecell)
             }
             if (data.event == 'Flag_picked')
             {
