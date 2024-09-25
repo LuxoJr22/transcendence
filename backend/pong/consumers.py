@@ -7,7 +7,6 @@ from .game_class import Game
 
 dictio = {}
 
-import sys #debug
 
 class MatchmakingConsumer(WebsocketConsumer):
 	def connect(self):
@@ -15,7 +14,6 @@ class MatchmakingConsumer(WebsocketConsumer):
 		self.room_group_name = f'{self.gamemode}_matchmaking'
 		self.user = self.scope['user']
 
-		print(self.user.username + "connected.", file=sys.stderr)
 
 		try:
 			self.matchmaking_room = get_object_or_404(PongMatchmaking, group_name=self.room_group_name)
@@ -30,7 +28,6 @@ class MatchmakingConsumer(WebsocketConsumer):
 		)
 
 		if self.user not in self.matchmaking_room.users_online.all():
-			print("adding " + self.user.username + " to group", file=sys.stderr)
 			self.matchmaking_room.users_online.add(self.user)
 		
 		self.accept()
@@ -40,12 +37,10 @@ class MatchmakingConsumer(WebsocketConsumer):
 			values = self.matchmaking_room.users_online.all().values_list("id", flat=True)
 			qs = self.matchmaking_room.users_online.all()
 			values = [item.id for item in qs]
-			print("Values are {}:  {} and {}".format(values, values[0], values[1]), file=sys.stderr)
 
 			self.player1 = values[0]
 			self.player2 = values[1]
 
-			print(str(values[0]) + " and " + str(values[1]) + " are matched.", file=sys.stderr)
 
 			async_to_sync(self.channel_layer.group_send)(
 				self.room_group_name,
@@ -63,7 +58,6 @@ class MatchmakingConsumer(WebsocketConsumer):
 			self.channel_name
 		)
 		if self.user in self.matchmaking_room.users_online.all():
-			print(self.user.username + "disconnected.", file=sys.stderr)
 			self.matchmaking_room.users_online.remove(self.user)
 
 	def Pong_match(self, event):

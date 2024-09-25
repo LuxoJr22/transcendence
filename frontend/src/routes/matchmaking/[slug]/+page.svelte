@@ -17,12 +17,8 @@
 		if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro')) { //state.isAuthenticated && 
 			ws = new WebSocket('/ws/pong_matchmaking/' + gamemode + '/?token=' + state.accessToken);
 			ws.onmessage = (event) => {
-				console.log("message received");
 				let data = JSON.parse(event.data);
-				console.log(data);
-				console.log(state.user?.username +  state.user?.id);
 				if (data.event == 'Match' && state.user?.id == data.player1_id || state.user?.id == data.player2_id) {
-					console.log("match found")
 					let gamemode = data.gamemode;
 					let room_name = data.room_name;
 					ws.close();
