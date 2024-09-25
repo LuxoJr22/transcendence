@@ -7,15 +7,20 @@ interface Messages {
     content: string;
 }
 
-export const messages = writable<Messages>([]);
+export let messages = writable<Messages[]>([]);
 
-export async function fetchChatMessages(username: string){
+export async function fetchChatMessages(id: number){
     const { accessToken } = get(auth);
-    const response = await fetch('/api/messages/' + username + '/', {
+    const response = await fetch('/api/messages/' + id + '/', {
     headers: {
         'Authorization': `Bearer ${accessToken}`,
     }
     });
     const data = await response.json();
-    messages.set( (msg : Messages[]) => [...msg, data]);
+    console.log(data);
+    messages.set(data);
 };
+
+export async function updateMessages(messageChat : any){
+    messages.update((msg : Messages[]) => [...msg, messageChat]);
+}

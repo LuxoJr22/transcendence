@@ -14,7 +14,7 @@
     let state: AuthState;
     state = $auth;
 
-    let listOfFriend : friendInterface;
+    let listOfFriend : friendInterface[];
     listOfFriend = $friendList; 
 
 
@@ -28,7 +28,7 @@
         auth.subscribe((value : AuthState) =>{
             state = value;
         });
-        friendList.subscribe((value : friendInterface) => {
+        friendList.subscribe((value : friendInterface[]) => {
             listOfFriend = value;
         });
     });
