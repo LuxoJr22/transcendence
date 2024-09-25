@@ -1,10 +1,11 @@
-<script lang= "ts">
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';;
 	import { Player } from "./player.js";
 	import { Bot } from "./bot.js";
 	import { shade } from "./watershader";
+
 	let canvas;
 	var scoring = 0;
 
@@ -280,7 +281,7 @@
 		}
 
 		var frames = 0
-		let url = '/ws/pong/pong/?token=' + localStorage.getItem('access_token');
+		let url = '/ws/pong/pong/' + localStorage.getItem('room_name') + '/?token=' + localStorage.getItem('access_token');
 		const chatSocket = new WebSocket(url)
 
 		chatSocket.onmessage = function(e) {
