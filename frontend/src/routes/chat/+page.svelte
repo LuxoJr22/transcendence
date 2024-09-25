@@ -4,18 +4,18 @@
     import type { AuthState } from '../../stores/auth';
     import { fetchFriendList, friendList, deleteFriend } from "../../stores/friendship";
     import type { friendInterface } from '../../stores/friendship';
-    import { fetchChatMessages, messages } from '../../stores/chat';
+    import { fetchChatMessages, messages, updateMessages } from '../../stores/chat';
     import type { Messages } from '../../stores/chat';
-    import ChatBox from './ChatBox.svelte';
-
     let state: AuthState;
     state = $auth;
 
     let listOfFriend : friendInterface[];
     listOfFriend = $friendList;
 
-    let chatMessages : Messages;
+    let chatMessages : Messages[];
     chatMessages = $messages;
+
+    let newMessage = '';
 
     let friendSearch : string;
     function resetFriendSearch (){
@@ -36,20 +36,48 @@
         messages.subscribe((value : Messages) => {
             chatMessages = value;
         });
+        fetchChatMessages(state.user?.id);
     });
     
     let userSelected = -1;
-    let ws;
-    async function createRoom(username : string){
+    let ws : WebSocket;
+    async function createRoom(username : string, id : number){
+        
         for (let i = 0 ; listOfFriend[i] ; i++)
         {
             if (username == listOfFriend[i].username){
-            userSelected = i;
+                userSelected = i;
                     break ;
             }
         }
+        const token = localStorage.getItem('access_token');
+        if (id)
+            ws = new WebSocket('/ws/chat/' + id + '/?token=' + token);
+        
+            ws.onopen = function() {
+            console.log('WebSocket connection opened');
+
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
+        };
+        ws.onmessage = function (event){
+            let msg : Messages;
+            console.log(event.data);
+            updateMessages(event.data);
+            fetchChatMessages(listOfFriend[userSelected].id);
+            console.log('suh2');
+        };
     }
 
+    function sendMessage(){
+        if (ws && ws.readyState === WebSocket.OPEN && newMessage.trim() !== '')
+        {
+            console.log('suh')
+            let message = newMessage;
+            ws.send(JSON.stringify({message}));
+        }
+    }
 
 </script>
 
@@ -73,7 +101,7 @@
                             {#each listOfFriend as friend}
                                 {#if friend.username.includes(friendSearch) || !friendSearch}
                                     <div class="col text-center p-0 m-2">
-                                        <button class="btn text-light friend-card bg-gradient border rounded" on:click={resetFriendSearch} on:click={createRoom(friend.username)} data-bs-dismiss="modal" aria-label="Close">
+                                        <button class="btn text-light friend-card bg-gradient border rounded" on:click={resetFriendSearch} on:click={createRoom(friend.username, friend.id)} data-bs-dismiss="modal" aria-label="Close">
                                             <img src={friend.profile_picture_url} class="img-circle rounded-circle m-2" style="object-fit:cover; width:50%; height:50%;">
                                             <p class="">{friend.username}</p>
                                             <i class="bi bi-plus" style="font-size:2em"></i>
@@ -90,12 +118,30 @@
                 </div>
             </div>
             {#if chatMessages[0]}
-                <p class="text-light">suhh</p>
+                <div>
+                    {#each chatMessages as msg}
+                        <p class="text-light">{msg.content}</p>
+                    {/each}
+                </div>
             {:else}
                 <h4 class="d-flex justify-content-center align-items-center" style="color:grey;">You haven't discussions</h4>
             {/if}
         </div>
-        <ChatBox index={userSelected}/>
+        <div class="">
+            <div class="d-flex m-4">           
+                <img class="rounded-circle m-2 img-circle" src={listOfFriend[userSelected]?.profile_picture_url}>
+                <h4 class="text-light m-4">{listOfFriend[userSelected]?.username}</h4>
+            </div>
+        </div>
+        <div class="d-flex flex-column-reverse m-5">
+            <div>
+        
+            </div>
+            <div>
+                <input type="text" bind:value={newMessage} class="">
+                <button class="btn btn-primary" on:click={sendMessage}></button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -112,14 +158,8 @@
         scrollbar-color: black grey;
     }
 
-    /* :global(.friend-container::-webkit-scrollbar-thumb) {
-        border: 4px solid !important;
-        border-radius: 10px !important;       
-        background-clip: padding-box !important; 
-    } */
-
     .img-circle {
-        width: 90%;
+        width: 20%;
         overflow: hidden;
         object-fit: cover;
         aspect-ratio: 1;
@@ -128,7 +168,6 @@
     .img-circle img {
         width: auto;
         height: auto;
-        transform: translateX(-50%);
     }
 
     .modal-body {
