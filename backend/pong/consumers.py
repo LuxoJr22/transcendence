@@ -128,14 +128,6 @@ class PongConsumer(WebsocketConsumer):
 				self.Pong_event(event)
 		self.game.update()
 
-		#async_to_sync(self.channel_layer.group_send)(
-		#	self.room_group_name,
-		#	{
-		#		'type':'Pong_event',
-		#		'event':event,
-		#	}
-		#)
-
 
 	def Pong_event(self, event):
 		self.send(text_data=json.dumps({

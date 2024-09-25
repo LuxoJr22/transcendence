@@ -8,6 +8,7 @@ class Game:
 		self.t = -time.perf_counter()
 		self.endscoring = 0
 		self.scoring = 0
+		self.lastscore = 1
 		self.gamemode = gamemode
 		self.ballx = 0
 		self.bally = 0
@@ -63,8 +64,10 @@ class Game:
 		if (self.ballx >= 18 or self.ballx <= -18):
 			if (self.ballx >= 18):
 				self.player1.score += 1
+				self.lastscore = 1
 			if (self.ballx <= -18):
 				self.player2.score += 1
+				self.lastscore = -1
 			self.scoring = 1
 			self.ballx = 0
 			self.bally = 16
@@ -76,7 +79,7 @@ class Game:
 		self.scoring = 0
 		self.ballx = 0
 		self.bally = 0
-		self.balldir = 1.5
+		self.balldir = 1.5 * self.lastscore
 		self.balldiry = 0
 		self.ballspeed = 1
 		
