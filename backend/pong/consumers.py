@@ -12,15 +12,15 @@ import sys #debug
 class MatchmakingConsumer(WebsocketConsumer):
 	def connect(self):
 		self.gamemode = self.scope['url_route']['kwargs']['gamemode']
-		self.room_group_name = f'{self.gamemode}_matchmaking13938'
+		self.room_group_name = f'{self.gamemode}_matchmaking'
 		self.user = self.scope['user']
 
 		print(self.user.username + "connected.", file=sys.stderr)
 
 		try:
-			self.pongroom = get_object_or_404(PongMatchmaking, group_name=self.room_group_name)
+			self.matchmaking_room = get_object_or_404(PongMatchmaking, group_name=self.room_group_name)
 		except:
-			self.pongroom = PongMatchmaking.objects.create(
+			self.matchmaking_room = PongMatchmaking.objects.create(
 				group_name = self.room_group_name,
 			)
 
@@ -29,41 +29,31 @@ class MatchmakingConsumer(WebsocketConsumer):
 			self.channel_name
 		)
 
-		if self.user not in self.pongroom.users_online.all():
-			self.pongroom.users_online.add(self.user)
-
-			#debug
+		if self.user not in self.matchmaking_room.users_online.all():
+			print("adding " + self.user.username + " to group", file=sys.stderr)
+			self.matchmaking_room.users_online.add(self.user)
+		
 		self.accept()
-		self.send(text_data=json.dumps({
-			'type': 'debug',
-			'message': 'Connected to matchmaking',
-			'user': self.user.username,
-			'users_online': self.pongroom.users_online.count()
-		}))
+		
+		if self.matchmaking_room.users_online.count() >= 2:
 
-		print(self.pongroom.users_online.all().last().username + " users_online.", file=sys.stderr)
+			values = self.matchmaking_room.users_online.all().values_list("id", flat=True)
+			qs = self.matchmaking_room.users_online.all()
+			values = [item.id for item in qs]
+			print("Values are {}:  {} and {}".format(values, values[0], values[1]), file=sys.stderr)
 
-		if self.pongroom.users_online.count() >= 2:
-			print(self.pongroom.users_online.count(), file=sys.stderr)
-			self.send(text_data=json.dumps({
-				'type': 'debug',
-				'message': 'Connected to matchmakin22g',
-				'user1': self.pongroom.users_online.all()[0].id,
-				'user2': self.pongroom.users_online.all()[1].id
-			}))
+			self.player1 = values[0]
+			self.player2 = values[1]
 
-			self.player1 = self.pongroom.users_online.all()[0]
-			self.player2 = self.pongroom.users_online.all()[1]
-
-			print(self.player1.username + " and " + self.player2.username + " are matched.", file=sys.stderr)
+			print(str(values[0]) + " and " + str(values[1]) + " are matched.", file=sys.stderr)
 
 			async_to_sync(self.channel_layer.group_send)(
 				self.room_group_name,
 				{
 					'type': 'Pong_match',
 					'event': 'Match',
-					'player1_id': self.player1.id,
-					'player2_id': self.player2.id,
+					'player1_id': self.player1,
+					'player2_id': self.player2,
 				} 
 			)
 
@@ -72,9 +62,9 @@ class MatchmakingConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-		if self.user in self.pongroom.users_online.all():
+		if self.user in self.matchmaking_room.users_online.all():
 			print(self.user.username + "disconnected.", file=sys.stderr)
-			self.pongroom.users_online.remove(self.user)
+			self.matchmaking_room.users_online.remove(self.user)
 
 	def Pong_match(self, event):
 		self.send(text_data=json.dumps({
