@@ -39,7 +39,6 @@ export class Player {
 
 		this.target = this.mesh.getObjectByName("Bone001").children;
 		this.target = this.target.concat(pickables)
-		console.log(this.target)
 		this.target.forEach(function(element) {
 			element.userData.id = id
 		}, id)

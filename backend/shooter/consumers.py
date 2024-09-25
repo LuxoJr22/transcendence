@@ -11,7 +11,7 @@ dictio = {}
 
 class ShooterConsumer(WebsocketConsumer):
 	def connect(self):
-		self.room_group_name = 's'
+		self.room_group_name = 'tt'
 		self.user = self.scope['user']
 
 		try:
@@ -32,7 +32,7 @@ class ShooterConsumer(WebsocketConsumer):
 		if (self.user not in self.game.ids):
 			self.id = len(self.game.ids) + 1
 			self.game.ids[self.user] = self.id
-			self.game.players.append(self.game.CreatePlayer(27, 3, 34, {'x': 104, 'y':1, 'z':0}, {'x':0, 'y':math.pi / 2, 'z':0}, self.user.skin))
+			self.game.players.append(self.game.CreatePlayer(27, 3, 34, {'x': 104, 'y':1, 'z':0}, {'x':0, 'y':math.pi / 2, 'z':0}, self.user.skin, self.user.username))
 		else:
 			self.id = self.game.ids[self.user]
 			self.game.players[self.id - 1]["skin"] = self.user.skin
@@ -68,9 +68,21 @@ class ShooterConsumer(WebsocketConsumer):
 		id = text_data_json['id'] - 1
 		if (event == "hit"):
 			target = text_data_json['target']
+			if self.game.flag.player_id == target + 1:
+				self.game.flag.player_id = 0
+				async_to_sync(self.channel_layer.group_send)(
+					self.room_group_name,
+					{
+						'type':'Flag',
+						'event':'dropped',
+						'id':target + 1,
+					}
+				)
 			self.game.players[target]["hit"] = 1
 			self.game.players[target]["position"] = self.game.players[target]["spawn"]
+			self.game.players[target]["death"] += 1
 			self.game.players[id]["score"] += 100
+			self.game.players[id]["kill"] += 1
 			return 
 		
 		if (self.game.players[id]["hit"] != 1):
@@ -90,7 +102,8 @@ class ShooterConsumer(WebsocketConsumer):
 				async_to_sync(self.channel_layer.group_send)(
 					self.room_group_name,
 					{
-						'type':'Flag_picked',
+						'type':'Flag',
+						'event':'picked',
 						'id':self.game.flag.player_id,
 					}
 				)
@@ -109,13 +122,14 @@ class ShooterConsumer(WebsocketConsumer):
 			'type':'Shooter',
 			'event':'Connected',
 			'players':self.game.players,
-			'id': event['id']
+			'id': event['id'],
+			'flag': self.game.flag.player_id
 		}))
 
-	def Flag_picked(self, event):
+	def Flag(self, event):
 		self.send(text_data=json.dumps({
 			'type':'Shooter',
-			'event':'Flag_picked',
+			'event':'Flag_' + event["event"],
 			'id':event['id'],
 		}))
 

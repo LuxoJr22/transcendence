@@ -9,13 +9,16 @@ class Game:
 		self.players = []
 		self.flag = Flag()
 
-	def CreatePlayer(self, x, y, z, spawn, rotaspawn, skin):
+	def CreatePlayer(self, x, y, z, spawn, rotaspawn, skin, username):
 		return {
 		'skin': skin,
+		'username': username,
 		'position' : {'x': x, 'y':y, 'z':z},
 		'direction' : {'x': 0, 'y':0, 'z':0},
 		'controller' : {"xp": 0, "xn": 0, "yp": 0, "yn": 0, "jump":0},
 		'score' : 0,
+		'death': 0,
+		'kill': 0,
 		'spawn' : spawn,
 		'rotaspawn' : rotaspawn,
 		'hit' : 0,

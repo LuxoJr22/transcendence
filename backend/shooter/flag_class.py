@@ -17,7 +17,9 @@ class Flag:
 			if (len(self.players_in) == 1):
 				self.poss += dt
 				if (self.poss >= 5):
+					self.poss = 0
 					self.player_id = self.players_in[0]
+					self.players_in.pop()
 			else:
 				self.poss = 0
 		else:
