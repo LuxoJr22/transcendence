@@ -9,10 +9,82 @@ import sys
 
 dictio = {}
 
+class PrivateMatchmakingConsumer(WebsocketConsumer):
+	def connect(self):
+		self.gamemode = self.scope['url_route']['kwargs']['gamemode']
+		self.game_id = self.scope['url_route']['kwargs']['game_id']
+		self.room_group_name = f'private_matchmaking_{self.game_id}'
+		self.user = self.scope['user']
+
+		try:
+			self.matchmaking_room = get_object_or_404(PongMatchmaking, group_name=self.room_group_name)
+		except:
+			self.matchmaking_room = PongMatchmaking.objects.create(
+				group_name = self.room_group_name,
+			)
+
+		try:
+			self.pongmatch = get_object_or_404(PongMatch, id=self.game_id)
+		except:
+			self.disconnect()
+
+		if self.user.id != self.pongmatch.player1 and self.user != self.pongmatch.player2:
+			self.disconnect()
+
+		async_to_sync(self.channel_layer.group_add)(
+			self.room_group_name,
+			self.channel_name
+		)
+
+		if self.user not in self.matchmaking_room.users_online.all():
+			self.matchmaking_room.users_online.add(self.user)
+		
+		self.accept()
+		
+		if self.matchmaking_room.users_online.count() >= 2:
+			qs = self.matchmaking_room.users_online.all()
+			values = [item.id for item in qs]
+
+			self.player1 = values[0]
+			self.player2 = values[1]
+
+			dictio[f'{self.gamemode}_{self.game_id}'] = Game(self.gamemode, self.pongmatch.id, self.player1, self.player2)
+
+			async_to_sync(self.channel_layer.group_send)(
+				self.room_group_name,
+				{
+					'type': 'Pong_match',
+					'event': 'Match',
+					'player1_id': self.player1,
+					'player2_id': self.player2,
+				} 
+			)
+
+	def disconnect(self, code):
+		async_to_sync(self.channel_layer.group_discard)(
+			self.room_group_name,
+			self.channel_name
+		)
+		if self.user in self.matchmaking_room.users_online.all():
+			self.matchmaking_room.users_online.remove(self.user)
+		if self.matchmaking_room.users_online.count() == 0:
+			self.matchmaking_room.delete()
+
+	def Pong_match(self, event):
+		self.send(text_data=json.dumps({
+			'type': 'Pong_match',
+			'event': 'Match',
+			'player1_id': event['player1_id'],
+			'player2_id': event['player2_id'],
+			'gamemode': self.gamemode,
+			'room_name': f'{self.gamemode}_{self.game_id}'
+		}))
+
+
 class MatchmakingConsumer(WebsocketConsumer):
 	def connect(self):
 		self.gamemode = self.scope['url_route']['kwargs']['gamemode']
-		self.room_group_name = f'{self.gamemode}_matchmaking1'
+		self.room_group_name = f'{self.gamemode}_matchmaking'
 		self.user = self.scope['user']
 
 		try:
@@ -43,7 +115,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 				player1 = self.player1,
 				player2 = self.player2,
 			)
-			dictio[f'{self.gamemode}_{self.player1}_{self.player2}'] = Game(self.gamemode, self.pongmatch.id, self.player1, self.player2)
+			dictio[f'{self.gamemode}_{self.pongmatch.id}'] = Game(self.gamemode, self.pongmatch.id, self.player1, self.player2)
 
 			async_to_sync(self.channel_layer.group_send)(
 				self.room_group_name,
@@ -70,7 +142,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 			'player1_id': event['player1_id'],
 			'player2_id': event['player2_id'],
 			'gamemode': self.gamemode,
-			'room_name': f'{self.gamemode}_{event["player1_id"]}_{event["player2_id"]}'
+			'room_name': f'{self.gamemode}_{self.pongmatch.id}'
 		}))
 
 
