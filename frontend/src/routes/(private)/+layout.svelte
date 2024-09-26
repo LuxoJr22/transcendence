@@ -9,25 +9,19 @@
 	let state: AuthState;
 	$: $auth, state = $auth;
 
-    
-
 	afterNavigate(async () => {
 		auth.subscribe((value : AuthState) =>{
-            state = value
+            state = value;
+            console.log(value);
         });
-        if (state.accessToken != null) {
-			await fetchUser();
-		}
-        else if (state.refreshToken){
-            await refresh_token();
-            console.log('no');
-        }
-        else 
-            goto('/login');
+        const status = await fetchUser();
+        if (status != 'success')
+            goto('/login')
 	});
 
-	const handleLogout = () => {
+	async function handleLogout() {
 		logout();
+        window.location.href = '/login'
 	};
 
     /******************Friendship********************/
@@ -91,7 +85,6 @@
                 </ul>
             </div>
         </div>
-            
         {:else}
             <a href="/login" class="btn btn-light mb-4" >Login</a>
         {/if}

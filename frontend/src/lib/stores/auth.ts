@@ -1,5 +1,6 @@
 import { writable, get } from 'svelte/store';
 import { goto } from '$app/navigation'
+import { browser } from '$app/environment';
 
 export interface User {
     id: number;
@@ -30,8 +31,6 @@ const initialState: AuthState = {
 export const auth = writable<AuthState>(initialState);
 
 export async function login(username: string, password: string): Promise<void> {
-    console.log('text');
-
     const response = await fetch('/api/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -39,7 +38,7 @@ export async function login(username: string, password: string): Promise<void> {
     });
 
     const data = await response.json();
-    
+    console.log(data);
     if (response.ok) {
         auth.set({
             isAuthenticated: true,
@@ -53,7 +52,6 @@ export async function login(username: string, password: string): Promise<void> {
             accessToken: data.access,
             refreshToken: data.refresh,
         });
-
         localStorage.setItem('access_token', data.access);
         localStorage.setItem('refresh_token', data.refresh);
         return ('success');
@@ -63,7 +61,7 @@ export async function login(username: string, password: string): Promise<void> {
 }
 
 export async function updateInformations(email: string, username: string): Promise<void> {
-    const { accessToken } = get(auth);
+    const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
         throw new Error('Username update failed');
         return;
@@ -84,7 +82,7 @@ export async function updateInformations(email: string, username: string): Promi
 }
 
 export async function updatePassword(password: string, current_password: string): Promise<void> {
-    const { accessToken } = get(auth);
+    const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
         throw new Error('Username update failed');
         return;
@@ -109,7 +107,7 @@ export async function updatePassword(password: string, current_password: string)
 
 export async function updateProfilePicture(profile_picture: File) {
     
-    const { accessToken } = get(auth);
+    const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
         throw new Error('Username update failed');
         return;
@@ -137,7 +135,8 @@ export async function updateProfilePicture(profile_picture: File) {
 }
 
 export async function fetchUser(): Promise<void> {
-    const { accessToken } = get(auth);
+    await refresh_token();
+    const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken) {
         return;
@@ -158,23 +157,21 @@ export async function fetchUser(): Promise<void> {
                 username: user.username,
                 email: user.email,
                 profile_picture: user.profile_picture,
-            }
+            },
+            accessToken : user.access,
+            refreshToken : user.refresh
         }));
-    } else if (response.status === 401) {
-        await refresh_token();
+        return ('success');
     }
 }
 
 export async function refresh_token(): Promise<void> {
-    const { refreshToken } = get(auth);
-
-    if (refreshToken == null)
-        goto ('login/')
+    const refreshToken = localStorage.getItem('refresh_token');
 
     const response = await fetch('/api/token/refresh/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh: refresh_token }),
+        body: JSON.stringify({ refresh: refreshToken }),
     });
 
     if (response.ok) {
@@ -183,7 +180,6 @@ export async function refresh_token(): Promise<void> {
             ...state,
             access_token: data.access,
         }));
-
         localStorage.setItem('access_token', data.access);
     } else {
         logout();
@@ -197,6 +193,8 @@ export function logout(): void {
         accessToken: null,
         refreshToken: null,
     });
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    if (browser) {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+    }
 }

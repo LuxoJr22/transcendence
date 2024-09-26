@@ -24,9 +24,6 @@
     }
     
     onMount(async () => {
-        if (localStorage.getItem('access_token')) {
-            await fetchUser();
-        }
         await fetchFriendList();
         auth.subscribe((value : AuthState) =>{
             state = value;

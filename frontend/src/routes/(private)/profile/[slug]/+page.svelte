@@ -27,12 +27,8 @@
         });
     
     onMount(async () => {
-        if (localStorage.getItem('access_token')) {
-            await fetchUser();
-        }
-        let token = localStorage.getItem('access_token');
-        if (token)
-            await profileData(currentUser, token);
+        if (state.accessToken)
+            await profileData(currentUser, state.accessToken);
         auth.subscribe((value : AuthState) =>{
             state = value
         });

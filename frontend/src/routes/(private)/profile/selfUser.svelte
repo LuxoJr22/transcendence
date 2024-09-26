@@ -19,9 +19,6 @@
 
 
     onMount(async () => {
-        if (localStorage.getItem('access_token')) {
-            await fetchUser();
-        }
         await fetchHistoryMatches();
         await fetchFriendList();
         truncHistory();
