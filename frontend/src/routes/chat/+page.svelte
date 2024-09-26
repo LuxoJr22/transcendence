@@ -1,11 +1,11 @@
 <script lang='ts'>
     import { onMount } from 'svelte';
-    import { auth, fetchUser } from '../../stores/auth';
-    import type { AuthState } from '../../stores/auth';
-    import { fetchFriendList, friendList, deleteFriend } from "../../stores/friendship";
-    import type { friendInterface } from '../../stores/friendship';
-    import { fetchChatMessages, messages, updateMessages } from '../../stores/chat';
-    import type { Messages } from '../../stores/chat';
+    import { auth, fetchUser } from '$lib/stores/auth';
+    import type { AuthState } from '$lib/stores/auth';
+    import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
+    import type { friendInterface } from '$lib/stores/friendship';
+    import { fetchChatMessages, messages, updateMessages } from '$lib/stores/chat';
+    import type { Messages } from '$lib/stores/chat';
     import { beforeUpdate, afterUpdate } from 'svelte';
     let state: AuthState;
     state = $auth;

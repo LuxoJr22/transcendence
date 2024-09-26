@@ -1,9 +1,9 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import {get} from 'svelte/store';
-    import { auth, fetchUser, logout } from '../stores/auth';
-    import type { AuthState } from '../stores/auth';
-    import { acceptFriendRequest, declineFriendRequest } from '../stores/friendship'
+    import { auth, fetchUser, logout } from '$lib/stores/auth';
+    import type { AuthState } from '$lib/stores/auth';
+    import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
 
 	let state: AuthState;
 	$: $auth, state = $auth;

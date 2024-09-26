@@ -2,10 +2,10 @@
     import { onMount } from 'svelte';
     import { get } from 'svelte/store'
     import Pie from './pie.svelte';
-    import { auth, fetchUser, updateInformations, updateProfilePicture , updatePassword } from '../../stores/auth';
-    import type { AuthState } from '../../stores/auth';
-    import { fetchFriendList, friendList, deleteFriend } from "../../stores/friendship";
-    import type { friendInterface } from '../../stores/friendship';
+    import { auth, fetchUser, updateInformations, updateProfilePicture , updatePassword } from '$lib/stores/auth';
+    import type { AuthState } from '$lib/stores/auth';
+    import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
+    import type { friendInterface } from '$lib/stores/friendship';
 
     let victories = 15;
     let defeats = 3;

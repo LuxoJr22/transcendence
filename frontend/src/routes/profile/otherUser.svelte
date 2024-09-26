@@ -4,8 +4,8 @@
 
     const img = new URL('$lib/assets/sforesti.jpg', import.meta.url).href;
     
-    import type { Profile } from '../../stores/user';
-    import { profileData, profile } from '../../stores/user';
+    import type { Profile } from '$lib/stores/user';
+    import { profileData, profile } from '$lib/stores/user';
 
     let victories = 15;
     let defeats = 3;

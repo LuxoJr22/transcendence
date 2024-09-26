@@ -1,6 +1,6 @@
 import { writable, get } from 'svelte/store';
 
-export interface User { // AAAA
+export interface User {
     id: number;
     username: string;
     email: string;
@@ -10,7 +10,6 @@ export interface User { // AAAA
 export interface AuthState {
     isAuthenticated: boolean;
     user: User | null;
-	friends: User[]; // AAAA
     accessToken: string | null;
     refreshToken: string | null;
 }
@@ -197,3 +196,17 @@ export function logout(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
 }
+
+
+import { browser } from '$app/environment';
+export const userToken = writable<string | null>(null);
+export const updateUserToken = () => {
+  browser && userToken.update((_) => localStorage.getItem('token') || null);
+};
+export const clearUserToken = () => {
+  userToken.set(null);
+  if (browser) {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  }
+};

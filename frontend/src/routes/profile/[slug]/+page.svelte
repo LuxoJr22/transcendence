@@ -2,11 +2,11 @@
     import { onMount } from 'svelte';
 
     const img = new URL('$lib/assets/sforesti.jpg', import.meta.url).href;
-    import { auth, fetchUser } from '../../../stores/auth';
-    import type { AuthState } from '../../../stores/auth';
+    import { auth, fetchUser } from '$lib/stores/auth';
+    import type { AuthState } from '$lib/stores/auth';
     import SelfUser from './../selfUser.svelte';
-    import type { Profile } from '../../../stores/user';
-    import { profileData, profile } from '../../../stores/user';
+    import type { Profile } from '$lib/stores/user';
+    import { profileData, profile } from '$lib/stores/user';
     import OtherUser from '../otherUser.svelte';
 
     let victories = 15;
