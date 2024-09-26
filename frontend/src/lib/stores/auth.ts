@@ -1,4 +1,5 @@
 import { writable, get } from 'svelte/store';
+import { goto } from '$app/navigation'
 
 export interface User {
     id: number;
@@ -22,13 +23,15 @@ const getTokenFromLocalStorage = (key: string): string | null => {
 const initialState: AuthState = {
     isAuthenticated: false,
     user: null,
-    accessToken: getTokenFromLocalStorage('access_token'),
-    refreshToken: getTokenFromLocalStorage('refresh_token'),
+    accessToken: null,
+    refreshToken: null,
 };
 
 export const auth = writable<AuthState>(initialState);
 
 export async function login(username: string, password: string): Promise<void> {
+    console.log('text');
+
     const response = await fetch('/api/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -36,8 +39,7 @@ export async function login(username: string, password: string): Promise<void> {
     });
 
     const data = await response.json();
-    console.log(data);
-
+    
     if (response.ok) {
         auth.set({
             isAuthenticated: true,
@@ -166,6 +168,9 @@ export async function fetchUser(): Promise<void> {
 export async function refresh_token(): Promise<void> {
     const { refreshToken } = get(auth);
 
+    if (refreshToken == null)
+        goto ('login/')
+
     const response = await fetch('/api/token/refresh/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -192,21 +197,6 @@ export function logout(): void {
         accessToken: null,
         refreshToken: null,
     });
-
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
 }
-
-
-import { browser } from '$app/environment';
-export const userToken = writable<string | null>(null);
-export const updateUserToken = () => {
-  browser && userToken.update((_) => localStorage.getItem('token') || null);
-};
-export const clearUserToken = () => {
-  userToken.set(null);
-  if (browser) {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  }
-};

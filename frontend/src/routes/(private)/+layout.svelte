@@ -1,20 +1,29 @@
 <script lang="ts">
+    import { afterNavigate , goto } from '$app/navigation';
     import { onMount } from 'svelte';
     import {get} from 'svelte/store';
-    import { auth, fetchUser, logout } from '$lib/stores/auth';
+    import { auth, fetchUser, logout , refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
 
 	let state: AuthState;
 	$: $auth, state = $auth;
 
-	onMount(async () => {
-		if (localStorage.getItem('access_token')) {
-			await fetchUser();
-		}
+    
+
+	afterNavigate(async () => {
 		auth.subscribe((value : AuthState) =>{
             state = value
         });
+        if (state.accessToken != null) {
+			await fetchUser();
+		}
+        else if (state.refreshToken){
+            await refresh_token();
+            console.log('no');
+        }
+        else 
+            goto('/login');
 	});
 
 	const handleLogout = () => {

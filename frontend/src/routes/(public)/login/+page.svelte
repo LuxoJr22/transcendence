@@ -1,6 +1,7 @@
 <script lang="ts">;
     import { goto } from '$app/navigation';
-    import { login } from '$lib/stores/auth';
+    import { login , auth} from '$lib/stores/auth';
+    import type { AuthState } from '$lib/stores/auth'
 
     let username = '';
     let password = '';
@@ -13,12 +14,10 @@
 
     async function handleLogin() {
         const response = await login(username, password);
-        if (response == 'success')
+        if (localStorage.getItem('access_token'))
             goto('/');
         else
-        {
             errorsLogin = true;
-        }
     }
 
     const logo42 = new URL('$lib/assets/42_Logo.svg', import.meta.url).href
@@ -28,15 +27,15 @@
     <div class="d-flex justify-content-center align-items-center" style="height:100%;">
         <form on:submit|preventDefault="{handleLogin}" class="p-5 border rounded">
             <div class="mb-3">
-                <label for="formGroupExampleInput" class="form-label text-light container-fluid">
+                <label for="Pseudo" class="form-label text-light container-fluid">
                     <h5>Pseudo</h5>
-                    <input type="text" bind:value="{username}" class="form-control" id="formGroupExampleInput" placeholder="Enter pseudo">
+                    <input type="text" bind:value="{username}" class="form-control" id="Pseudo" placeholder="Enter pseudo">
                 </label>
             </div>
             <div class="mb-3">
-                <label for="formGroupExampleInput" class="form-label text-light container-fluid">
+                <label for="Password" class="form-label text-light container-fluid">
                     <h5>Password</h5>
-                    <input type="password" bind:value="{password}" class="form-control" id="formGroupExampleInput" placeholder="Enter password">
+                    <input type="password" bind:value="{password}" class="form-control" id="Password" placeholder="Enter password">
                 </label>
             </div>
             {#if errorsLogin == true}
