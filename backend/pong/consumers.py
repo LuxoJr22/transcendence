@@ -2,18 +2,16 @@ import json
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from django.shortcuts import get_object_or_404
-from .models import PongGroup, PongMatchmaking
+from .models import PongGroup, PongMatchmaking, PongMatch
 from .game_class import Game
 
 dictio = {}
-
 
 class MatchmakingConsumer(WebsocketConsumer):
 	def connect(self):
 		self.gamemode = self.scope['url_route']['kwargs']['gamemode']
 		self.room_group_name = f'{self.gamemode}_matchmaking'
 		self.user = self.scope['user']
-
 
 		try:
 			self.matchmaking_room = get_object_or_404(PongMatchmaking, group_name=self.room_group_name)
@@ -39,6 +37,11 @@ class MatchmakingConsumer(WebsocketConsumer):
 			self.player1 = values[0]
 			self.player2 = values[1]
 
+			self.pongmatch = PongMatch.objects.create(
+				player1 = self.player1,
+				player2 = self.player2,
+			)
+			dictio[f'{self.gamemode}_{self.player1}_{self.player2}'] = Game(self.gamemode, self.pongmatch.id)
 
 			async_to_sync(self.channel_layer.group_send)(
 				self.room_group_name,
@@ -91,9 +94,10 @@ class PongConsumer(WebsocketConsumer):
 			self.pongroom.users_online.add(self.user)
 		if self.pongroom.users_online.count() == 1:
 			self.id = 1
-			dictio[self.room_group_name] = Game(self.gamemode)
 		else:
 			self.id = 2
+		if (self.room_group_name not in dictio):
+			self.disconnect()
 		self.game = dictio[self.room_group_name]
 		self.accept()
 		self.send(text_data=json.dumps({

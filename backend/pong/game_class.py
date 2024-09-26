@@ -4,7 +4,8 @@ from .player_class import Player
 from .utils import lerp
 
 class Game:
-	def __init__(self, gamemode):
+	def __init__(self, gamemode, game_id):
+		self.game_id = game_id
 		self.t = -time.perf_counter()
 		self.endscoring = 0
 		self.scoring = 0

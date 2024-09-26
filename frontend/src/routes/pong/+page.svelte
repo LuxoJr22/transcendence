@@ -25,10 +25,10 @@
 
 
 		const scene = new THREE.Scene();
-		const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
+		const camera = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
 		scene.background = new THREE.Color(0x54A0E4);
 
-		
+
 		var bind = {up: 90, down: 83, left:81, right:68, charge:32}
 		//var bind2 = {up: 38, down: 40, left:37, right:39, charge:96}
 		var limit = {px: 0, py:8, nx:-18, ny:-8}
