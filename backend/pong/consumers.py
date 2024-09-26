@@ -28,7 +28,7 @@ class PrivateMatchmakingConsumer(WebsocketConsumer):
 		except:
 			self.disconnect()
 
-		if self.user.id != self.pongmatch.player1 and self.user != self.pongmatch.player2:
+		if self.user.id != self.pongmatch.player1 and self.user.id != self.pongmatch.player2:
 			self.disconnect()
 
 		async_to_sync(self.channel_layer.group_add)(
@@ -114,6 +114,8 @@ class MatchmakingConsumer(WebsocketConsumer):
 			self.pongmatch = PongMatch.objects.create(
 				player1 = self.player1,
 				player2 = self.player2,
+				gamemode = self.gamemode,
+				type = "normal"
 			)
 			dictio[f'{self.gamemode}_{self.pongmatch.id}'] = Game(self.gamemode, self.pongmatch.id, self.player1, self.player2)
 
@@ -142,7 +144,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 			'player1_id': event['player1_id'],
 			'player2_id': event['player2_id'],
 			'gamemode': self.gamemode,
-			'room_name': f'{self.gamemode}_{self.pongmatch.id}'
+			'room_name': f'{self.gamemode}_{event["player1_id"]}_{event["player2_id"]}'
 		}))
 
 
@@ -217,7 +219,7 @@ class PongConsumer(WebsocketConsumer):
 		self.game.update()
 		if (self.game.winner != 0 and self.pong_match.winner == None):
 			self.pong_match.winner = self.game.winner
-			print(self.pong_match.winner, file=sys.stderr)
+			self.pong_match.save()
 
 
 

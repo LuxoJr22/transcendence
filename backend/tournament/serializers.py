@@ -4,7 +4,7 @@ from .models import Tournament
 class TournamentSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Tournament
-		fields = ['id', 'name']
+		fields = ['id', 'name', 'nb_player']
 		extra_kwargs = {'id': {'read_only':True},}
 
 	def create(self, validated_data):
