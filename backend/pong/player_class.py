@@ -1,9 +1,10 @@
 from .utils import lerp
 
 class Player:
-	def __init__(self, x, y, limit, side):
+	def __init__(self, x, y, limit, side, id):
 		self.x = x
 		self.y = y
+		self.id = id
 		self.side = side
 		self.score = 0
 		self.limit = limit

@@ -5,12 +5,14 @@ from django.shortcuts import get_object_or_404
 from .models import PongGroup, PongMatchmaking, PongMatch
 from .game_class import Game
 
+import sys
+
 dictio = {}
 
 class MatchmakingConsumer(WebsocketConsumer):
 	def connect(self):
 		self.gamemode = self.scope['url_route']['kwargs']['gamemode']
-		self.room_group_name = f'{self.gamemode}_matchmaking'
+		self.room_group_name = f'{self.gamemode}_matchmaking1'
 		self.user = self.scope['user']
 
 		try:
@@ -41,7 +43,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 				player1 = self.player1,
 				player2 = self.player2,
 			)
-			dictio[f'{self.gamemode}_{self.player1}_{self.player2}'] = Game(self.gamemode, self.pongmatch.id)
+			dictio[f'{self.gamemode}_{self.player1}_{self.player2}'] = Game(self.gamemode, self.pongmatch.id, self.player1, self.player2)
 
 			async_to_sync(self.channel_layer.group_send)(
 				self.room_group_name,
@@ -89,16 +91,26 @@ class PongConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-		
-		if self.user not in self.pongroom.users_online.all():
-			self.pongroom.users_online.add(self.user)
-		if self.pongroom.users_online.count() == 1:
-			self.id = 1
-		else:
-			self.id = 2
+
 		if (self.room_group_name not in dictio):
 			self.disconnect()
 		self.game = dictio[self.room_group_name]
+
+		if self.user not in self.pongroom.users_online.all():
+			self.pongroom.users_online.add(self.user)
+		if self.game.player1.id == self.user.id:
+			self.id = 1
+		elif self.game.player2.id == self.user.id:
+			self.id = 2
+		else:
+			self.disconnect()
+		
+		
+
+		try:
+			self.pong_match = get_object_or_404(PongMatch, id=self.game.game_id)
+		except:
+			self.disconnect()
 		self.accept()
 		self.send(text_data=json.dumps({
 			'type':'Pong',
@@ -115,6 +127,8 @@ class PongConsumer(WebsocketConsumer):
 			self.pongroom.users_online.remove(self.user)
 		if self.pongroom.users_online.count() == 0:
 			del dictio[self.room_group_name]
+			if (self.game.winner != 0 and self.pong_match.winner == None):
+				self.pong_match.winner = self.id
 			self.pongroom.delete()
 
 	def receive(self, text_data):
@@ -129,6 +143,10 @@ class PongConsumer(WebsocketConsumer):
 			if self.id == 2:
 				self.Pong_event(event)
 		self.game.update()
+		if (self.game.winner != 0 and self.pong_match.winner == None):
+			self.pong_match.winner = self.game.winner
+			print(self.pong_match.winner, file=sys.stderr)
+
 
 
 	def Pong_event(self, event):
