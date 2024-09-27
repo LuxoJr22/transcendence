@@ -126,6 +126,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 					'event': 'Match',
 					'player1_id': self.player1,
 					'player2_id': self.player2,
+					'match_id':self.pongmatch.id,
 				} 
 			)
 
@@ -144,7 +145,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 			'player1_id': event['player1_id'],
 			'player2_id': event['player2_id'],
 			'gamemode': self.gamemode,
-			'room_name': f'{self.gamemode}_{event["player1_id"]}_{event["player2_id"]}'
+			'room_name': f'{self.gamemode}_{event["match_id"]}'
 		}))
 
 
