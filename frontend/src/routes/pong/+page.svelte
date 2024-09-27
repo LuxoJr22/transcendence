@@ -148,6 +148,7 @@
 		document.body.appendChild( renderer.domElement );
 
 		camera.position.z = 20;
+		camera.rotation.z = Math.PI / 2;
 
 		var xSpeed = 0.15;
 		var ySpeed = 0.15;
@@ -297,20 +298,14 @@
 			{
 				console.log('connected')
 				id = data.id
-				if (id == 1)
-				{
-					chatSocket.send(JSON.stringify({
-						'event':'frame',
-						'player1':play.controller,
-					}))
-				}
-				if (id == 2)
-				{
-					chatSocket.send(JSON.stringify({
-						'event':'frame',
-						'player2':er.controller,
-					}))
-				}
+				chatSocket.send(JSON.stringify({
+					'event':'ready',
+					'id':id,
+				}))
+			}
+			else if (data.event == 'start_game')
+			{
+				camera.rotation.z = 0
 			}
 			else if (data.event == 'frame')
 			{

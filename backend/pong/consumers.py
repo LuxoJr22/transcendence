@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync
 from django.shortcuts import get_object_or_404
 from .models import PongGroup, PongMatchmaking, PongMatch
 from .game_class import Game
+import time
 
 import sys
 
@@ -209,14 +210,50 @@ class PongConsumer(WebsocketConsumer):
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
 		event = text_data_json['event']
+		if (event == 'frame'):
+			self.frame_update(text_data_json)
+		if (event == 'ready'):
+			self.ready(text_data_json)
+
+	
+	def ready(self, text_data_json):
+		if (self.id == text_data_json["id"] == 1):
+			self.game.player1.ready = 1
+		if (self.id == text_data_json["id"] == 2):
+			self.game.player2.ready = 1
+		if (self.game.player1.ready == self.game.player2.ready == 1):
+			time.sleep(2)
+			async_to_sync(self.channel_layer.group_send)(
+				self.room_group_name,
+				{
+					'type': 'start_game',
+					'event': 'game',
+				} 
+			)
+			async_to_sync(self.channel_layer.group_send)(
+				self.room_group_name,
+				{
+					'type': 'Pong_event',
+					'event': 'frame',
+				} 
+			)
+			
+	def start_game(self, event):
+		self.send(text_data=json.dumps({
+			'type':'Pong',
+			'event':'start_game',
+		}))
+
+	
+	def frame_update(self, text_data_json):
 		if 'player1' in text_data_json:
 			self.game.player1.controller = text_data_json['player1']
 			if self.id == 1:
-				self.Pong_event(event)
+				self.Pong_event(text_data_json['event'])
 		if 'player2' in text_data_json:
 			self.game.player2.controller = text_data_json['player2']
 			if self.id == 2:
-				self.Pong_event(event)
+				self.Pong_event(text_data_json['event'])
 		self.game.update()
 		if (self.game.winner != 0 and self.pong_match.winner == None):
 			self.pong_match.winner = self.game.winner
@@ -227,7 +264,7 @@ class PongConsumer(WebsocketConsumer):
 	def Pong_event(self, event):
 		self.send(text_data=json.dumps({
 			'type':'Pong',
-			'event':event,
+			'event':'frame',
 			'scoring':self.game.scoring,
 			'ball':self.game.ballx,
 			'bally':self.game.bally,

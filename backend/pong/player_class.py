@@ -6,6 +6,7 @@ class Player:
 		self.y = y
 		self.id = id
 		self.side = side
+		self.ready = 0
 		self.score = 0
 		self.limit = limit
 		self.knockback = 0
