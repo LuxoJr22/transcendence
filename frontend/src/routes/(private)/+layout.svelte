@@ -45,7 +45,7 @@
 </script>
 
 <nav class="navbar">
-    <div class="container-fluid">
+    <div class="container-fluid container-size">
         <a href="/" class="navbar-item navbar-brand fs-1 layout-title text-warning-subtle ms-4 opacity">t r i p l u m</a>
         {#if state.isAuthenticated}
         <div class="row">
@@ -79,8 +79,8 @@
                     <img src={state.user?.profile_picture} alt="User profile" class="border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">{state.user?.username}
                 </a>
                 <ul class="dropdown-menu ms-2" style="min-width: 0;">
-                    <li><a class="dropdown-item text-start py-1 px-4" href={"/profile/" + state.user?.id}><i class="bi-person-fill pe-2" style="font-size: 1.3rem; color: grey;"></i>profile</a></li>
-                    <li><a class="dropdown-item text-danger text-start py-1 px-4" href="/" on:click={handleLogout}><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</a></li>
+                    <li class="border border-2 rounded m-2 button-dropdown"><a class="dropdown-item text-start py-1 px-4" href={"/profile/" + state.user?.id}><i class="bi-person-fill pe-2" style="font-size: 1.3rem; color: grey;"></i>profile</a></li>
+                    <li class="border border-2 rounded m-2 button-dropdown"><a class="dropdown-item text-danger text-start py-1 px-4" href="/" on:click={handleLogout}><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</a></li>
                 </ul>
             </div>
         </div>
@@ -119,6 +119,31 @@
 
     .responsive-img {
         object-fit: cover;
+    }
+
+    .container-size{
+        width: 98%;
+    }
+    
+    .button-dropdown{
+        box-shadow: 0px 0px 0px #a2a4a5;
+    }
+
+    @keyframes buttonPush {
+        0% {
+            box-shadow: 0px 0px #a2a4a5;
+            transform:translateY(0);
+        }
+        100% {
+            box-shadow: 2px 5px #a2a4a5;
+            transform:translateY(-5px);
+        }
+    }
+
+    .button-dropdown:hover{
+        animation-name: buttonPush;
+        animation-duration: 0.5s;
+        animation-fill-mode: forwards;
     }
 
 </style>

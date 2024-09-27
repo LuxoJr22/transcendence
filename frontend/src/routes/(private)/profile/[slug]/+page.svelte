@@ -1,7 +1,6 @@
 <script lang='ts'>
     import { onMount } from 'svelte';
-
-    const img = new URL('$lib/assets/sforesti.jpg', import.meta.url).href;
+    import { goto } from '$app/navigation'
     import { auth, fetchUser } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import SelfUser from './../selfUser.svelte';
@@ -27,8 +26,7 @@
         });
     
     onMount(async () => {
-        if (state.accessToken)
-            await profileData(currentUser, state.accessToken);
+        await profileData(currentUser, state.accessToken);
         auth.subscribe((value : AuthState) =>{
             state = value
         });

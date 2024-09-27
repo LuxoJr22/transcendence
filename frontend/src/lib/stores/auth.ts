@@ -169,7 +169,6 @@ function AccessTokenExpirated(){
         return (true);
     let content : string = token.split('.')[1].replaceAll('-', '+').replaceAll('_', '/');
     let expiration = window.atob(content);
-    console.log(JSON.parse(expiration).exp);
     return ((JSON.parse(expiration).exp - 5) <= (Math.floor(Date.now() / 1000)));
 }
 
