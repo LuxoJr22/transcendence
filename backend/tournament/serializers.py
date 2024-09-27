@@ -10,14 +10,3 @@ class TournamentSerializer(serializers.ModelSerializer):
 	def create(self, validated_data):
 		tournament = Tournament.objects.create(**validated_data)
 		return tournament
-
-class JoinTournamentSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Tournament
-		fields = ['participants']
-
-	def update(self, instance, validated_data):
-		user = self.context['request'].user
-		instance.participants.add(user)
-		instance.save()
-		return instance
