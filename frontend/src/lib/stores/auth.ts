@@ -1,5 +1,4 @@
-import { writable, get } from 'svelte/store';
-import { goto } from '$app/navigation'
+import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
 export interface User {
@@ -12,20 +11,15 @@ export interface User {
 export interface AuthState {
     isAuthenticated: boolean;
     user: User | null;
-    accessToken: string | null;
-    refreshToken: string | null;
+    accessToken: string
+    refreshToken: string
 }
-
-const getTokenFromLocalStorage = (key: string): string | null => {
-    const token = localStorage.getItem(key);
-    return token ? token : null;
-};
 
 const initialState: AuthState = {
     isAuthenticated: false,
     user: null,
-    accessToken: null,
-    refreshToken: null,
+    accessToken: '',
+    refreshToken: '',
 };
 
 export const auth = writable<AuthState>(initialState);
@@ -59,6 +53,7 @@ export async function login(username: string, password: string): Promise<void> {
 }
 
 export async function updateInformations(email: string, username: string): Promise<void> {
+    await refresh_token();
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
         throw new Error('Username update failed');
@@ -80,6 +75,7 @@ export async function updateInformations(email: string, username: string): Promi
 }
 
 export async function updatePassword(password: string, current_password: string): Promise<void> {
+    refresh_token()
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
         throw new Error('Username update failed');
@@ -104,7 +100,7 @@ export async function updatePassword(password: string, current_password: string)
 
 
 export async function updateProfilePicture(profile_picture: File) {
-    
+    await refresh_token();
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
         throw new Error('Username update failed');
@@ -133,7 +129,7 @@ export async function updateProfilePicture(profile_picture: File) {
 }
 
 export async function fetchUser(): Promise<void> {
-    await refresh_token();
+    await await refresh_token();
     const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken) {
@@ -163,9 +159,20 @@ export async function fetchUser(): Promise<void> {
     }
 }
 
-export async function refresh_token(): Promise<void> {
-    const refreshToken = localStorage.getItem('refresh_token');
+function AccessTokenExpirated(){
+    var base64Url = localStorage.getItem('access_token').split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    
+    return ((JSON.parse(jsonPayload).exp - 5) <= (Math.floor(Date.now() / 1000)));
+}
 
+export async function refresh_token(): Promise<void> {
+    if (!AccessTokenExpirated())
+        return ;
+    const refreshToken = localStorage.getItem('refresh_token');
     const response = await fetch('/api/token/refresh/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

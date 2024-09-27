@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { refresh_token } from './auth';
 
 export interface Profile {
    id: number;
@@ -10,9 +11,13 @@ export interface Profile {
 export const profile = writable<Profile>();
 
 export async function profileData(id: string, token: string): Promise<void> {
+   await refresh_token()
+
+   let accessToken = localStorage.getItem('access_token');
+
    const response = await fetch('/api/user/profile/' + parseInt(id) + '/', {
       method: 'GET',
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: { 'Authorization': `Bearer ${accessToken}` },
    });
    
    if (response.ok) {

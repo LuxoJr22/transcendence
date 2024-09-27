@@ -1,5 +1,5 @@
-import { writable, get } from 'svelte/store';
-import { auth } from './auth';
+import { writable } from 'svelte/store';
+import { refresh_token } from './auth';
 
 interface Messages {
     sender: string;
@@ -10,7 +10,8 @@ interface Messages {
 export let messages = writable<Messages[]>([]);
 
 export async function fetchChatMessages(id: number){
-    const { accessToken } = get(auth);
+    await refresh_token();
+    const accessToken = localStorage.getItem('access_token');;
     const response = await fetch('/api/messages/' + id + '/', {
     headers: {
         'Authorization': `Bearer ${accessToken}`,
