@@ -11,7 +11,7 @@
 
 	onMount(() => { (async () => {
 
-		var skin = ""
+		/*var skin = ""
 		const response = await fetch('api/user/game_data/', {
 		method: 'GET',
 		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
@@ -20,7 +20,7 @@
 		if (response.ok)
 		{
 			skin = data.skin
-		}
+		}*/
 
 
 
@@ -71,10 +71,7 @@
 			i ++;
 		}
 
-		const gltf = await loader.loadAsync('src/lib/assets/skins/' + skin);
-
-		gltf.scene.position.set(-25, 0, -0.8);
-		gltf.scene.scale.set(0.5, 0.5, 0.5);
+		const gltf = await loader.loadAsync('src/lib/assets/skins/default.glb' );
 
 
 		gltf.scene.position.set(-10, 0, -1.5);
@@ -88,7 +85,7 @@
 
 
 
-		const gl = await loader.loadAsync('src/lib/assets/skins/vazy.glb');
+		const gl = await loader.loadAsync('src/lib/assets/skins/default.glb');
 
 		gl.scene.position.set(10, 0, -1.5);
 		gl.scene.scale.set(0.5, 0.5, 0.5);
@@ -178,33 +175,66 @@
 
 		function handlebuttons(buttons)
 		{
-			if (buttons[0].value > 0)
-				play.controller.charge = 1;
-			if (buttons[0].value == 0)
-				play.controller.charge = 0;
+			if (id == 1)
+			{
+				if (buttons[0].value > 0)
+					play.controller.charge = 1;
+				if (buttons[0].value == 0)
+					play.controller.charge = 0;
+			}
+			if (id == 2)
+			{
+				if (buttons[0].value > 0)
+					er.controller.charge = 1;
+				if (buttons[0].value == 0)
+					er.controller.charge = 0;
+			}
 		}
 
 		var xSpeed = 0.15, ySpeed = 0.15;
 
 		function handlesticks(axes)
 		{
-			if (axes[0] < -0.2)
-				play.controller.xn = axes[0] * xSpeed;
-			else
-				play.controller.xn = 0;
-			if (axes[0] > 0.2)
-				play.controller.xp = axes[0] * xSpeed;
-			else
-				play.controller.xp = 0;
+			if (id == 1)
+			{				
+				if (axes[0] < -0.2)
+					play.controller.xn = axes[0] * xSpeed;
+				else
+					play.controller.xn = 0;
+				if (axes[0] > 0.2)
+					play.controller.xp = axes[0] * xSpeed;
+				else
+					play.controller.xp = 0;
 
-			if (axes[1] < -0.2)
-				play.controller.yn = -axes[1] * ySpeed;
-			else
-				play.controller.yn = 0;
-			if (axes[1] > 0.2)
-				play.controller.yp = -axes[1] * ySpeed;
-			else
-				play.controller.yp = 0;
+				if (axes[1] < -0.2)
+					play.controller.yn = -axes[1] * ySpeed;
+				else
+					play.controller.yn = 0;
+				if (axes[1] > 0.2)
+					play.controller.yp = -axes[1] * ySpeed;
+				else
+					play.controller.yp = 0;
+			}
+			if (id == 2)
+			{
+				if (axes[0] < -0.2)
+					er.controller.xn = axes[0] * xSpeed;
+				else
+					er.controller.xn = 0;
+				if (axes[0] > 0.2)
+					er.controller.xp = axes[0] * xSpeed;
+				else
+					er.controller.xp = 0;
+
+				if (axes[1] < -0.2)
+					er.controller.yn = -axes[1] * ySpeed;
+				else
+					er.controller.yn = 0;
+				if (axes[1] > 0.2)
+					er.controller.yp = -axes[1] * ySpeed;
+				else
+					er.controller.yp = 0;
+			}
 		}
 
 		window.addEventListener(
@@ -255,30 +285,6 @@
 
 		//#region Collision
 
-		function checkCollision() {
-			if (er.bb.intersectsSphere(spherebb) && er.charge == 0)
-			{
-				if (balldir > 1)
-					er.knockback = -0.4;
-				balldir = -0.5 * er.charging;
-				balldiry = (sphere.position.y - er.mesh.position.y) * 0.1;
-			}
-			if (play.bb.intersectsSphere(spherebb) && play.charge == 0)
-			{
-				if (balldir < -1)
-					play.knockback = -0.4;
-				balldir = 0.5 * play.charging;
-				balldiry = (sphere.position.y - play.mesh.position.y) * 0.1;
-			}
-			if (balldir < 0)
-			{
-				balldir = THREE.MathUtils.lerp(balldir, -ballspeed, 0.05 );
-			}
-			if (balldir > 0)
-			{
-				balldir = THREE.MathUtils.lerp(balldir, ballspeed, 0.05);
-			}
-		}
 
 		var frames = 0
 		let url = '/ws/pong/pong/' + localStorage.getItem('room_name') + '/?token=' + localStorage.getItem('access_token');
@@ -293,17 +299,17 @@
 				id = data.id
 				if (id == 1)
 				{
-				chatSocket.send(JSON.stringify({
-					'event':'frame',
-					'player1':play.controller,
-				}))
+					chatSocket.send(JSON.stringify({
+						'event':'frame',
+						'player1':play.controller,
+					}))
 				}
 				if (id == 2)
 				{
-				chatSocket.send(JSON.stringify({
-					'event':'frame',
-					'player2':er.controller,
-				}))
+					chatSocket.send(JSON.stringify({
+						'event':'frame',
+						'player2':er.controller,
+					}))
 				}
 			}
 			else if (data.event == 'frame')
@@ -372,7 +378,6 @@
 				element.scoring = scoring;
 			});
 			frames ++;
-			checkCollision();
 			renderer.render( scene, camera );
 		}
 		animate();

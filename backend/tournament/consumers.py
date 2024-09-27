@@ -41,7 +41,7 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 		if self.tournament_room.last_round != None :
 			elem = list(self.tournament_room.matchs.filter(match_date__gte=self.tournament_room.last_round).exclude(winner=None).values())
 			values = [item["winner"] for item in elem]
-			if (len(values) < 2 or self.tournament_room.participants.filter(Q(id=values[0]) | Q(id=values[1])).count() != self.tournament_room.nb_player):
+			if (len(values) < self.tournament_room.nb_player or self.tournament_room.participants.filter(Q(id=values[0]) | Q(id=values[1])).count() != self.tournament_room.nb_player):
 				values = []
 
 		if len(values) == self.tournament_room.nb_player:
