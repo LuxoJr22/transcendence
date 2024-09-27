@@ -59,7 +59,7 @@
 
         const loader = new GLTFLoader()
 
-        const flag = await loader.loadAsync('src/routes/game2/public/f.glb');
+        const flag = await loader.loadAsync('src/routes/(private)/game2/public/f.glb');
         const fb = new THREE.Mesh(new THREE.BoxGeometry(15, 5, 15), new THREE.MeshStandardMaterial( { color: 0xff0000 }));
         fb.position.set(0, 7.5, -5);
         const fbb = new THREE.Box3().setFromObject(fb)
@@ -68,7 +68,7 @@
 
         scene.add(flag.scene);
 
-        const mount = await loader.loadAsync('src/routes/game2/public/mountain.glb');
+        const mount = await loader.loadAsync('src/routes/(private)/game2/public/mountain.glb');
         scene.add(mount.scene);
 
         
@@ -77,7 +77,7 @@
         mount.scene.children[0].children[0].geometry.computeVertexNormals();
 
 
-        const gl = await loader.loadAsync('src/routes/game2/public/pir.glb');
+        const gl = await loader.loadAsync('src/routes/(private)/game2/public/pir.glb');
 
         gl.scene.position.set(10, 0, -1.5);
         gl.scene.scale.set(0.5, 0.5, 0.5);
@@ -95,7 +95,7 @@
         let skeletonCollider = new SkeletonCollider(er.mesh, scene, pickables)
 
 
-        const gltf = await loader.loadAsync('src/routes/game2/public/pir.glb');
+        const gltf = await loader.loadAsync('src/routes/(private)/game2/public/pir.glb');
 
 
         gltf.scene.position.set(0, 0.5, 3);
@@ -467,11 +467,11 @@
     <div id="blocker">
     </div>
     <div>
-        <img id="flagicon" alt="flag" src="src/routes/game2/public/flag.png"/>
+        <img id="flagicon" alt="flag" src="src/routes/(private)/game2/public/flag.png"/>
     </div>
     <div id="crosshair">
         <div id="circular"></div>
-        <img id="crossimg" alt="ch" src="src/routes/game2/public/dotcrosshair.png"/>
+        <img id="crossimg" alt="ch" src="src/routes/(private)/game2/public/dotcrosshair.png"/>
     </div>
 </div>
 

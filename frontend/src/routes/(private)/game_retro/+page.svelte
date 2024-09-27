@@ -29,7 +29,7 @@
 		const loader = new GLTFLoader()
 
 
-		const gltf = await loader.loadAsync('src/routes/game_retro/public/blank.glb');
+		const gltf = await loader.loadAsync('src/routes/(private)/game_retro/public/blank.glb');
 
 
 		gltf.scene.position.set(-17, 0, -1.5);
@@ -43,7 +43,7 @@
 
 
 
-		const gl = await loader.loadAsync('src/routes/game_retro/public/blank.glb');
+		const gl = await loader.loadAsync('src/routes/(private)/game_retro/public/blank.glb');
 
 		gl.scene.position.set(17, 0, -1.5);
 		gl.scene.scale.set(0.5, 0.5, 0.5);
@@ -66,7 +66,7 @@
 		let spherebb = new THREE.Sphere(sphere.position, 1);
 
 
-		const textur = new THREE.TextureLoader().load( "src/routes/game_retro/public/suh.png" );
+		const textur = new THREE.TextureLoader().load( "src/routes/(private)/game_retro/public/suh.png" );
 		textur.wrapS = THREE.RepeatWrapping;
 
 		textur.wrapT = THREE.RepeatWrapping;

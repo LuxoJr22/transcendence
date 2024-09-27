@@ -160,13 +160,17 @@ export async function fetchUser(): Promise<void> {
 }
 
 function AccessTokenExpirated(){
-    var base64Url = localStorage.getItem('access_token').split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    
-    return ((JSON.parse(jsonPayload).exp - 5) <= (Math.floor(Date.now() / 1000)));
+
+    let token : string;
+    let refresh_token : string;
+    token = localStorage.getItem('access_token')
+    refresh_token = localStorage.getItem('refresh_token')
+    if (token == null || refresh_token == null)
+        return (true);
+    let content : string = token.split('.')[1].replaceAll('-', '+').replaceAll('_', '/');
+    let expiration = window.atob(content);
+    console.log(JSON.parse(expiration).exp);
+    return ((JSON.parse(expiration).exp - 5) <= (Math.floor(Date.now() / 1000)));
 }
 
 export async function refresh_token(): Promise<void> {
@@ -179,7 +183,7 @@ export async function refresh_token(): Promise<void> {
         body: JSON.stringify({ refresh: refreshToken }),
     });
 
-    if (response.ok) {
+    if (response.ok && refreshToken != null) {
         const data = await response.json();
         auth.update(state => ({
             ...state,
