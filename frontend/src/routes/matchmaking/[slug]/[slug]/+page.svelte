@@ -27,6 +27,7 @@
 					let room_name = data.room_name;
 					ws.close();
 					localStorage.setItem('room_name', room_name);
+					localStorage.setItem('game_id', data.match_id);
 					window.location.href = '/' + gamemode;
 				}
 			}
@@ -41,6 +42,7 @@
 					let room_name = data.room_name;
 					ws.close();
 					localStorage.setItem('room_name', room_name);
+					localStorage.setItem('game_id', data.match_id);
 					window.location.href = '/' + gamemode;
 				}
 			}

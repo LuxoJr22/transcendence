@@ -11,22 +11,24 @@
 
 	onMount(() => { (async () => {
 
-		/*var skin = ""
-		const response = await fetch('api/user/game_data/', {
+		var skins
+		const response = await fetch('api/pong/skins/' + localStorage.getItem('game_id'), {
 		method: 'GET',
 		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
 		});
 		const data = await response.json();
 		if (response.ok)
 		{
-			skin = data.skin
-		}*/
+			skins = data
+		}
 
 
 
 		const scene = new THREE.Scene();
-		const camera = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
-		scene.background = new THREE.Color(0x54A0E4);
+		const cam = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
+		//scene.background = new THREE.Color(0x54A0E4);
+
+		var in_game = 0
 
 
 		var bind = {up: 90, down: 83, left:81, right:68, charge:32}
@@ -71,7 +73,8 @@
 			i ++;
 		}
 
-		const gltf = await loader.loadAsync('src/lib/assets/skins/default.glb' );
+		
+		const gltf = await loader.loadAsync('src/lib/assets/skins/' + skins["player1"]["skin"]);
 
 
 		gltf.scene.position.set(-10, 0, -1.5);
@@ -85,7 +88,7 @@
 
 
 
-		const gl = await loader.loadAsync('src/lib/assets/skins/default.glb');
+		const gl = await loader.loadAsync('src/lib/assets/skins/' + skins["player2"]["skin"]);
 
 		gl.scene.position.set(10, 0, -1.5);
 		gl.scene.scale.set(0.5, 0.5, 0.5);
@@ -94,6 +97,47 @@
 
 		var er = new Player(gl, bind, limit2, 0.15, -1);
 		scene.add(er.mesh);
+
+
+				const views = [
+				{
+					left: 0,
+					bottom: 0,
+					width: 0.5,
+					height: 1.0,
+					eye: [ -78, -2.5, 12.3 ],
+					background: new THREE.Color().setRGB( 0.5, 0.5, 0.7, THREE.SRGBColorSpace ),
+					focus: play.mesh,
+					camera: null,
+				},
+				{
+					left: 0.5,
+					bottom: 0,
+					width: 0.5,
+					height: 1.0,
+					eye: [ 78, -2.5, 12.3 ],
+					background: new THREE.Color().setRGB( 0.7, 0.5, 0.5, THREE.SRGBColorSpace ),
+					focus:er.mesh,
+					camera: null,
+				}
+		]
+
+		for ( let i = 0; i < views.length; ++ i ) {
+
+			const view = views[ i ];
+			const camera = new THREE.PerspectiveCamera( 50, 16 / 9, 1, 1000 );
+			camera.position.fromArray( view.eye );
+			camera.up.fromArray( [0, 0, 1]);
+			view.camera = camera;
+		}
+
+		const lig = new THREE.DirectionalLight( 0xffffff, 1 );
+		lig.position.set( 78, -2.5, 12.3 );
+		scene.add( lig );
+
+		const lg = new THREE.DirectionalLight( 0xffffff, 1);
+		lg.position.set( -78, -2.5, 12.3 );
+		scene.add( lg );
 
 
 
@@ -147,8 +191,7 @@
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
 
-		camera.position.z = 20;
-		camera.rotation.z = Math.PI / 2;
+		cam.position.z = 20;
 
 		var xSpeed = 0.15;
 		var ySpeed = 0.15;
@@ -302,44 +345,50 @@
 					'event':'ready',
 					'id':id,
 				}))
+				play.mesh.position.set(-80 ,0, 10)
+				er.mesh.position.set(80, 0, 10)
+
 			}
-			else if (data.event == 'start_game')
-			{
-				camera.rotation.z = 0
-			}
-			else if (data.event == 'frame')
-			{
-				play.mesh.position.set(data.player1[0], data.player1[1], -1.5)
-				er.mesh.position.set(data.player2[0], data.player2[1], -1.5)
-				if (data.player1[2] != scores[0])
-				{
-					scores[0] = data.player1[2]
-					score1.textContent = scores[0].toString()
-				}
-				if (data.player2[2] != scores[1])
-				{
-					scores[1] = data.player2[2]
-					score2.textContent = scores[1].toString()
-				}
-				play.controllanims = data.player1[3]
-				er.controllanims = data.player2[3]
-				sphere.position.set(data.ball, data.bally, sphere.position.z);
-				scoring = data.scoring
-				if (id == 1)
-				{
-					chatSocket.send(JSON.stringify({
-						'event':'frame',
-						'player1':play.controller,
-					}))
-				}
-				if (id == 2)
-				{
-					chatSocket.send(JSON.stringify({
-						'event':'frame',
-						'player2':er.controller,
-					}))
-				}
-			}
+			// else if (data.event == 'start_game')
+			// {
+			// 	ui.style.display = '';
+			// 	renderer.setScissorTest( false );
+			// 	renderer.setViewport(0, 0, window.innerWidth * 0.7, (window.innerWidth * 0.70) / 16 * 9)
+			// 	in_game = 1 
+			// }
+			// else if (data.event == 'frame')
+			// {
+			// 	play.mesh.position.set(data.player1[0], data.player1[1], -1.5)
+			// 	er.mesh.position.set(data.player2[0], data.player2[1], -1.5)
+			// 	if (data.player1[2] != scores[0])
+			// 	{
+			// 		scores[0] = data.player1[2]
+			// 		score1.textContent = scores[0].toString()
+			// 	}
+			// 	if (data.player2[2] != scores[1])
+			// 	{
+			// 		scores[1] = data.player2[2]
+			// 		score2.textContent = scores[1].toString()
+			// 	}
+			// 	play.controllanims = data.player1[3]
+			// 	er.controllanims = data.player2[3]
+			// 	sphere.position.set(data.ball, data.bally, sphere.position.z);
+			// 	scoring = data.scoring
+			// 	if (id == 1)
+			// 	{
+			// 		chatSocket.send(JSON.stringify({
+			// 			'event':'frame',
+			// 			'player1':play.controller,
+			// 		}))
+			// 	}
+			// 	if (id == 2)
+			// 	{
+			// 		chatSocket.send(JSON.stringify({
+			// 			'event':'frame',
+			// 			'player2':er.controller,
+			// 		}))
+			// 	}
+			// }
 		}
 
 		//#endregion
@@ -356,24 +405,53 @@
 
 		function animate() {
 			requestAnimationFrame( animate );
-			const dt = clock.getDelta();
-			plain.material.uniforms.time.value = t * 70;
-			t += dt;
-			if (gamepads[0])
+			if (in_game == 1)
 			{
-				gamepads[0] = navigator.getGamepads()[0]
-				handlebuttons(gamepads[0].buttons)
-				handlesticks(gamepads[0].axes)
-			}
-			play.update(dt)
-			er.update(dt)
+				const dt = clock.getDelta();
+				plain.material.uniforms.time.value = t * 70;
+				t += dt;
+				if (gamepads[0])
+				{
+					gamepads[0] = navigator.getGamepads()[0]
+					handlebuttons(gamepads[0].buttons)
+					handlesticks(gamepads[0].axes)
+				}
+				play.update(dt)
+				er.update(dt)
 
-			bots.forEach(element => {
-				element.update();
-				element.scoring = scoring;
-			});
-			frames ++;
-			renderer.render( scene, camera );
+				bots.forEach(element => {
+					element.update();
+					element.scoring = scoring;
+				});
+				frames ++;
+				renderer.render( scene, cam );
+			}
+			else
+			{
+				for ( let ii = 0; ii < views.length; ++ ii ) {
+
+					const view = views[ ii ];
+					const camera = view.camera;
+
+					const left = Math.floor(window.innerWidth * 0.7 * view.left);
+					const bottom = Math.floor((window.innerWidth * 0.70) / 16 * 9 * view.bottom);
+					const width = Math.floor(window.innerWidth * 0.7 * view.width );
+					const height = Math.floor((window.innerWidth * 0.70) / 16 * 9 *  view.height );
+					camera.lookAt(view.focus.position.x, view.focus.position.y, view.focus.position.z + 1.5)
+
+					//console.log(camera.rotation)
+
+					renderer.setViewport( left, bottom, width, height );
+					renderer.setScissor( left, bottom, width, height );
+					renderer.setScissorTest( true );
+					renderer.setClearColor( view.background );
+
+					camera.aspect = width / height;
+					camera.updateProjectionMatrix();
+
+					renderer.render( scene, camera );
+				}
+			}
 		}
 		animate();
 	})();
@@ -384,6 +462,7 @@
 	/*@import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');*/
 	@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
     #ui {
+		display: none;
         position: absolute;
 		width: 10px;
 		height: 10px;
@@ -429,5 +508,5 @@
 </div>
 
 
-<canvas bind:this={canvas} class="game"></canvas>
+<canvas bind:this={canvas} class='game'></canvas>
 

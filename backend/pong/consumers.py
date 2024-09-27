@@ -78,6 +78,7 @@ class PrivateMatchmakingConsumer(WebsocketConsumer):
 			'player1_id': event['player1_id'],
 			'player2_id': event['player2_id'],
 			'gamemode': self.gamemode,
+			'match_id': event["match_id"],
 			'room_name': f'{self.gamemode}_{self.game_id}'
 		}))
 
@@ -146,6 +147,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 			'player1_id': event['player1_id'],
 			'player2_id': event['player2_id'],
 			'gamemode': self.gamemode,
+			'match_id': event["match_id"],
 			'room_name': f'{self.gamemode}_{event["match_id"]}'
 		}))
 
@@ -222,7 +224,7 @@ class PongConsumer(WebsocketConsumer):
 		if (self.id == text_data_json["id"] == 2):
 			self.game.player2.ready = 1
 		if (self.game.player1.ready == self.game.player2.ready == 1):
-			time.sleep(2)
+			time.sleep(5)
 			async_to_sync(self.channel_layer.group_send)(
 				self.room_group_name,
 				{
