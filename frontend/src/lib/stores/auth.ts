@@ -36,9 +36,9 @@ export async function login(username: string, password: string): Promise<void> {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
     });
-
+ 
     const data = await response.json();
-    console.log(data);
+
     if (response.ok) {
         auth.set({
             isAuthenticated: true,
@@ -48,9 +48,7 @@ export async function login(username: string, password: string): Promise<void> {
                 email: data.user.email,
                 profile_picture: data.user.profile_picture_url,
 
-            },
-            accessToken: data.access,
-            refreshToken: data.refresh,
+            }
         });
         localStorage.setItem('access_token', data.access);
         localStorage.setItem('refresh_token', data.refresh);
@@ -158,8 +156,8 @@ export async function fetchUser(): Promise<void> {
                 email: user.email,
                 profile_picture: user.profile_picture,
             },
-            accessToken : user.access,
-            refreshToken : user.refresh
+            accessToken : localStorage.getItem('access_token'),
+            refreshToken: localStorage.getItem('refresh_token')
         }));
         return ('success');
     }
@@ -178,7 +176,7 @@ export async function refresh_token(): Promise<void> {
         const data = await response.json();
         auth.update(state => ({
             ...state,
-            access_token: data.access,
+            accessToken: data.access,
         }));
         localStorage.setItem('access_token', data.access);
     } else {

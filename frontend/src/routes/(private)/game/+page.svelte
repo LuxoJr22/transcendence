@@ -272,7 +272,6 @@
 				let data = JSON.parse(e.data)
 				if (data.event == 'Connected')
 				{
-					console.log('connected')
 					id = data.id
 					if (id == 1)
 					{
@@ -291,7 +290,6 @@
 				}
 				else if (data.event == 'frame')
 				{
-					console.log(data.time)
 					play.mesh.position.set(data.player1[0], data.player1[1], -1.5)
 					er.mesh.position.set(data.player2[0], data.player2[1], -1.5)
 					if (data.player1[2] != scores[0])

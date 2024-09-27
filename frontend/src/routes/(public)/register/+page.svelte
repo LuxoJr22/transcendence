@@ -22,7 +22,6 @@
         const data = await response.json();
 
         if (response.ok) {
-            console.log('User creation success');
             goto('/login');
         } else {
             console.error(data);

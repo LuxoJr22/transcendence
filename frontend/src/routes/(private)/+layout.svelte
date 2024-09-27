@@ -10,18 +10,17 @@
 	$: $auth, state = $auth;
 
 	afterNavigate(async () => {
+        const status = await fetchUser();
 		auth.subscribe((value : AuthState) =>{
             state = value;
-            console.log(value);
         });
-        const status = await fetchUser();
         if (status != 'success')
             goto('/login')
 	});
 
 	async function handleLogout() {
 		logout();
-        window.location.href = '/login'
+        window.location.href = '/login';
 	};
 
     /******************Friendship********************/

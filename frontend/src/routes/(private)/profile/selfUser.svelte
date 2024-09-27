@@ -109,7 +109,6 @@
 
     async function updateEmailAndUsername(){
         const data = await updateInformations((newEmail == '' ? state.user?.email : newEmail), (newUsername == '' ? state.user?.username : newUsername));
-        console.log(data);
         if (!data)
         {
             errorsMessage = 'success';
@@ -130,7 +129,6 @@
         }
         else
             errorsMessage = '';
-        console.log(errorsMessage);
         newEmail = '';
         newUsername = '';
     }
@@ -143,14 +141,12 @@
 
     async function updateNewPassword() {
        const response = await updatePassword(newPassword, currentPassword);
-       console.log(response)
         if (response.password)
         {
             errorsPassword = response.password;
         }
         else if (response.current_password)
         {
-            console.log('a');
             errorsPassword = response.current_password;
         }
         else if (response == 'success')

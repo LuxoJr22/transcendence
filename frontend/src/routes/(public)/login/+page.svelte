@@ -7,8 +7,7 @@
     let password = '';
     let errorsLogin = false;
 
-    function resetLoginErrors()
-    {
+    function resetLoginErrors(){
         errorsLogin = false;
     }
 

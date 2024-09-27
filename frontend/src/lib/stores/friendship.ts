@@ -41,7 +41,6 @@ export async function declineFriendRequest(id: number){
     if (response.ok)
     {
         const data = await response.json();
-        console.log(data);
     }
 }
 

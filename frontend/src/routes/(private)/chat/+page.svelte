@@ -52,7 +52,6 @@
             ws = new WebSocket('/ws/chat/' + id + '/?token=' + token);
         
             ws.onopen = function() {
-            console.log('WebSocket connection opened');
 
             ws.onerror = function(error) {
                 console.error('WebSocket error:', error);

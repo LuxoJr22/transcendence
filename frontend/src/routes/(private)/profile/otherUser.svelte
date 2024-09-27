@@ -70,7 +70,6 @@
             body: JSON.stringify({ receiver }),
         });
         statusAddFriendRequest = await response.json();
-        console.log(statusAddFriendRequest);
     }
     
 </script>
