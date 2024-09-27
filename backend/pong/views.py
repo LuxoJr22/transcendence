@@ -12,7 +12,9 @@ class PongMatchHistoryView(generics.ListAPIView):
 
 	def get_queryset(self):
 		user = self.request.user
-		return PongMatch.objects.filter(models.Q(player1=user.id) | models.Q(player2=user.id))
+		return PongMatch.objects.filter(
+			(models.Q(player1=user.id) | models.Q(player2=user.id)) & models.Q(winner__isnull=False)
+		)
 	
 	def list(self, request, *args, **kwargs):
 		queryset = sorted(
