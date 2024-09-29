@@ -1,5 +1,4 @@
 import { writable } from 'svelte/store';
-import { browser } from '$app/environment';
 
 export interface User {
     id: number;
@@ -129,7 +128,7 @@ export async function updateProfilePicture(profile_picture: File) {
 }
 
 export async function fetchUser(): Promise<void> {
-    await await refresh_token();
+    await refresh_token();
     const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken) {
@@ -157,6 +156,10 @@ export async function fetchUser(): Promise<void> {
         }));
         return ('success');
     }
+    else if (response.status == 401){
+        localStorage.setItem('access_token', '');
+        localStorage.setItem('refresh_token', '');
+    }
 }
 
 function AccessTokenExpirated(){
@@ -165,7 +168,7 @@ function AccessTokenExpirated(){
     let refresh_token : string;
     token = localStorage.getItem('access_token')
     refresh_token = localStorage.getItem('refresh_token')
-    if (token == null || refresh_token == null)
+    if (token == null || refresh_token == null || refresh_token == '')
         return (true);
     let content : string = token.split('.')[1].replaceAll('-', '+').replaceAll('_', '/');
     let expiration = window.atob(content);
@@ -201,8 +204,6 @@ export function logout(): void {
         accessToken: null,
         refreshToken: null,
     });
-    if (browser) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-    }
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
 }

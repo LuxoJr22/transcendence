@@ -10,12 +10,12 @@ export interface Profile {
 
 export const profile = writable<Profile>();
 
-export async function profileData(id: string, token: string): Promise<void> {
+export async function profileData(id: number): Promise<void> {
    await refresh_token()
 
    let accessToken = localStorage.getItem('access_token');
 
-   const response = await fetch('/api/user/profile/' + parseInt(id) + '/', {
+   const response = await fetch('/api/user/profile/' + id.toString() + '/', {
       method: 'GET',
       headers: { 'Authorization': `Bearer ${accessToken}` },
    });

@@ -1,12 +1,15 @@
 <script lang='ts'>
     import { onMount } from 'svelte';
-    import { auth, fetchUser } from '$lib/stores/auth';
+    import { auth, refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
     import type { friendInterface } from '$lib/stores/friendship';
     import { fetchChatMessages, messages, updateMessages } from '$lib/stores/chat';
     import type { Messages } from '$lib/stores/chat';
     import { beforeUpdate, afterUpdate } from 'svelte';
+    import { profileData, profile } from '$lib/stores/user';
+    import type { Profile} from '$lib/stores/user';
+
     let state: AuthState;
     state = $auth;
 
@@ -16,7 +19,25 @@
     let chatMessages : Messages[];
     chatMessages = $messages;
 
+    let user : Profile;
+    user = $profile;
+
     let newMessage = '';
+    
+    let latestDiscussion = [];
+
+    async function fetchLatestDiscussion(){
+        await refresh_token();
+        const accessToken = localStorage.getItem('access_token');;
+        const response = await fetch('/api/chat/history/', {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+        }
+        });
+        const data = await response.json();
+        console.log(data);
+        return (data);
+    };
 
     let friendSearch : string;
     function resetFriendSearch (){
@@ -31,22 +52,18 @@
         friendList.subscribe((value : friendInterface[]) => {
             listOfFriend = value;
         });
-        messages.subscribe((value : Messages) => {
+        messages.subscribe((value : Messages[]) => {
             chatMessages = value;
         });
+        profile.subscribe((value : Profile) =>{
+            user = value;
+        });
+        latestDiscussion = await fetchLatestDiscussion();
     });
-    
-    let userSelected = -1;
+
     let ws : WebSocket;
     async function createRoom(username : string, id : number){
-        
-        for (let i = 0 ; listOfFriend[i] ; i++)
-        {
-            if (username == listOfFriend[i].username){
-                userSelected = i;
-                    break ;
-            }
-        }
+        await profileData(id);
         const token = localStorage.getItem('access_token');
         if (id)
             ws = new WebSocket('/ws/chat/' + id + '/?token=' + token);
@@ -57,21 +74,23 @@
                 console.error('WebSocket error:', error);
             };
         };
-        ws.onmessage = function (event){
+        ws.onmessage = async function (event){
             updateMessages(event.data);
-            fetchChatMessages(listOfFriend[userSelected].id);
+            console.log(event.data);
+            await fetchChatMessages(id);
             
         };
-        fetchChatMessages(listOfFriend[userSelected].id);
+        await fetchChatMessages(id);
     }
 
-    function sendMessage(){
+    async function sendMessage(){
         if (ws && ws.readyState === WebSocket.OPEN && newMessage.trim() !== '')
         {
             let message = newMessage;
             ws.send(JSON.stringify({message}));
             newMessage = '';
         }
+        await fetchLatestDiscussion();
     }
 
 
@@ -112,7 +131,7 @@
                         </div>
                         <div class="modal-body d-flex justify-content-center row row-cols-4 friend-container m-0 me-2 mb-2">
                             {#each listOfFriend as friend}
-                                {#if friend.username.includes(friendSearch) || !friendSearch}
+                                {#if friend.username || !friendSearch}
                                     <div class="col text-center p-0 m-2">
                                         <button class="btn text-light friend-card bg-gradient border rounded" on:click={resetFriendSearch} on:click={createRoom(friend.username, friend.id)} data-bs-dismiss="modal" aria-label="Close">
                                             <img src={friend.profile_picture_url} class="img-circle rounded-circle m-2" style="object-fit:cover; width:50%; height:50%;">
@@ -130,38 +149,55 @@
                     </div>
                 </div>
             </div>
-            {#if chatMessages[0]}
-                <p>suh</p>
+            {#if latestDiscussion[0]}
+                <div class="mx-3 my-2" role="">
+                    {#each latestDiscussion as msg}
+                        <div class="d-flex border rounded img-circle container" style="width:100%;">
+                            <img src={msg.profile_picture_url} class="rounded-circle m-2 align-items-center" style="object-fit:cover; width:15%; height:15%;">
+                            <div class="d-flex">
+                                <div class="row">
+                                    <h5 class='text-light'>{msg.username}</h5>
+                                </div>
+                                <div class="d-flex row justify-content-end align-items-end ms-4 mt-4">
+                                    <p class='text-light'>
+                                        {msg.last_message.content}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    {/each}
+                </div>
             {:else}
                 <h4 class="d-flex justify-content-center align-items-center" style="color:grey;">You haven't discussions</h4>
             {/if}
         </div>
         <div class="col-9">
             <div class="d-flex m-4">
-                {#if userSelected == -1}
+                {#if user == null}
                     <h4 style="color:grey">No discussion selectionned</h4>
                 {:else}
-                    <img class="rounded-circle m-2 img-circle" src={listOfFriend[userSelected]?.profile_picture_url}>
-                    <h4 class="text-light m-4">{listOfFriend[userSelected]?.username}</h4>
+                    <img class="rounded-circle m-2 img-circle" src={user?.profile_picture}>
+                    <h4 class="text-light m-4">{user?.username}</h4>
                 {/if}
             </div>
-            {#if userSelected != -1}
-                <div class="m-5 chat-box border rounded" bind:this={div}>
-                    {#each chatMessages as msg}
-                        {#if msg.sender == state.user?.id}
-                            <div class="d-flex justify-content-end text-center">
-                                <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
-                            </div>
-                        {:else}
-                            <div class="d-flex justify-content-start text-center">
-                                <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
-                            </div>
-                        {/if}
-                    {/each}
-                </div>
-                {/if}
+            {#if user != null}
+            <div class="m-5 chat-box border rounded" bind:this={div}>
+                {#each chatMessages as msg}
+                    {#if msg.sender == state.user?.id}
+                        <div class="d-flex justify-content-end text-center">
+                            <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
+                        </div>
+                    {:else}
+                        <div class="d-flex justify-content-start text-center">
+                            <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
+                        </div>
+                    {/if}
+                {/each}
+            </div>
+            {/if}
             <div>
-                {#if userSelected != -1}
+                {#if user != null}
                 <div class="d-flex justify-content-bottom justify-content-end me-2">
                     <form>
                         <input type="text" bind:value={newMessage} class="inputMessage">
@@ -191,12 +227,13 @@
         width: 20%;
         overflow: hidden;
         object-fit: cover;
-        aspect-ratio: 1;
     }
 
     .img-circle img {
         width: auto;
         height: auto;
+        z-index: 1;
+        aspect-ratio: 1;
     }
 
     .modal-body {
@@ -212,6 +249,7 @@
 
     .mycontainer{
         overflow: hidden;
+        height: 80vh;
     }
 
     .msgBox{

@@ -1,7 +1,6 @@
 <script lang='ts'>
     import { onMount } from 'svelte';
-    import { goto } from '$app/navigation'
-    import { auth, fetchUser } from '$lib/stores/auth';
+    import { auth } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import SelfUser from './../selfUser.svelte';
     import type { Profile } from '$lib/stores/user';
@@ -13,7 +12,7 @@
     let games = [];
     
     let currentUrl : string = window.location.href;
-    let currentUser = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
+    let currentUser :string = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
 
     let state: AuthState;
     $: state = $auth;
@@ -22,11 +21,11 @@
     $: user = $profile;
     
     auth.subscribe((value : AuthState) =>{
-            state = value
-        });
-    
+        state = value
+    });
+
     onMount(async () => {
-        await profileData(currentUser, state.accessToken);
+        await profileData(parseInt(currentUser));
         auth.subscribe((value : AuthState) =>{
             state = value
         });
