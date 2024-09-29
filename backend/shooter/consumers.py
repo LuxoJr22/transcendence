@@ -32,7 +32,7 @@ class ShooterConsumer(WebsocketConsumer):
 		if (self.user not in self.game.ids):
 			self.id = len(self.game.ids) + 1
 			self.game.ids[self.user] = self.id
-			self.game.players.append(self.game.CreatePlayer(27, 3, 34, {'x': 104, 'y':1, 'z':0}, {'x':0, 'y':math.pi / 2, 'z':0}, self.user.skin, self.user.username))
+			self.game.players.append(self.game.CreatePlayer(self.id - 1, self.user.skin, self.user.username))
 		else:
 			self.id = self.game.ids[self.user]
 			self.game.players[self.id - 1]["skin"] = self.user.skin
@@ -44,6 +44,8 @@ class ShooterConsumer(WebsocketConsumer):
 			{
 				'type':'Connected',
 				'id':self.id,
+				'position':self.game.players[self.id - 1]["spawn"],
+				'rotation':self.game.players[self.id - 1]["rotaspawn"],
 			}
 		)
 
@@ -126,6 +128,8 @@ class ShooterConsumer(WebsocketConsumer):
 			'type':'Shooter',
 			'event':'Connected',
 			'players':self.game.players,
+			'position': event['position'],
+			'rotation': event['rotation'],
 			'id': event['id'],
 			'flag': self.game.flag.player_id
 		}))

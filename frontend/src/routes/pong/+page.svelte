@@ -43,6 +43,9 @@
 		var versus = document.getElementById("versus")
 		var score1 = document.getElementById("player1")
 		var score2 = document.getElementById("player2")
+
+		score1.style.display = 'none'
+		score2.style.display = 'none'
 		
 		var endscoring = 0;
 
@@ -360,7 +363,8 @@
 			}
 			else if (data.event == 'start_game')
 			{
-				score.style.display = '';
+				score1.style.display = ''
+				score2.style.display = ''
 				versus.style.display = 'none'
 				renderer.setScissorTest( false );
 				renderer.setViewport(0, 0, window.innerWidth * 0.7, (window.innerWidth * 0.70) / 16 * 9)

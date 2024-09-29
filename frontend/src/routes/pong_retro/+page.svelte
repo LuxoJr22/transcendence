@@ -8,6 +8,7 @@
 	import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 	import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
 	import { Player } from "./player.js";
+	import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 	import {CrtShader} from "./crtShader.js";
 
 	let canvas;
@@ -59,6 +60,15 @@
 		var er = new Player(gl, bind, limit2, 0.15, -1);
 		scene.add(er.mesh);
 
+		er.mesh.traverse(function(node) {
+            if (node.isMesh)
+                node.layers.toggle(1);
+        })
+		play.mesh.traverse(function(node) {
+            if (node.isMesh)
+                node.layers.toggle(1);
+        })
+
 		//#endregion
 
 
@@ -67,6 +77,7 @@
 		const geo = new THREE.SphereGeometry( 0.8, 32, 16); 
 		const mat = new THREE.MeshStandardMaterial( { color: 0xFF0000 } ); 
 		const sphere = new THREE.Mesh( geo, mat );
+		sphere.layers.toggle(1)
 		scene.add( sphere );
 
 		let spherebb = new THREE.Sphere(sphere.position, 1);
@@ -78,7 +89,7 @@
 		textur.wrapT = THREE.RepeatWrapping;
 
 		const plain = new THREE.Mesh(new THREE.PlaneGeometry(54, 36), new THREE.MeshStandardMaterial( { map :textur }));
-
+		//plain.layers.toggle(1)
 
 
 		plain.position.set(0, 0, -4.8);
@@ -93,7 +104,7 @@
 		const light = new THREE.AmbientLight(0xffffff)
 		scene.add(light)
 
-		const dl = new THREE.DirectionalLight( 0xffffff, 0.5 );
+		const dl = new THREE.DirectionalLight( 0xffffff, 2 );
 		dl.position.set( 0, 0, 5 );
 		scene.add( dl );
 
@@ -183,6 +194,8 @@
 			canvasSize.width = window.innerWidth * 0.7
 			canvasSize.height = window.innerWidth * 0.7 / 16 * 9
 			renderer.setSize( canvasSize.width, canvasSize.height);
+			composer.setSize( canvasSize.width, canvasSize.height );
+			finalComposer.setSize( canvasSize.width, canvasSize.height );
             ui.style.width = canvasSize.width + "px";
             ui.style.height = canvasSize.height + "px";
             ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
@@ -276,24 +289,90 @@
 		}
 
 		//#endregion
-		var composer = new EffectComposer( renderer );
-		composer.addPass( new RenderPass( scene, camera ) );
 
-		composer.addPass(new ShaderPass( CrtShader ))
+		const renderScene = new RenderPass( scene, camera )
+
+		const composer = new EffectComposer( renderer );
+		composer.addPass( renderScene );
+
+
 
 		const params = {
 			threshold: 0,
-			strength: 1.5,
+			strength: 0.7,
 			radius: 1,
 			exposure: 1
 		};
 
-		const bloomPass = new UnrealBloomPass( new THREE.Vector2( canvasSize.width, canvasSize.height ), 2, 0.8, 0 );
+		const bloomPass = new UnrealBloomPass( new THREE.Vector2( canvasSize.width, canvasSize.height ), 1.5, 0.4, 0.85 );
 		bloomPass.threshold = params.threshold;
 		bloomPass.strength = params.strength;
 		bloomPass.radius = params.radius;
 
 		composer.addPass(bloomPass)
+
+		composer.renderToScreen = false;
+
+		const mixPass = new ShaderPass(
+			new THREE.ShaderMaterial( {
+					uniforms: {
+						baseTexture: { value: null },
+						bloomTexture: { value: composer.renderTarget2.texture }
+					},
+					vertexShader:`
+					varying vec2 vUv;
+
+					void main() {
+						vUv = uv;
+						gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+					}`,
+					fragmentShader:`
+					uniform sampler2D baseTexture;
+					uniform sampler2D bloomTexture;
+					varying vec2 vUv;
+						
+					void main() {
+						gl_FragColor = ( texture2D( baseTexture, vUv ) + vec4( 1.0 ) * texture2D( bloomTexture, vUv ) );
+					}`,
+					defines: {}
+				} ), 'baseTexture'
+			);
+
+		const finalComposer = new EffectComposer( renderer );
+		
+		finalComposer.addPass( renderScene )
+		finalComposer.addPass( mixPass )
+		const crt = new ShaderPass( CrtShader )
+		finalComposer.addPass(crt)
+
+		const output = new OutputPass()
+		finalComposer.addPass(output)
+
+		const BLOOM_SCENE = 1;
+		const bloomLayer = new THREE.Layers();
+		bloomLayer.set(BLOOM_SCENE);
+		const darkMaterial = new THREE.MeshBasicMaterial({color: 0x000000})
+		const materials = {}
+
+		function nonBloomed(obj) {
+			if(obj.isMesh && bloomLayer.test(obj.layers) == false) 
+			{
+				materials[obj.uuid] = obj.material;
+				obj.material = darkMaterial;
+			}
+		}
+
+		function restoreMaterial(obj) {
+			if (materials[obj.uuid])
+			{
+				obj.material = materials[obj.uuid];
+				delete materials[obj.uuid];
+			}
+		}
+
+
+
+
 
 		// var renderPixelatedPass = new RenderPixelatedPass(3.5, scene, camera );
 		// composer.addPass( renderPixelatedPass );
@@ -308,10 +387,15 @@
 				handlebuttons(gamepads[0].buttons)
 				handlesticks(gamepads[0].axes)
 			}
+			
+			scene.traverse(nonBloomed)
+			composer.render();
+			scene.traverse(restoreMaterial)
+			finalComposer.render()
 			play.update(dt)
 			er.update(dt)
 			frames ++;
-			composer.render( scene, camera );
+			
 		}
 		animate();
 	})();
@@ -344,7 +428,7 @@
 	.text {
 		font-family: "Silkscreen", sans-serif;
 		/*font-family: "Tiny5", sans-serif;*/
-  		font-weight: 400;
+  		/* font-weight: 400; */
   		font-style: normal;
 		color:white;
 		font-size: 70px;

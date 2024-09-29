@@ -300,24 +300,13 @@
                     score_cells.push(scorecell)
                     i ++;
                 }
-                if (id % 2 == 1)
-				{
-                    camera.position.z = 0;
-                    camera.position.y = 1;
-                    camera.position.x = 107;
-                    camera.rotation.x = 0;
-                    camera.rotation.y = Math.PI / 2;
-                    camera.rotation.z = 0;
-				}
-				else
-				{
-                    camera.position.z = 0;
-                    camera.position.y = 1;
-                    camera.position.x = -100;
-                    camera.rotation.x = 0;
-                    camera.rotation.y = -Math.PI / 2;
-                    camera.rotation.z = 0;
-				}
+                camera.position.z = data.position.z;
+                camera.position.y = data.position.y;
+                camera.position.x = data.position.x;
+                camera.rotation.x = data.rotation.x;
+                camera.rotation.y = data.rotation.y;
+                camera.rotation.z = data.rotation.z;
+
                 chatSocket.send(JSON.stringify({
 					'event':'frame',
 					'player':[play.cam.getObject().position, play.direction],
