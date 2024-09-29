@@ -26,7 +26,7 @@ export class Player {
 		this.controller = {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
 		this.controllanims = {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
 	}
-	update (dt) {
+	update () {
 		this.knockback = THREE.MathUtils.lerp(this.knockback, 0, 0.1)
 		this.action();
 

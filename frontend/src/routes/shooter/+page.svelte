@@ -498,8 +498,7 @@
         pointer-events: none;
         width: 50%;
         position: relative;
-        top: -100px;
-        left: -100px;
+        transform: translate(-50%, -50%);
     }
 
     #circular {

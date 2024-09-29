@@ -39,10 +39,47 @@
 		var bots = [];
 		var id = 0;
 		var ui = document.getElementById("ui");
+		var score = document.getElementById("score");
+		var versus = document.getElementById("versus")
 		var score1 = document.getElementById("player1")
 		var score2 = document.getElementById("player2")
 		
 		var endscoring = 0;
+
+		const views = [
+			{
+				left: 0,
+				bottom: 0,
+				width: 0.5,
+				height: 1.0,
+				eye: [ -78, -2.5, 12.3 ],
+				rotation : [1.26109338225244, 0.6510985849711179, 0.19156132032912654],
+				background: new THREE.Color().setRGB( 0.3, 0.3, 0.9, THREE.SRGBColorSpace ),
+				camera: null,
+			},
+			{
+				left: 0.5,
+				bottom: 0,
+				width: 0.5,
+				height: 1.0,
+				eye: [ 78, -2.5, 12.3 ],
+				rotation : [1.26109338225244, -0.6510985849711179, -0.19156132032912654],
+				background: new THREE.Color().setRGB( 0.9, 0.2, 0.2, THREE.SRGBColorSpace ),
+				camera: null,
+			}
+		]
+
+		for ( let i = 0; i < views.length; ++ i ) {
+
+			const view = views[ i ];
+			const camera = new THREE.PerspectiveCamera( 50, 16 / 9, 1, 1000 );
+			camera.position.fromArray( view.eye );
+			camera.up.fromArray( [0, 0, 1]);
+			camera.rotation.fromArray( view.rotation)
+			view.camera = camera;
+		}
+
+
 
 		const uppertribune = new THREE.Mesh(new THREE.PlaneGeometry(34, 1), new THREE.MeshStandardMaterial);
 		uppertribune.position.set(0, 9, -0.5);
@@ -99,37 +136,6 @@
 		scene.add(er.mesh);
 
 
-				const views = [
-				{
-					left: 0,
-					bottom: 0,
-					width: 0.5,
-					height: 1.0,
-					eye: [ -78, -2.5, 12.3 ],
-					background: new THREE.Color().setRGB( 0.5, 0.5, 0.7, THREE.SRGBColorSpace ),
-					focus: play.mesh,
-					camera: null,
-				},
-				{
-					left: 0.5,
-					bottom: 0,
-					width: 0.5,
-					height: 1.0,
-					eye: [ 78, -2.5, 12.3 ],
-					background: new THREE.Color().setRGB( 0.7, 0.5, 0.5, THREE.SRGBColorSpace ),
-					focus:er.mesh,
-					camera: null,
-				}
-		]
-
-		for ( let i = 0; i < views.length; ++ i ) {
-
-			const view = views[ i ];
-			const camera = new THREE.PerspectiveCamera( 50, 16 / 9, 1, 1000 );
-			camera.position.fromArray( view.eye );
-			camera.up.fromArray( [0, 0, 1]);
-			view.camera = camera;
-		}
 
 		const lig = new THREE.DirectionalLight( 0xffffff, 1 );
 		lig.position.set( 78, -2.5, 12.3 );
@@ -347,48 +353,54 @@
 				}))
 				play.mesh.position.set(-80 ,0, 10)
 				er.mesh.position.set(80, 0, 10)
-
+				play.mesh.translateZ(-10)
+				er.mesh.translateZ(-10)
+				er.controllanims.xp = 0.15
+				play.controllanims.xp = -0.15
 			}
-			// else if (data.event == 'start_game')
-			// {
-			// 	ui.style.display = '';
-			// 	renderer.setScissorTest( false );
-			// 	renderer.setViewport(0, 0, window.innerWidth * 0.7, (window.innerWidth * 0.70) / 16 * 9)
-			// 	in_game = 1 
-			// }
-			// else if (data.event == 'frame')
-			// {
-			// 	play.mesh.position.set(data.player1[0], data.player1[1], -1.5)
-			// 	er.mesh.position.set(data.player2[0], data.player2[1], -1.5)
-			// 	if (data.player1[2] != scores[0])
-			// 	{
-			// 		scores[0] = data.player1[2]
-			// 		score1.textContent = scores[0].toString()
-			// 	}
-			// 	if (data.player2[2] != scores[1])
-			// 	{
-			// 		scores[1] = data.player2[2]
-			// 		score2.textContent = scores[1].toString()
-			// 	}
-			// 	play.controllanims = data.player1[3]
-			// 	er.controllanims = data.player2[3]
-			// 	sphere.position.set(data.ball, data.bally, sphere.position.z);
-			// 	scoring = data.scoring
-			// 	if (id == 1)
-			// 	{
-			// 		chatSocket.send(JSON.stringify({
-			// 			'event':'frame',
-			// 			'player1':play.controller,
-			// 		}))
-			// 	}
-			// 	if (id == 2)
-			// 	{
-			// 		chatSocket.send(JSON.stringify({
-			// 			'event':'frame',
-			// 			'player2':er.controller,
-			// 		}))
-			// 	}
-			// }
+			else if (data.event == 'start_game')
+			{
+				score.style.display = '';
+				versus.style.display = 'none'
+				renderer.setScissorTest( false );
+				renderer.setViewport(0, 0, window.innerWidth * 0.7, (window.innerWidth * 0.70) / 16 * 9)
+			 er.controllanims.xp = 0
+				play.controllanims.xp = 0
+				in_game = 1 
+			}
+			else if (data.event == 'frame')
+			{
+				play.mesh.position.set(data.player1[0], data.player1[1], -1.5)
+				er.mesh.position.set(data.player2[0], data.player2[1], -1.5)
+				if (data.player1[2] != scores[0])
+				{
+					scores[0] = data.player1[2]
+					score1.textContent = scores[0].toString()
+				}
+				if (data.player2[2] != scores[1])
+				{
+					scores[1] = data.player2[2]
+					score2.textContent = scores[1].toString()
+				}
+				play.controllanims = data.player1[3]
+				er.controllanims = data.player2[3]
+				sphere.position.set(data.ball, data.bally, sphere.position.z);
+				scoring = data.scoring
+				if (id == 1)
+				{
+					chatSocket.send(JSON.stringify({
+						'event':'frame',
+						'player1':play.controller,
+					}))
+				}
+				if (id == 2)
+				{
+					chatSocket.send(JSON.stringify({
+						'event':'frame',
+						'player2':er.controller,
+					}))
+				}
+			}
 		}
 
 		//#endregion
@@ -416,8 +428,8 @@
 					handlebuttons(gamepads[0].buttons)
 					handlesticks(gamepads[0].axes)
 				}
-				play.update(dt)
-				er.update(dt)
+				play.update()
+				er.update()
 
 				bots.forEach(element => {
 					element.update();
@@ -437,9 +449,7 @@
 					const bottom = Math.floor((window.innerWidth * 0.70) / 16 * 9 * view.bottom);
 					const width = Math.floor(window.innerWidth * 0.7 * view.width );
 					const height = Math.floor((window.innerWidth * 0.70) / 16 * 9 *  view.height );
-					camera.lookAt(view.focus.position.x, view.focus.position.y, view.focus.position.z + 1.5)
 
-					//console.log(camera.rotation)
 
 					renderer.setViewport( left, bottom, width, height );
 					renderer.setScissor( left, bottom, width, height );
@@ -451,6 +461,12 @@
 
 					renderer.render( scene, camera );
 				}
+				if (play.mesh.position.x < -80)
+					play.mesh.translateZ(0.1)
+				if (er.mesh.position.x > 80)
+					er.mesh.translateZ(0.1)
+				play.update()
+				er.update()
 			}
 		}
 		animate();
@@ -462,7 +478,6 @@
 	/*@import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');*/
 	@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
     #ui {
-		display: none;
         position: absolute;
 		width: 10px;
 		height: 10px;
@@ -470,6 +485,7 @@
     }
 
 	#score {
+		display: none !important;
 		position: absolute;
 		width: 100%;
 		height: 100%;
@@ -495,6 +511,25 @@
 		2px -2px 0 #000;
 	}
 
+	#versus {
+		pointer-events: none;
+		display:flex;
+		position: absolute;
+		top: 45%;
+		left: 50%;
+	}
+
+	#vs {
+		position: relative;
+	}
+
+	#vs >img {
+		position: relative;
+		height: auto;
+		width: 50%;
+		transform: translate(-50%, -50%);
+	}
+
 
 
 
@@ -504,6 +539,11 @@
 	<div id="score">
 		<span class="text" id="player1">0</span>
 		<span class="text" id="player2">0</span>
+	</div>
+	<div id="versus">
+		<div id="vs">
+			<img src="src/routes/pong/public/vers.png"/>
+		</div>
 	</div>
 </div>
 
