@@ -4,14 +4,19 @@
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 	import { RenderPixelatedPass } from  'three/examples/jsm/postprocessing/RenderPixelatedPass';
+	import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+	import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+	import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
 	import { Player } from "./player.js";
+	import {CrtShader} from "./crtShader.js";
+
 	let canvas;
 	var scoring = 0;
 
 	onMount(() => { (async () => {
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
-		scene.background = new THREE.Color(0x717171);
+		scene.background = new THREE.Color(0x000000);
 
 		
 		var bind = {up: 90, down: 83, left:81, right:68, charge:32}
@@ -23,6 +28,7 @@
 		var ui = document.getElementById("ui");
 		var score1 = document.getElementById("player1")
 		var score2 = document.getElementById("player2")
+		var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 16 * 9}
 
 		//#region LoadModel
 
@@ -59,19 +65,19 @@
 		//#region CreateMesh
 
 		const geo = new THREE.SphereGeometry( 0.8, 32, 16); 
-		const mat = new THREE.MeshStandardMaterial( { color: 0xFFFFFF } ); 
+		const mat = new THREE.MeshStandardMaterial( { color: 0xFF0000 } ); 
 		const sphere = new THREE.Mesh( geo, mat );
 		scene.add( sphere );
 
 		let spherebb = new THREE.Sphere(sphere.position, 1);
 
 
-		const textur = new THREE.TextureLoader().load( "src/routes/pong_retro/public/suh.png" );
+		const textur = new THREE.TextureLoader().load( "src/routes/pong_retro/public/suhd.png" );
 		textur.wrapS = THREE.RepeatWrapping;
 
 		textur.wrapT = THREE.RepeatWrapping;
 
-		const plain = new THREE.Mesh(new THREE.PlaneGeometry(64, 36), new THREE.MeshStandardMaterial( { map :textur }));
+		const plain = new THREE.Mesh(new THREE.PlaneGeometry(54, 36), new THREE.MeshStandardMaterial( { map :textur }));
 
 
 
@@ -87,14 +93,14 @@
 		const light = new THREE.AmbientLight(0xffffff)
 		scene.add(light)
 
-		const dl = new THREE.DirectionalLight( 0xffffff, 2 );
+		const dl = new THREE.DirectionalLight( 0xffffff, 0.5 );
 		dl.position.set( 0, 0, 5 );
 		scene.add( dl );
 
 		const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
-		renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
-        ui.style.width = window.innerWidth * 0.7 + "px";
-        ui.style.height = (window.innerWidth * 0.70) / 16 * 9 + "px";
+		renderer.setSize( canvasSize.width, canvasSize.height);
+        ui.style.width = canvasSize.width + "px";
+        ui.style.height = canvasSize.height + "px";
         ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
         ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		renderer.shadowMap.enabled = true;
@@ -174,9 +180,11 @@
 		);
 
 		window.onresize = function(event){
-			renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
-            ui.style.width = window.innerWidth * 0.7 + "px";
-            ui.style.height = (window.innerWidth * 0.70) / 16 * 9 + "px";
+			canvasSize.width = window.innerWidth * 0.7
+			canvasSize.height = window.innerWidth * 0.7 / 16 * 9
+			renderer.setSize( canvasSize.width, canvasSize.height);
+            ui.style.width = canvasSize.width + "px";
+            ui.style.height = canvasSize.height + "px";
             ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
             ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		}
@@ -205,33 +213,8 @@
 
 		//#region Collision
 
-		function checkCollision() {
-			if (er.bb.intersectsSphere(spherebb) && er.charge == 0)
-			{
-				if (balldir > 1)
-					er.knockback = -0.4;
-				balldir = -0.5 * er.charging;
-				balldiry = (sphere.position.y - er.mesh.position.y) * 0.1;
-			}
-			if (play.bb.intersectsSphere(spherebb) && play.charge == 0)
-			{
-				if (balldir < -1)
-					play.knockback = -0.4;
-				balldir = 0.5 * play.charging;
-				balldiry = (sphere.position.y - play.mesh.position.y) * 0.1;
-			}
-			if (balldir < 0)
-			{
-				balldir = THREE.MathUtils.lerp(balldir, -ballspeed, 0.05 );
-			}
-			if (balldir > 0)
-			{
-				balldir = THREE.MathUtils.lerp(balldir, ballspeed, 0.05);
-			}
-		}
-
 		var frames = 0
-		let url = '/ws/pong/pong_retro/?token=' + localStorage.getItem('access_token');
+		let url = '/ws/pong/pong_retro/' + localStorage.getItem('room_name') + '/?token=' + localStorage.getItem('access_token');
 		const chatSocket = new WebSocket(url)
 
 		chatSocket.onmessage = function(e) {
@@ -294,10 +277,26 @@
 
 		//#endregion
 		var composer = new EffectComposer( renderer );
-		//composer.addPass( new RenderPass( scene, camera ) );
+		composer.addPass( new RenderPass( scene, camera ) );
 
-		var renderPixelatedPass = new RenderPixelatedPass(3.5, scene, camera );
-		composer.addPass( renderPixelatedPass );
+		composer.addPass(new ShaderPass( CrtShader ))
+
+		const params = {
+			threshold: 0,
+			strength: 1.5,
+			radius: 1,
+			exposure: 1
+		};
+
+		const bloomPass = new UnrealBloomPass( new THREE.Vector2( canvasSize.width, canvasSize.height ), 2, 0.8, 0 );
+		bloomPass.threshold = params.threshold;
+		bloomPass.strength = params.strength;
+		bloomPass.radius = params.radius;
+
+		composer.addPass(bloomPass)
+
+		// var renderPixelatedPass = new RenderPixelatedPass(3.5, scene, camera );
+		// composer.addPass( renderPixelatedPass );
 
 		function animate() {
 			requestAnimationFrame( animate );
@@ -312,7 +311,6 @@
 			play.update(dt)
 			er.update(dt)
 			frames ++;
-			checkCollision();
 			composer.render( scene, camera );
 		}
 		animate();
