@@ -5,7 +5,7 @@
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { Shooter } from "./shooter.js";
     import { Player } from "./player.js";
-    import { flagshader } from "./flagshader";
+    import { flagshader } from "./flagshader.js";
     import { createmap } from "./map.js"
     import { SkeletonCollider } from "./skeletoncollider.js"
     import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
@@ -14,22 +14,29 @@
 
     onMount(() => { (async () => {
         const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
+        const camera = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
+        
+        var pointerLockActivated = 0
 
         let t = 0;
         const clock = new THREE.Clock();
         var reload = 0;
+        var boostreload = 0
 
         var el = document.getElementById("blocker");
         var ui = document.getElementById("ui");
         var circle = document.getElementById("circular");
         var ficon = document.getElementById("flagicon");
+        var scoreboard = document.getElementById("scoreboard")
+        var table_body = document.getElementById("mytbody")
+
+        var score_cells = []
+
+        var players = []
 
 
         scene.background = new THREE.Color(0x54A0E4);
 
-        var flagposs = 0;
 
         
         var bind2 = {up: 90, down: 83, left:81, right:68, jump:32}
@@ -59,60 +66,36 @@
 
         const loader = new GLTFLoader()
 
-        const flag = await loader.loadAsync('src/routes/(private)/game2/public/f.glb');
-        const fb = new THREE.Mesh(new THREE.BoxGeometry(15, 5, 15), new THREE.MeshStandardMaterial( { color: 0xff0000 }));
-        fb.position.set(0, 7.5, -5);
-        const fbb = new THREE.Box3().setFromObject(fb)
-
+        const flag = await loader.loadAsync('src/routes/shooter/public/f.glb');
+        flag.scene.name = 'flag'
         flag.scene.position.set(0, 5, -5);
+        
 
-        scene.add(flag.scene);
-
-        const mount = await loader.loadAsync('src/routes/(private)/game2/public/mountain.glb');
-        scene.add(mount.scene);
+        const mount = await loader.loadAsync('src/routes/shooter/public/mountain.glb');
+        //scene.add(mount.scene);
 
         
-        mount.scene.children[0].children[0].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
-        mount.scene.children[0].children[1].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
-        mount.scene.children[0].children[0].geometry.computeVertexNormals();
+        //mount.scene.children[0].children[0].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
+        //mount.scene.children[0].children[1].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
 
 
-        const gl = await loader.loadAsync('src/routes/(private)/game2/public/pir.glb');
-
-        gl.scene.position.set(10, 0, -1.5);
-        gl.scene.scale.set(0.5, 0.5, 0.5);
-
-        var er = new Player(gl, bind, 0.15, 0, scene);
-        er.mesh.traverse(function(node) {
-            if (node.isMesh)
-                node.castShadow = true;
-            if (node.isSkinnedMesh)
-                node.frustumCulled = false;
-        })
-        scene.add(er.mesh);
-
-        const pickables = [];
-        let skeletonCollider = new SkeletonCollider(er.mesh, scene, pickables)
-
-
-        const gltf = await loader.loadAsync('src/routes/(private)/game2/public/pir.glb');
-
-
-        gltf.scene.position.set(0, 0.5, 3);
-        gltf.scene.scale.set(0.5, 0.5, 0.5);
-
-
-        var play = new Shooter(gltf, bind2, 0.15, camera, scene, er.mesh, pickables);
-        er.target = er.target.concat(pickables)
+        var play = new Shooter(bind2, 0.15, camera, scene);
+        
             //scene.add(play.mesh);
 
         el.addEventListener('click', function () {
+            let now = performance.now()
+            if (pointerLockActivated && now - pointerLockActivated < 1100)
+                return
             el.style.display = "none";
             play.cam.lock();
+            
+            
         });
 
 
         play.cam.addEventListener( 'unlock', function () {
+            pointerLockActivated = performance.now()
             el.style.display = '';
         } );
 
@@ -141,9 +124,11 @@
         dl.shadow.camera.right = -size;
 
         const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
-        renderer.setSize( 1920 * 0.7 , 1080 * 0.7);
-        ui.style.width = 1920 * 0.7 + "px";
-        ui.style.height = 1080 * 0.7 + "px";
+        renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+        ui.style.width = window.innerWidth * 0.7 + "px";
+        ui.style.height = (window.innerWidth * 0.70) / 16 * 9 + "px";
+        ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+        ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		renderer.shadowMap.enabled = true;
         document.body.appendChild( renderer.domElement );
 
@@ -175,9 +160,16 @@
                 play.controller.jump = 1;
             if (buttons[0].value == 0)
                 play.controller.jump = 0;
+            if (buttons[7].value > 0.5)
+                shoot()
+            if (buttons[6].value > 0.5)
+                jumpBoost()
         }
 
         var xSpeed = 0.15, ySpeed = 0.15;
+
+        camera.rotation.order = "YXZ"
+
 
         function handlesticks(axes)
         {
@@ -199,15 +191,19 @@
             else
                 play.controller.yp = 0;
 
-            /*if (axes[2] < -0.2)
-                play.cam.getObject().rotation.y -= axes[2] * xSpeed;
+            if (axes[2] < -0.2)
+                play.cam.getObject().rotation.y -= axes[2] * xSpeed / 2;
             if (axes[2] > 0.2)
-                play.cam.getObject().rotation.y -= axes[2] * xSpeed;
+                play.cam.getObject().rotation.y -= axes[2] * xSpeed / 2;
 
-            if (axes[3] < -0.2)
-                play.cam.getObject().rotation.x -= axes[3] * xSpeed;
-            if (axes[3] > 0.2)
-                play.cam.getObject().rotation.x -= axes[3] * xSpeed;*/
+            if (axes[3] < -0.2 && play.cam.getObject().rotation.x < 1.5)
+            {
+                play.cam.getObject().rotation.x -= axes[3] * xSpeed / 2;
+            }
+            if (axes[3] > 0.2 && play.cam.getObject().rotation.x > -1.5)
+            {
+                play.cam.getObject().rotation.x -= axes[3] * xSpeed / 2;
+            }
         }
 
         window.addEventListener(
@@ -227,15 +223,29 @@
         );
 
         window.onresize = function(event){
-            if (window.innerWidth * 0.7 < 1920 * 0.7)
-                renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+            renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+            ui.style.width = window.innerWidth * 0.7 + "px";
+            ui.style.height = (window.innerWidth * 0.70) / 16 * 9 + "px";
+            ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+            ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+            
         }
 
         
         function onMouse(event) {
-            if (event.which == 1 && reload == 0)
+            if (event.which == 1)
             {
-                
+                shoot()
+            }
+            if (event.which == 3)
+            {
+                jumpBoost()
+            }
+        }
+
+        function shoot() {
+            if (reload == 0)
+            {
                 var intersects = play.raycaster.intersectObjects( scene.children );
                 reload = 360;
                 let i = 0
@@ -248,13 +258,18 @@
                     {
                         chatSocket.send(JSON.stringify({
                         'event':'hit',
-                        'id':id
+                        'id':id,
+                        'target':intersects[i].object.userData.id
                         }))
                     }
                 }
             }
-            if (event.which == 3)
+        }
+
+        function jumpBoost() {
+            if (boostreload == 0)
             {
+                boostreload = 50
                 var intersects = play.raycaster.intersectObjects( scene.children );
                 let i = 0
                 if ((intersects[i] && intersects[ i ].object == play.bb) || (intersects[i] && intersects[ i ].object.type == "Line"))
@@ -276,35 +291,47 @@
             }
         }
 
-        let url = 'ws://localhost:8000/ws/shooter/?token=' + localStorage.getItem('access_token');
+        async function createPlayer(play_id, skin) {
+            const gl = await loader.loadAsync('src/lib/assets/skins/' + skin);
+            gl.scene.position.set(10, 0, -1.5);
+            gl.scene.scale.set(0.5, 0.5, 0.5);
+            let pl = new Player(gl, 0.15, scene, play_id)
+            play.target = play.target.concat(pl.target)
+            players.push(pl);
+        }
+
+        let url = '/ws/shooter/?token=' + localStorage.getItem('access_token');
 		const chatSocket = new WebSocket(url)
         
 		chatSocket.onmessage = function(e) {
 	
 			let data = JSON.parse(e.data)
-			if (data.event == 'Connected')
+			if (data.event == 'Connected' && id == 0)
 			{
                 id = data.id
-				console.log('connected')
-                console.log(id)
-                if (id == 1)
-				{
-                    camera.position.z = 0;
-                    camera.position.y = 1;
-                    camera.position.x = 107;
-                    camera.rotation.x = 0;
-                    camera.rotation.y = Math.PI / 2;
-                    camera.rotation.z = 0;
-				}
-				if (id == 2)
-				{
-                    camera.position.z = 0;
-                    camera.position.y = 1;
-                    camera.position.x = -100;
-                    camera.rotation.x = 0;
-                    camera.rotation.y = -Math.PI / 2;
-                    camera.rotation.z = 0;
-				}
+                let i = 0;
+                if (data.flag == 0)
+                    scene.add(flag.scene)
+                while (data.players[i])
+                {
+                    if (i != id - 1)
+                        createPlayer(i, data.players[i].skin)
+                    var row = table_body.insertRow()
+                    var usercell = row.insertCell(0)
+                    var scorecell = row.insertCell(1)
+
+                    usercell.innerHTML = data.players[i].username
+                    scorecell.innerHTML = Math.round(data.players[i].score)
+                    score_cells.push(scorecell)
+                    i ++;
+                }
+                camera.position.z = data.position.z;
+                camera.position.y = data.position.y;
+                camera.position.x = data.position.x;
+                camera.rotation.x = data.rotation.x;
+                camera.rotation.y = data.rotation.y;
+                camera.rotation.z = data.rotation.z;
+
                 chatSocket.send(JSON.stringify({
 					'event':'frame',
 					'player':[play.cam.getObject().position, play.direction],
@@ -312,27 +339,60 @@
                     'id':id
 				}))
 			}
+            else if (data.event == 'Connected')
+            {
+                let i = 0
+                while (players[i])
+                {
+                    if (players[i].id == id - 1)
+                        players.splice(i, i)
+                    i ++
+                }
+                createPlayer(id, data.players[id].skin)
+
+                var row = table_body.insertRow()
+                var usercell = row.insertCell(0)
+                var scorecell = row.insertCell(1)
+                usercell.innerHTML = data.players[id].username
+                scorecell.innerHTML = Math.round(data.players[id].score)
+                score_cells.push(scorecell)
+            }
+            if (data.event == 'Flag_picked')
+            {
+                if (data.id == id)
+                    ficon.style.display = "block";
+                scene.remove(flag.scene);
+            }
+            if (data.event == 'Flag_dropped')
+            {
+                if (data.id == id)
+                    ficon.style.display = "none";
+                scene.add(flag.scene);
+                scene.add(sh)
+                scene.add(tor)
+                scene.add(toru)
+            }
             if (data.event == 'frame')
             {
-                
-                if (id == 1)
+                let i = 0
+                while (players[i])
                 {
-                    er.mesh.position.set(data.player2[0].x, data.player2[0].y - 2, data.player2[0].z)
-                    if (data.player2[1].y < 0)
-                        er.mesh.rotation.y = Math.acos(data.player2[1].x) + (Math.PI / 2)
-                    else
-                        er.mesh.rotation.y = -Math.acos(data.player2[1].x) + (Math.PI / 2)
-                    er.controller = data.controller2
+                    let actid = players[i].id
+                    if (players[i].id != id - 1)
+                    {
+                        
+                        players[i].mesh.position.set(data.players[actid].position.x, data.players[actid].position.y - 2, data.players[actid].position.z)
+                        if (data.players[actid].direction.y < 0)
+                            players[i].mesh.rotation.y = Math.acos(data.players[actid].direction.x) + (Math.PI / 2)
+                        else
+                            players[i].mesh.rotation.y = -Math.acos(data.players[actid].direction.x) + (Math.PI / 2)
+                        players[i].controller = data.players[actid].controller
+                        
+                    }
+                    score_cells[actid].innerHTML = Math.round(data.players[actid].score)
+                    i ++;
                 }
-                if (id == 2)
-                {
-                    er.mesh.position.set(data.player1[0].x, data.player1[0].y - 2, data.player1[0].z)
-                    if (data.player1[1].y < 0)
-                        er.mesh.rotation.y = Math.acos(data.player1[1].x) + (Math.PI / 2)
-                    else
-                        er.mesh.rotation.y = -Math.acos(data.player1[1].x) + (Math.PI / 2)
-                    er.controller = data.controller1
-                }
+                score_cells[id - 1].innerHTML = Math.round(data.players[id - 1].score)
 				chatSocket.send(JSON.stringify({
 					'event':'frame',
 					'player':[play.cam.getObject().position, play.direc],
@@ -356,19 +416,32 @@
         function onDocumentKeyDown(event) {
             var keyCode = event.which;
             play.keydown(keyCode);
+            if (keyCode == 20)
+            {
+                scoreboard.style.display = 'flex'
+                sortTable()    
+            }
         };
 
         function onDocumentKeyUp(event) {
             var keyCode = event.which;
             play.keyup(keyCode);
+            if (keyCode == 20)
+                scoreboard.style.display = 'none'
         };
 
         //#endregion
 
-        function CheckCollision(dt)
-        {
-            if (play.bbox.intersectsBox(fbb))
-                flagposs += dt;
+        function sortTable(){
+            var tableData = document.getElementById("score_table").getElementsByTagName('tbody').item(0);
+            var rowData = tableData.getElementsByTagName('tr');
+            for(var i = 0; i < rowData.length - 1; i++){
+                for(var j = 0; j < rowData.length - (i + 1); j++){
+                    if(Number(rowData.item(j).getElementsByTagName('td').item(1).innerHTML.replace(/[^0-9\.]+/g, "")) < Number(rowData.item(j+1).getElementsByTagName('td').item(1).innerHTML.replace(/[^0-9\.]+/g, ""))){
+                        tableData.insertBefore(rowData.item(j+1),rowData.item(j));
+                    }
+                }
+            }
         }
 
 
@@ -378,17 +451,6 @@
         function animate() {
             requestAnimationFrame( animate );
             const dt = clock.getDelta();
-            if (flagposs >= 5)
-            {
-                ficon.style.display = "block";
-                scene.remove(flag.scene);
-                if (Math.tan(sh.material.uniforms.time.value) > 2.0)
-                    scene.remove(sh)
-                if (Math.tan(tor.material.uniforms.time.value) > 2.0)
-                    scene.remove(tor)
-                if (Math.tan(toru.material.uniforms.time.value) > 2.0)
-                    scene.remove(toru)
-            }
             t += dt;
             if (gamepads[0])
             {
@@ -396,6 +458,10 @@
                 handlebuttons(gamepads[0].buttons)
                 handlesticks(gamepads[0].axes)
             }
+            if (boostreload > 0)
+                boostreload -= dt * 400;
+            else
+                boostreload = 0
             if (reload > 0)
             {
                 reload -= dt * 400;
@@ -406,13 +472,19 @@
                 reload = 0;
                 circle.style.background = `conic-gradient(#cccccc 0deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
             }
-            CheckCollision(dt);
-            skeletonCollider.update()
-            play.update(dt)
-            er.update(dt)
+            play.update(dt);
+            players.forEach(element => {
+				element.update(dt);
+			});
             sh.material.uniforms.time.value = t;
             tor.material.uniforms.time.value = t + 1;
             toru.material.uniforms.time.value = t + 2;
+            if (Math.tan(sh.material.uniforms.time.value) > 2.0 && !scene.getObjectByName('flag'))
+                    scene.remove(sh)
+            if (Math.tan(tor.material.uniforms.time.value) > 2.0 && !scene.getObjectByName('flag'))
+                    scene.remove(tor)
+            if (Math.tan(toru.material.uniforms.time.value) > 2.0 && !scene.getObjectByName('flag'))
+                    scene.remove(toru)
             renderer.render( scene, camera );
         }
         animate(); 
@@ -427,11 +499,12 @@
 		height: 10px;
     }
     #blocker {
-				position: absolute;
-				width: 100%;
-				height: 100%;
-				background-color: rgba(0,0,0,0.1);
-			}
+        /*border-radius: 3% !important;*/
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0,0,0,0.1);
+	}
     #crosshair {
         position: absolute;
         top: 50%;
@@ -440,13 +513,14 @@
         pointer-events: none;
     }
     #crossimg {
+        pointer-events: none;
         width: 50%;
         position: relative;
-        top: -100px;
-        left: -100px;
+        transform: translate(-50%, -50%);
     }
 
     #circular {
+        pointer-events: none;
         position: absolute;
         width: 30px;
         height: 30px;
@@ -456,10 +530,43 @@
         background: conic-gradient(#cccccc 0deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg);
     }
 
+    .game {
+        /*border-radius: 3% !important;*/
+        margin: auto !important;
+    }
+
     #flagicon {
         display: none;
     }
 
+
+
+    #scoreboard {
+        pointer-events: none;
+        height: 400px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+    }
+
+    table {
+        border: 1px solid rgba(0,0,0,0);
+        color: white;
+    }
+    :global(tr > td:nth-child(even)) {
+      background-color: rgba(255, 101, 101, 0.7);
+    }
+    :global(tr > td:nth-child(odd)) {
+      background-color: rgba(252, 67, 67, 0.7);
+    }
+    :global(tr) {
+        border-top: 1px solid rgb(112, 112, 112);
+        border-bottom: 1px solid rgb(112, 112, 112);
+    }
+    th {
+
+        background-color: rgba(54, 54, 54, 0.7);
+    }
 
 </style>
 
@@ -467,12 +574,24 @@
     <div id="blocker">
     </div>
     <div>
-        <img id="flagicon" alt="flag" src="src/routes/(private)/game2/public/flag.png"/>
+        <img id="flagicon" alt="flag" src="src/routes/shooter/public/flag.png"/>
     </div>
     <div id="crosshair">
         <div id="circular"></div>
-        <img id="crossimg" alt="ch" src="src/routes/(private)/game2/public/dotcrosshair.png"/>
+        <img id="crossimg" alt="ch" src="src/routes/shooter/public/dotcrosshair.png"/>
+    </div>
+    <div id="scoreboard">
+        <table id="score_table">
+            <thead>
+                <tr>
+                    <th scope="col">Username</th>
+                    <th scope="col">Score</th>
+                </tr>
+            </thead>
+            <tbody id="mytbody">
+            </tbody>
+        </table>
     </div>
 </div>
 
-<canvas bind:this={canvas} class=""></canvas>
+<canvas bind:this={canvas} class="game"></canvas>

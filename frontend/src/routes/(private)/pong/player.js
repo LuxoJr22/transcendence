@@ -6,7 +6,6 @@ export class Player {
 		this.xSpeed = speed;
 		this.mesh = mesh.scene;
 		this.side = side;
-		this.bb = new THREE.Box3().setFromObject( mesh.scene);
 		this.left = this.mesh.getObjectByName("Bone003L");
 		this.right = this.mesh.getObjectByName("Bone003R");
 		this.bone = this.mesh.getObjectByName("Bone");
@@ -27,7 +26,7 @@ export class Player {
 		this.controller = {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
 		this.controllanims = {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
 	}
-	update (dt) {
+	update () {
 		this.knockback = THREE.MathUtils.lerp(this.knockback, 0, 0.1)
 		this.action();
 
