@@ -35,7 +35,6 @@
     /******************HISTORY******************/
 
     export async function fetchHistoryMatches(){
-        refresh_token()
         const response = await fetch("/api/pong/history/", {
             method: 'GET',
             headers:{

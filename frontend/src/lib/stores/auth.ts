@@ -52,7 +52,6 @@ export async function login(username: string, password: string): Promise<void> {
 }
 
 export async function updateInformations(email: string, username: string): Promise<void> {
-    await refresh_token();
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
         throw new Error('Username update failed');
@@ -74,7 +73,6 @@ export async function updateInformations(email: string, username: string): Promi
 }
 
 export async function updatePassword(password: string, current_password: string): Promise<void> {
-    refresh_token()
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
         throw new Error('Username update failed');
@@ -99,7 +97,6 @@ export async function updatePassword(password: string, current_password: string)
 
 
 export async function updateProfilePicture(profile_picture: File) {
-    await refresh_token();
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
         throw new Error('Username update failed');

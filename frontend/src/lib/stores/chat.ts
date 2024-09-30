@@ -10,7 +10,6 @@ interface Messages {
 export let messages = writable<Messages[]>([]);
 
 export async function fetchChatMessages(id: number){
-    await refresh_token();
     const accessToken = localStorage.getItem('access_token');;
     const response = await fetch('/api/chat/messages/' + id + '/', {
     headers: {

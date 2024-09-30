@@ -27,7 +27,6 @@
     let latestDiscussion = [];
 
     async function fetchLatestDiscussion(){
-        await refresh_token();
         const accessToken = localStorage.getItem('access_token');;
         const response = await fetch('/api/chat/history/', {
         headers: {

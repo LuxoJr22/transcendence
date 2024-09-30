@@ -10,7 +10,6 @@ export interface friendInterface {
 export let friendList = writable<friendInterface[]>([]);
 
 export async function fetchFriendList(){
-    await refresh_token();
     const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken)
@@ -29,7 +28,6 @@ export async function fetchFriendList(){
 }
 
 export async function declineFriendRequest(id: number){
-    await refresh_token();
     const accessToken = localStorage.getItem('access_token');;
 
     if (!accessToken)
@@ -47,7 +45,6 @@ export async function declineFriendRequest(id: number){
 }
 
 export async function acceptFriendRequest(id: number){
-    await refresh_token();
     const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken)
@@ -66,7 +63,6 @@ export async function acceptFriendRequest(id: number){
 }
 
 export async function deleteFriend(id: number){
-    await refresh_token();
     const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken)

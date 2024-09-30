@@ -11,8 +11,6 @@ export interface Profile {
 export const profile = writable<Profile>();
 
 export async function profileData(id: number): Promise<void> {
-   await refresh_token()
-
    let accessToken = localStorage.getItem('access_token');
 
    const response = await fetch('/api/user/profile/' + id.toString() + '/', {
