@@ -38,7 +38,7 @@
 		var end = 0
 		const loader = new GLTFLoader()
 
-		const WinMesh = await loader.loadAsync('src/routes/pong_retro/public/win.glb');
+		const WinMesh = await loader.loadAsync('src/routes/(private)/pong_retro/public/win.glb');
 		WinMesh.scene.rotation.x = Math.PI / 2
 		WinMesh.scene.position.z = 17
 		WinMesh.scene.position.x = -2.25
@@ -50,7 +50,7 @@
                 node.layers.toggle(1);
         })
 
-		const LoseMesh = await loader.loadAsync('src/routes/pong_retro/public/lose.glb');
+		const LoseMesh = await loader.loadAsync('src/routes/(private)/pong_retro/public/lose.glb');
 		LoseMesh.scene.rotation.x = Math.PI / 2
 		LoseMesh.scene.position.z = 17
 		LoseMesh.scene.position.x = -2.25
@@ -64,7 +64,7 @@
 
 
 
-		const gltf = await loader.loadAsync('src/routes/pong_retro/public/blank.glb');
+		const gltf = await loader.loadAsync('src/routes/(private)/pong_retro/public/blank.glb');
 
 
 		gltf.scene.position.set(-17, 0, -1.5);
@@ -78,7 +78,7 @@
 
 
 
-		const gl = await loader.loadAsync('src/routes/pong_retro/public/blank.glb');
+		const gl = await loader.loadAsync('src/routes/(private)/pong_retro/public/blank.glb');
 
 		gl.scene.position.set(17, 0, -1.5);
 		gl.scene.scale.set(0.5, 0.5, 0.5);
@@ -97,7 +97,7 @@
                 node.layers.toggle(1);
         })
 
-		const win = await loader.loadAsync('src/routes/pong_retro/public/win.glb');
+		const win = await loader.loadAsync('src/routes/(private)/pong_retro/public/win.glb');
 		
 
 		//#endregion
@@ -114,7 +114,7 @@
 		let spherebb = new THREE.Sphere(sphere.position, 1);
 
 
-		const textur = new THREE.TextureLoader().load( "src/routes/pong_retro/public/suhd.png" );
+		const textur = new THREE.TextureLoader().load( "src/routes/(private)/pong_retro/public/suhd.png" );
 		textur.wrapS = THREE.RepeatWrapping;
 
 		textur.wrapT = THREE.RepeatWrapping;

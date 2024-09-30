@@ -66,12 +66,12 @@
 
         const loader = new GLTFLoader()
 
-        const flag = await loader.loadAsync('src/routes/shooter/public/f.glb');
+        const flag = await loader.loadAsync('src/routes/(private)/shooter/public/f.glb');
         flag.scene.name = 'flag'
         flag.scene.position.set(0, 5, -5);
         
 
-        const mount = await loader.loadAsync('src/routes/shooter/public/mountain.glb');
+        const mount = await loader.loadAsync('src/routes/(private)/shooter/public/mountain.glb');
         //scene.add(mount.scene);
 
         
@@ -574,11 +574,11 @@
     <div id="blocker">
     </div>
     <div>
-        <img id="flagicon" alt="flag" src="src/routes/shooter/public/flag.png"/>
+        <img id="flagicon" alt="flag" src="src/routes/(private)/shooter/public/flag.png"/>
     </div>
     <div id="crosshair">
         <div id="circular"></div>
-        <img id="crossimg" alt="ch" src="src/routes/shooter/public/dotcrosshair.png"/>
+        <img id="crossimg" alt="ch" src="src/routes/(private)/shooter/public/dotcrosshair.png"/>
     </div>
     <div id="scoreboard">
         <table id="score_table">

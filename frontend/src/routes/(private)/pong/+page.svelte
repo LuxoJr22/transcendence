@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
-	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';;
+	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import { Player } from "./player.js";
 	import { Bot } from "./bot.js";
 	import { shade } from "./watershader";
@@ -153,7 +153,7 @@
 
 
 	
-		const bouee = await loader.loadAsync('src/routes/pong/public/bue.glb');
+		const bouee = await loader.loadAsync('src/routes/(private)/pong/public/bue.glb');
 		bouee.scene.position.set(0, -9, -0.8);
 		bouee.scene.rotation.x = Math.PI / 2
 		bouee.scene.rotation.y = Math.PI / 2
@@ -551,7 +551,7 @@
 	</div>
 	<div id="versus">
 		<div id="vs">
-			<img src="src/routes/pong/public/vers.png"/>
+			<img src="src/routes/(private)/pong/public/vers.png"/>
 		</div>
 	</div>
 </div>

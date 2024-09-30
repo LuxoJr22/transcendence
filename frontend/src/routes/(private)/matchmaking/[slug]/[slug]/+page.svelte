@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { auth, fetchUser } from '../../../../stores/auth';
-	import type { AuthState } from '../../../../stores/auth';
+	import { auth, fetchUser } from '$lib/stores/auth';
+	import type { AuthState } from '$lib/stores/auth';
 
 	let state: AuthState;
 	$: $auth, state = $auth;

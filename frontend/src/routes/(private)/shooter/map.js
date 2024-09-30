@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 export function createmap(scene)
 {
-	var texture = new THREE.TextureLoader().load( 'src/routes/game2/public/images.jpg' );
+	var texture = new THREE.TextureLoader().load( 'src/routes/(private)/shooter/public/images.jpg' );
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
 	texture.repeat.set( 4, 4 );
