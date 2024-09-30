@@ -26,6 +26,7 @@
 
 		const scene = new THREE.Scene();
 		const cam = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
+		var end = 0
 		//scene.background = new THREE.Color(0x54A0E4);
 
 		var in_game = 0
@@ -372,6 +373,10 @@
 				play.controllanims.xp = 0
 				in_game = 1 
 			}
+			else if (data.event == 'endMatch')
+			{
+				end = 1
+			}
 			else if (data.event == 'frame')
 			{
 				play.mesh.position.set(data.player1[0], data.player1[1], -1.5)
@@ -390,14 +395,14 @@
 				er.controllanims = data.player2[3]
 				sphere.position.set(data.ball, data.bally, sphere.position.z);
 				scoring = data.scoring
-				if (id == 1)
+				if (id == 1 && end == 0)
 				{
 					chatSocket.send(JSON.stringify({
 						'event':'frame',
 						'player1':play.controller,
 					}))
 				}
-				if (id == 2)
+				if (id == 2 && end == 0)
 				{
 					chatSocket.send(JSON.stringify({
 						'event':'frame',

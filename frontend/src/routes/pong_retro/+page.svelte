@@ -1,4 +1,4 @@
-<script lang= "ts">
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -25,6 +25,8 @@
 		var limit = {px: 0, py:8, nx:-18, ny:-8}
 		var limit2 = {px: 18, py:8, nx: 0, ny:-8}
 		var scores = [0, 0];
+		var endtext;
+		var startend = 0;
 		var id = 0;
 		var ui = document.getElementById("ui");
 		var score1 = document.getElementById("player1")
@@ -33,7 +35,33 @@
 
 		//#region LoadModel
 
+		var end = 0
 		const loader = new GLTFLoader()
+
+		const WinMesh = await loader.loadAsync('src/routes/pong_retro/public/win.glb');
+		WinMesh.scene.rotation.x = Math.PI / 2
+		WinMesh.scene.position.z = 17
+		WinMesh.scene.position.x = -2.25
+		WinMesh.scene.scale.y = 0.1
+		const winMat = new THREE.MeshStandardMaterial( { color: 0x0000FF } ); 
+		WinMesh.scene.traverse(function(node) {
+            if (node.isMesh)
+				node.material = winMat;
+                node.layers.toggle(1);
+        })
+
+		const LoseMesh = await loader.loadAsync('src/routes/pong_retro/public/lose.glb');
+		LoseMesh.scene.rotation.x = Math.PI / 2
+		LoseMesh.scene.position.z = 17
+		LoseMesh.scene.position.x = -2.25
+		LoseMesh.scene.scale.y = 0.1
+		const loseMat = new THREE.MeshStandardMaterial( { color: 0xFF0000 } ); 
+		LoseMesh.scene.traverse(function(node) {
+            if (node.isMesh)
+                node.layers.toggle(1);
+				node.material = loseMat;
+        })
+
 
 
 		const gltf = await loader.loadAsync('src/routes/pong_retro/public/blank.glb');
@@ -68,6 +96,9 @@
             if (node.isMesh)
                 node.layers.toggle(1);
         })
+
+		const win = await loader.loadAsync('src/routes/pong_retro/public/win.glb');
+		
 
 		//#endregion
 
@@ -226,7 +257,6 @@
 
 		//#region Collision
 
-		var frames = 0
 		let url = '/ws/pong/pong_retro/' + localStorage.getItem('room_name') + '/?token=' + localStorage.getItem('access_token');
 		const chatSocket = new WebSocket(url)
 
@@ -253,6 +283,15 @@
 				}))
 				}
 			}
+			else if (data.event == 'endMatch')
+			{
+				end = 1;
+				if (data.id == id)
+					endtext = WinMesh.scene;
+				else
+					endtext = LoseMesh.scene;
+				scene.add(endtext)
+			}
 			else if (data.event == 'frame')
 			{
 				play.mesh.position.set(data.player1[0], data.player1[1], -1.5)
@@ -271,14 +310,14 @@
 				er.controllanims = data.player2[3]
 				sphere.position.set(data.ball, data.bally, sphere.position.z);
 				scoring = data.scoring
-				if (id == 1)
+				if (id == 1 && end == 0)
 				{
 					chatSocket.send(JSON.stringify({
 						'event':'frame',
 						'player1':play.controller,
 					}))
 				}
-				if (id == 2)
+				if (id == 2 && end == 0)
 				{
 					chatSocket.send(JSON.stringify({
 						'event':'frame',
@@ -286,6 +325,10 @@
 					}))
 				}
 			}
+		}
+
+		chatSocket.onclose = function(e) {
+			window.location.href = '/';
 		}
 
 		//#endregion
@@ -299,7 +342,7 @@
 
 		const params = {
 			threshold: 0,
-			strength: 0.7,
+			strength: 0.4,
 			radius: 1,
 			exposure: 1
 		};
@@ -387,14 +430,22 @@
 				handlebuttons(gamepads[0].buttons)
 				handlesticks(gamepads[0].axes)
 			}
-			
+			if (end == 1)
+			{
+				startend += dt
+				if (Math.floor(startend % 2) == 0)
+					scene.remove(endtext)
+				else
+					scene.add(endtext)
+				if (startend >= 5)
+					chatSocket.close()
+			}
 			scene.traverse(nonBloomed)
 			composer.render();
 			scene.traverse(restoreMaterial)
 			finalComposer.render()
 			play.update(dt)
 			er.update(dt)
-			frames ++;
 			
 		}
 		animate();

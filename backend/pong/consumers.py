@@ -183,8 +183,6 @@ class PongConsumer(WebsocketConsumer):
 		else:
 			self.disconnect()
 		
-		
-
 		try:
 			self.pong_match = get_object_or_404(PongMatch, id=self.game.game_id)
 		except:
@@ -260,6 +258,17 @@ class PongConsumer(WebsocketConsumer):
 		if (self.game.winner != 0 and self.pong_match.winner == None):
 			self.pong_match.winner = self.game.winner
 			self.pong_match.save()
+		if (self.pong_match.winner != None):
+			if (self.pong_match.winner == self.game.player1.id):
+				winner = 1
+			else:
+				winner = 2
+			self.send(text_data=json.dumps({
+				'type':'Pong',
+				'event':'endMatch',
+				'id': winner,
+			}))
+			return
 
 
 

@@ -21,6 +21,7 @@
         let t = 0;
         const clock = new THREE.Clock();
         var reload = 0;
+        var boostreload = 0
 
         var el = document.getElementById("blocker");
         var ui = document.getElementById("ui");
@@ -74,9 +75,8 @@
         //scene.add(mount.scene);
 
         
-        mount.scene.children[0].children[0].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
-        mount.scene.children[0].children[1].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
-        mount.scene.children[0].children[0].geometry.computeVertexNormals();
+        //mount.scene.children[0].children[0].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
+        //mount.scene.children[0].children[1].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
 
 
         var play = new Shooter(bind2, 0.15, camera, scene);
@@ -160,9 +160,16 @@
                 play.controller.jump = 1;
             if (buttons[0].value == 0)
                 play.controller.jump = 0;
+            if (buttons[7].value > 0.5)
+                shoot()
+            if (buttons[6].value > 0.5)
+                jumpBoost()
         }
 
         var xSpeed = 0.15, ySpeed = 0.15;
+
+        camera.rotation.order = "YXZ"
+
 
         function handlesticks(axes)
         {
@@ -184,15 +191,19 @@
             else
                 play.controller.yp = 0;
 
-            /*if (axes[2] < -0.2)
-                play.cam.getObject().rotation.y -= axes[2] * xSpeed;
+            if (axes[2] < -0.2)
+                play.cam.getObject().rotation.y -= axes[2] * xSpeed / 2;
             if (axes[2] > 0.2)
-                play.cam.getObject().rotation.y -= axes[2] * xSpeed;
+                play.cam.getObject().rotation.y -= axes[2] * xSpeed / 2;
 
-            if (axes[3] < -0.2)
-                play.cam.getObject().rotation.x -= axes[3] * xSpeed;
-            if (axes[3] > 0.2)
-                play.cam.getObject().rotation.x -= axes[3] * xSpeed;*/
+            if (axes[3] < -0.2 && play.cam.getObject().rotation.x < 1.5)
+            {
+                play.cam.getObject().rotation.x -= axes[3] * xSpeed / 2;
+            }
+            if (axes[3] > 0.2 && play.cam.getObject().rotation.x > -1.5)
+            {
+                play.cam.getObject().rotation.x -= axes[3] * xSpeed / 2;
+            }
         }
 
         window.addEventListener(
@@ -222,9 +233,19 @@
 
         
         function onMouse(event) {
-            if (event.which == 1 && reload == 0)
+            if (event.which == 1)
             {
-                
+                shoot()
+            }
+            if (event.which == 3)
+            {
+                jumpBoost()
+            }
+        }
+
+        function shoot() {
+            if (reload == 0)
+            {
                 var intersects = play.raycaster.intersectObjects( scene.children );
                 reload = 360;
                 let i = 0
@@ -243,8 +264,12 @@
                     }
                 }
             }
-            if (event.which == 3)
+        }
+
+        function jumpBoost() {
+            if (boostreload == 0)
             {
+                boostreload = 50
                 var intersects = play.raycaster.intersectObjects( scene.children );
                 let i = 0
                 if ((intersects[i] && intersects[ i ].object == play.bb) || (intersects[i] && intersects[ i ].object.type == "Line"))
@@ -433,6 +458,10 @@
                 handlebuttons(gamepads[0].buttons)
                 handlesticks(gamepads[0].axes)
             }
+            if (boostreload > 0)
+                boostreload -= dt * 400;
+            else
+                boostreload = 0
             if (reload > 0)
             {
                 reload -= dt * 400;
