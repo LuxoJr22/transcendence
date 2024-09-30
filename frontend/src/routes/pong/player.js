@@ -6,7 +6,6 @@ export class Player {
 		this.xSpeed = speed;
 		this.mesh = mesh.scene;
 		this.side = side;
-		this.bb = new THREE.Box3().setFromObject( mesh.scene);
 		this.left = this.mesh.getObjectByName("Bone003L");
 		this.right = this.mesh.getObjectByName("Bone003R");
 		this.bone = this.mesh.getObjectByName("Bone");

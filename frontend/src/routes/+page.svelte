@@ -3,13 +3,13 @@
     const img = new URL('$lib/assets/pong.png', import.meta.url).href
     const img1 = new URL('$lib/assets/game2.png', import.meta.url).href
 
-    let linkGame = "/matchmaking/pong";
+    let linkGame = "/matchmaking/pong/public";
 
     function changeLink() {
-      if (linkGame == "/matchmaking/pong")
+      if (linkGame == "/matchmaking/pong/public")
         linkGame = "/shooter"
       else
-        linkGame = "/matchmaking/pong"
+        linkGame = "/matchmaking/pong/public"
     }
 </script>
 

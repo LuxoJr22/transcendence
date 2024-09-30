@@ -16,6 +16,7 @@ from users import routing as userroute
 from chat import routing as chatroute
 from pong import routing as pongroute
 from shooter import routing as shooterRoute
+from tournament import routing as tournamentroute
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 
@@ -26,7 +27,8 @@ application = ProtocolTypeRouter({
 			userroute.websocket_urlpatterns +
 			chatroute.websocket_urlpatterns +
 			pongroute.websocket_urlpatterns +
-			shooterRoute.websocket_urlpatterns
+			shooterRoute.websocket_urlpatterns +
+			tournamentroute.websocket_urlpatterns
 		)
 	),
 })

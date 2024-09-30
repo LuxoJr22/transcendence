@@ -1,6 +1,22 @@
 <script>
     const img = new URL('$lib/assets/pong.png', import.meta.url).href
     const img1 = new URL('$lib/assets/game2.png', import.meta.url).href
+
+
+    let url = '/ws/tournament/pong/tournoi/?token=' + localStorage.getItem('access_token');
+    const chatSocket = new WebSocket(url)
+
+
+    chatSocket.onmessage = function(e) {
+	
+        let data = JSON.parse(e.data)
+
+        if (data.event = "Match")
+        {
+            localStorage.setItem('game_id', data.game_id);
+            window.location.href = 'matchmaking/pong/private';
+        }
+    }
     
 </script>
 
