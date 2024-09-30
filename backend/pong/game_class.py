@@ -67,12 +67,12 @@ class Game:
 			if (self.ballx >= 18):
 				self.player1.score += 1
 				self.lastscore = 1
-				if self.player1.score >= 11 and self.winner == 0:
+				if self.player1.score >= 1 and self.winner == 0:
 					self.winner = self.player1.id
 			if (self.ballx <= -18):
 				self.player2.score += 1
 				self.lastscore = -1
-				if self.player2.score >= 11 and self.winner == 0:
+				if self.player2.score >= 1 and self.winner == 0:
 					self.winner = self.player2.id
 			self.scoring = 1
 			self.ballx = 0
