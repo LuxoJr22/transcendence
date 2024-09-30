@@ -25,6 +25,7 @@ class ChatHistorySerializer(PublicUserSerializer):
 
 		if last_message:
 			return {
+				'sender': last_message.sender.id,
 				'content': last_message.content,
 				'timestamp': last_message.timestamp
 			}

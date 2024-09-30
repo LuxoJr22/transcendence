@@ -168,7 +168,7 @@ function AccessTokenExpirated(){
     let refresh_token : string;
     token = localStorage.getItem('access_token')
     refresh_token = localStorage.getItem('refresh_token')
-    if (token == null || refresh_token == null || refresh_token == '')
+    if (token == null || refresh_token == null || refresh_token == '' || token == '')
         return (true);
     let content : string = token.split('.')[1].replaceAll('-', '+').replaceAll('_', '/');
     let expiration = window.atob(content);

@@ -76,7 +76,7 @@
         };
         ws.onmessage = async function (event){
             updateMessages(event.data);
-            console.log(event.data);
+            latestDiscussion = await fetchLatestDiscussion();
             await fetchChatMessages(id);
             
         };
@@ -90,7 +90,7 @@
             ws.send(JSON.stringify({message}));
             newMessage = '';
         }
-        await fetchLatestDiscussion();
+        latestDiscussion = await fetchLatestDiscussion();
     }
 
 
@@ -150,16 +150,16 @@
                 </div>
             </div>
             {#if latestDiscussion[0]}
-                <div class="mx-3 my-2" role="">
+                <div class="mx-3 my-2 discussions-container">
                     {#each latestDiscussion as msg}
-                        <div class="d-flex border rounded img-circle container" style="width:100%;">
+                        <div type="button" class="d-flex border rounded img-circle container my-2 friend-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2)" on:click={createRoom(msg.username, msg.id)}>
                             <img src={msg.profile_picture_url} class="rounded-circle m-2 align-items-center" style="object-fit:cover; width:15%; height:15%;">
                             <div class="d-flex">
                                 <div class="row">
                                     <h5 class='text-light'>{msg.username}</h5>
                                 </div>
                                 <div class="d-flex row justify-content-end align-items-end ms-4 mt-4">
-                                    <p class='text-light'>
+                                    <p class='text-light text-truncate'>
                                         {msg.last_message.content}
                                     </p>
                                 </div>
@@ -172,13 +172,15 @@
                 <h4 class="d-flex justify-content-center align-items-center" style="color:grey;">You haven't discussions</h4>
             {/if}
         </div>
-        <div class="col-9">
+        <div class="col-9 container">
             <div class="d-flex m-4">
                 {#if user == null}
                     <h4 style="color:grey">No discussion selectionned</h4>
                 {:else}
-                    <img class="rounded-circle m-2 img-circle" src={user?.profile_picture}>
-                    <h4 class="text-light m-4">{user?.username}</h4>
+                <div class='d-flex img-circle'>
+                    <img class="rounded-circle m-2" style="width:70%" src={user?.profile_picture}>
+                </div>
+                <h4 class="text-light m-4">{user?.username}</h4>
                 {/if}
             </div>
             {#if user != null}
@@ -199,9 +201,9 @@
             <div>
                 {#if user != null}
                 <div class="d-flex justify-content-bottom justify-content-end me-2">
-                    <form>
-                        <input type="text" bind:value={newMessage} class="inputMessage">
-                        <button class="btn btn-primary" on:click={sendMessage}>Send</button>
+                    <form class="sendBox mb-2">
+                        <input type="text" bind:value={newMessage} class="">
+                        <button class="btn btn-primary btn-sm" on:click={sendMessage}>Send</button>
                     </form>
                 </div>
                 {/if}
@@ -214,6 +216,7 @@
     .chat-container {
         width: 100%;
         height: 90%;
+        overflow-y: auto;
     }
 
     .friend-container{
@@ -221,6 +224,11 @@
         overflow-y: auto;
         scrollbar-width: thin;
         scrollbar-color: black grey;
+    }
+
+    .discussions-container {
+        max-height: 80%;
+        overflow-y: auto;
     }
 
     .img-circle {
@@ -234,6 +242,7 @@
         height: auto;
         z-index: 1;
         aspect-ratio: 1;
+        object-fit: cover;
     }
 
     .modal-body {
@@ -245,10 +254,11 @@
         scrollbar-width: thin;
         scrollbar-color: black grey;
         height: 45%;
+        background-color: rgba(0, 0, 0, 0.2)
     }
 
     .mycontainer{
-        overflow: hidden;
+        overflow: auto;
         height: 80vh;
     }
 
@@ -258,4 +268,8 @@
         overflow-wrap: break-word;
         max-width: 40%;
     }
+    .sendBox input {
+        border-radius: 10px;
+    }
+
 </style>

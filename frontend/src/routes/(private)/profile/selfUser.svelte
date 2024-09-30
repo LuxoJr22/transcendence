@@ -2,14 +2,14 @@
     import { onMount } from 'svelte';
     import { get } from 'svelte/store'
     import Pie from './pie.svelte';
-    import { auth, fetchUser, updateInformations, updateProfilePicture , updatePassword } from '$lib/stores/auth';
+    import { auth, fetchUser, updateInformations, updateProfilePicture , updatePassword, refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
     import type { friendInterface } from '$lib/stores/friendship';
 
     let victories = 15;
     let defeats = 3;
-    let games = [];
+    let gamesHistory = [];
 
     let state: AuthState;
     state = $auth;
@@ -19,14 +19,14 @@
 
 
     onMount(async () => {
-        await fetchHistoryMatches();
+        //await fetchHistoryMatches();
         await fetchFriendList();
-        truncHistory();
         auth.subscribe((value : AuthState) =>{
             state = value;
         });
         friendList.subscribe((value : friendInterface[]) => {
             listOfFriend = value;
+            console.log(value);
         });
     });
     
@@ -35,42 +35,32 @@
     /******************HISTORY******************/
 
     export async function fetchHistoryMatches(){
-        const response = await fetch("/data/data.json", {
-            method: 'GET'
+        refresh_token()
+        const response = await fetch("/api/pong/history/", {
+            method: 'GET',
+            headers:{
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            }
         });
 
         if (response.ok) {
-            games = await response.json();
+            gamesHistory = await response.json();
+            console.log(games);
         }
     }
     
     let actualPage = 1;
     let nbrGame = 0;
     let firstGame = 0;
-    let GameToDisplay = [];
     let i = 0;
 
     function prevButton(){
         firstGame -= 5;
-        truncHistory();
     }
 
     function nextButton(){
         firstGame += 5;
-        truncHistory();
     }
-
-    function truncHistory(){    
-        let y = 0;
-        for (let i = firstGame; i < firstGame + 5; i++)
-        {
-            GameToDisplay[y] = games[i];
-            y ++;
-        }
-    }
-    
-    /******************updateUserData******************/
-
 
     /********updateProfilePicture********/
 
@@ -158,8 +148,8 @@
 </script>
 
 
-<div class="container border rounded my-3 flex-fill">
-    <div class="d-flex h-100">
+<div class="container border rounded my-3">
+    <div class="d-flex">
         <div class="flex-column col-3 border-end my-3">
             <div class="border-bottom mx-3 me-4 pb-3">
                 <a href="" type="button" data-bs-toggle="modal" data-bs-target="#pictureModal"><img src={state.user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2"></a>
@@ -194,20 +184,20 @@
             <div class="mb-3">
                 <h5 class="text-light friend-title d-flex justify-content-center">Friends</h5>
             </div>
-            <div class="mx-3 me-4 friend-container">
-                {#each listOfFriend as friend}
-                    <div class="border rounded d-flex me-3 mb-2 bg-gradient">
-                        <img src={friend.profile_picture_url} class="img-circle rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
-                        <div class="d-flex">
-                            <p class="text-light ms-2 mt-3" style="font-size:100%;">{friend.username}</p>
-                            <button class="btn" on:click={deleteFriend(friend.id)}><i class="bi bi-x-lg" style="color:red;"></i></button>
+                <div class="mx-3 me-4 mb-5 friend-container">
+                    {#each listOfFriend as friend}
+                        <div class="border rounded d-flex me-3 mb-2 bg-gradient">
+                            <img src={friend.profile_picture_url} class="img-circle rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
+                            <div class="d-flex">
+                                <p class="text-light ms-2 mt-3" style="font-size:100%;">{friend.username}</p>
+                                <button class="btn" on:click={deleteFriend(friend.id)}><i class="bi bi-x-lg" style="color:red;"></i></button>
+                            </div>
                         </div>
-                    </div>
-                {/each}
-                {#if !listOfFriend[0]}
-                    <p class="d-flex justify-content-center mt-3" style="color:grey;">Empty friend list</p>
-                {/if}
-            </div>
+                    {/each}
+                    {#if !listOfFriend[0]}
+                        <p class="d-flex justify-content-center mt-3" style="color:grey;">Empty friend list</p>
+                    {/if}
+                </div>
         </div>
         <div class="align-self-end align-img-end mb-3">
             <a href="" type="button" data-bs-toggle="modal" data-bs-target="#userDataModal" style="text-decoration: none"><i class="bi bi-pencil hover-effect" style="color: grey; font-size: 1.3em"></i></a>
@@ -288,36 +278,44 @@
                 <Pie {victories} {defeats}></Pie>
             </div>
         </div>
-        <div class=" flex-column col-5 my-3">
+        <div class="d-flex justify-content-center flex-column col-5 my-3">
             <div>
                 <h2 class="text-light text-center p-3 title-profile">History</h2>
-                {#each GameToDisplay as game}
-                    {#if game.won}
-                    <div class="d-flex alert bg-primary mx-3 my-2 ms-4 my-text-black">
-                        <div class="col text-center">
-                            {game.user}     
+                <div class="d-flex history-container border rounded justify-content-center">
+                    {#if gamesHistory[0] != null}
+                        {#each gamesHistory as game}
+                            {#if game.won}
+                            <div class="d-flex alert bg-primary mx-3 my-2 ms-4 my-text-black">
+                                <div class="col text-center">
+                                    {game.user}     
+                                </div>
+                                <div class="col text-center">
+                                    {game.score}     
+                                </div>
+                                <div class="col text-center">
+                                    {game.opponent}     
+                                </div>
+                            </div>
+                            {:else if !game.won}
+                            <div class="d-flex alert bg-danger mx-3 my-2 ms-4 my-text-black">
+                                <div class="col text-center">
+                                    {game.user}     
+                                </div>
+                                <div class="col text-center">
+                                    {game.score}     
+                                </div>
+                                <div class="col text-center">
+                                    {game.opponent}     
+                                </div>
+                            </div>
+                            {/if}
+                        {/each}
+                        {:else}
+                        <div class="d-flex align-items-center">
+                           <h5 class="" style="color:grey;">No match to Display</h5>
                         </div>
-                        <div class="col text-center">
-                            {game.score}     
-                        </div>
-                        <div class="col text-center">
-                            {game.opponent}     
-                        </div>
-                    </div>
-                    {:else if !game.won}
-                    <div class="d-flex alert bg-danger mx-3 my-2 ms-4 my-text-black">
-                        <div class="col text-center">
-                            {game.user}     
-                        </div>
-                        <div class="col text-center">
-                            {game.score}     
-                        </div>
-                        <div class="col text-center">
-                            {game.opponent}     
-                        </div>
-                    </div>
-                    {/if}
-                {/each}
+                        {/if}
+                </div>
                 <div class="d-flex justify-content-center mt-5">
                 <button class="btn btn-light m-1" on:click={prevButton}>Prev</button>
                 <button class="btn btn-light m-1" on:click={nextButton}>Next</button>
@@ -363,8 +361,9 @@
 
     .friend-container{
         width: 90%;
-        height: 30%;
-        overflow: auto;
+        height: 20%;
+        max-height: 20%;
+        overflow: auto !important;
         scrollbar-width: thin;
         scrollbar-color: black grey;
     }
@@ -378,5 +377,14 @@
     .friend-title{
         font-family: Nabla;
         font-size: 175%;
+    }
+    .container {
+        height: 70%;
+    }
+    .history-container{
+        width: 22vw;
+        height: 40vh;
+        min-height: 60%;
+        margin: 0 auto;
     }
 </style>
