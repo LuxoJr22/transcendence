@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.views.generic import RedirectView
 from .models import User
-from .serializers import UserSerializer, UserUpdateSerializer, PublicUserSerializer, UserGameDataSerializer, UserSkinSerializer
+from .serializers import UserSerializer, UserUpdateSerializer, PublicUserSerializer, UserSkinSerializer
 
 class RegisterView(generics.CreateAPIView):
 	queryset = User.objects.all()
@@ -70,14 +70,6 @@ class UserProfileView(generics.RetrieveAPIView):
 		user = generics.get_object_or_404(User, id=user_id)
 		return user
 
-class UserGameDataView(generics.RetrieveAPIView):
-	queryset = User.objects.all()
-	serializer_class = UserGameDataSerializer
-	permission_classes = [IsAuthenticated]
-
-	def get_object(self):
-		return self.request.user
-
 class UserSkinUpdateView(generics.UpdateAPIView):
 	serializer_class = UserSkinSerializer
 	permission_classes = [IsAuthenticated]
@@ -85,27 +77,85 @@ class UserSkinUpdateView(generics.UpdateAPIView):
 	def get_object(self):
 		return self.request.user
 
-# class OAuth42RedirectView(RedirectView):
-# 	def get_redirect_url(self, *args, **kwargs):
-# 		CLIENT_ID = os.environ.get('CLIENT_ID')
-# 		REDIRECT_URI = os.environ.get('REDIRECT_URI')
-# 		return f'https://api.intra.42.fr/oauth/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&response_type=code'
+class OAuth42RedirectView(RedirectView):
+	def get_redirect_url(self, *args, **kwargs):
+		CLIENT_ID = os.environ.get('CLIENT_ID')
+		REDIRECT_URI = os.environ.get('REDIRECT_URI')
+		return f'https://api.intra.42.fr/oauth/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&response_type=code'
 
-# class OAuth42CallbackView(generics.CreateAPIView):
-# 	permission_classes = [AllowAny]
+class OAuth42CallbackView(generics.CreateAPIView):
+	permission_classes = [AllowAny]
 
-# 	def post(self, request):
-# 		code = request.data['code']
+	def find_or_create_42user(self, user_info):
+		if User.objects.filter(login42=user_info['login']).exists():
+			return User.objects.get(login42=user_info['login'])
+		
+		username = user_info['login']
+		i = 0
+		while User.objects.filter(username=username).exists():
+			i += 1
+			username = f"{user_info['login']}{str(i)}"
+		if len(username) > 12:
+			return None
+		
+		user = User.objects.create(
+			username= username,
+			email=user_info['email'],
+			login42=user_info['login'],
+			password='42_OAuth',
+			profile_picture='profile_pictures/default.jpg',
+			skin='default.glb'
+		)
+		user.save()
+		return user
 
-# 		CLIENT_ID = os.environ.get('CLIENT_ID')
-# 		CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
-# 		REDIRECT_URI = os.environ.get('REDIRECT_URI')
+	def post(self, request):
+		code = request.data['code']
 
-# 		response = requests.post('https://api.intra.42.fr/oauth/token', data={
-# 			'grant_type': 'authorization_code',
-# 			'client_id': CLIENT_ID,
-# 			'client_secret': CLIENT_SECRET,
-# 			'code': code,
-# 			'redirect_uri': REDIRECT_URI,
-# 		})
-# 		return Response(response.json())
+		if code is None:
+			return Response({'error': 'No code provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+		CLIENT_ID = os.environ.get('CLIENT_ID')
+		CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
+		REDIRECT_URI = os.environ.get('REDIRECT_URI')
+
+		response = requests.post(
+			'https://api.intra.42.fr/oauth/token', 
+			data={
+				'grant_type': 'authorization_code',
+				'code': code,
+				'client_id': CLIENT_ID,
+				'client_secret': CLIENT_SECRET,
+				'redirect_uri': REDIRECT_URI,
+		})
+
+		if response.status_code != 200:
+			return Response({'error': 'Invalid code'}, status=status.HTTP_400_BAD_REQUEST)
+		
+		access_token = response.json()['access_token']
+		user_info_response = requests.get(
+			'https://api.intra.42.fr/v2/me',
+			headers={
+				'Authorization': f'Bearer {access_token}'
+			})
+		
+		if user_info_response.status_code != 200:
+			return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
+		
+		user_info = user_info_response.json()
+		user = self.find_or_create_42user(user_info)
+
+		if user is None:
+			return Response({'error': 'Triplum internal error, please create regular account'}, status=status.HTTP_400_BAD_REQUEST)
+		
+		refresh = RefreshToken.for_user(user)
+		return Response({
+			"refresh": str(refresh),
+			"access": str(refresh.access_token),
+			"user": {
+				"id": user.id,
+				"username": user.username,
+				"email": user.email,
+				"profile_picture_url": user.profile_picture.url,
+			}
+		}, status=status.HTTP_200_OK)
