@@ -26,23 +26,24 @@ class PongMatchHistoryView(generics.ListAPIView):
 		return Response(serializer.data, status=status.HTTP_200_OK)
 
 class SkinsView(generics.RetrieveAPIView):
-	serializer_class = PongMatchSerializer
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request, *args, **kwargs):
 		game_id = kwargs.get('game_id')
 		try:
 			match = PongMatch.objects.get(id=game_id)
-			player1_skin = User.objects.get(id=match.player1).skin
-			player2_skin = User.objects.get(id=match.player2).skin
+			player1 = User.objects.get(id=match.player1)
+			player2 = User.objects.get(id=match.player2)
 			return Response({
 				'player1':{
 					'id': match.player1,
-					'skin': player1_skin
+					'username': player1.username,
+					'skin': player1.skin
 				},
 				'player2':{
 					'id': match.player2,
-					'skin': player2_skin
+					'username': player2.username,
+					'skin': player2.skin
 				}
 			}, status=status.HTTP_200_OK)
 		except PongMatch.DoesNotExist:
