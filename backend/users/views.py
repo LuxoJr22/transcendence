@@ -1,9 +1,11 @@
-from rest_framework import generics
+import os, requests
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.views.generic import RedirectView
 from .models import User
 from .serializers import UserSerializer, UserUpdateSerializer, PublicUserSerializer, UserGameDataSerializer, UserSkinSerializer
 
@@ -33,7 +35,7 @@ class LoginView(TokenObtainPairView):
 				"email": user.email,
 				"profile_picture_url": user.profile_picture.url,
 			}
-		})
+		}, status=status.HTTP_200_OK)
 
 class UserDetailView(generics.RetrieveAPIView):
 	serializer_class = UserSerializer
@@ -49,7 +51,7 @@ class UserDetailView(generics.RetrieveAPIView):
 			"username": user.username,
 			"email": user.email,
 			"profile_picture": user.profile_picture.url,
-		})
+		}, status=status.HTTP_200_OK)
 
 class UserUpdateView(generics.UpdateAPIView):
 	serializer_class = UserUpdateSerializer
@@ -82,3 +84,28 @@ class UserSkinUpdateView(generics.UpdateAPIView):
 
 	def get_object(self):
 		return self.request.user
+
+# class OAuth42RedirectView(RedirectView):
+# 	def get_redirect_url(self, *args, **kwargs):
+# 		CLIENT_ID = os.environ.get('CLIENT_ID')
+# 		REDIRECT_URI = os.environ.get('REDIRECT_URI')
+# 		return f'https://api.intra.42.fr/oauth/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&response_type=code'
+
+# class OAuth42CallbackView(generics.CreateAPIView):
+# 	permission_classes = [AllowAny]
+
+# 	def post(self, request):
+# 		code = request.data['code']
+
+# 		CLIENT_ID = os.environ.get('CLIENT_ID')
+# 		CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
+# 		REDIRECT_URI = os.environ.get('REDIRECT_URI')
+
+# 		response = requests.post('https://api.intra.42.fr/oauth/token', data={
+# 			'grant_type': 'authorization_code',
+# 			'client_id': CLIENT_ID,
+# 			'client_secret': CLIENT_SECRET,
+# 			'code': code,
+# 			'redirect_uri': REDIRECT_URI,
+# 		})
+# 		return Response(response.json())

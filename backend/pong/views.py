@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db import models
@@ -23,7 +23,7 @@ class PongMatchHistoryView(generics.ListAPIView):
 			reverse=True
 		)
 		serializer = self.get_serializer(queryset, many=True)
-		return Response(serializer.data)
+		return Response(serializer.data, status=status.HTTP_200_OK)
 
 class SkinsView(generics.RetrieveAPIView):
 	serializer_class = PongMatchSerializer
@@ -44,8 +44,8 @@ class SkinsView(generics.RetrieveAPIView):
 					'id': match.player2,
 					'skin': player2_skin
 				}
-			})
+			}, status=status.HTTP_200_OK)
 		except PongMatch.DoesNotExist:
-			return Response({'error': 'Match not found'}, status=404)
+			return Response({'error': 'Match not found'}, status=status.HTTP_404_NOT_FOUND)
 		except User.DoesNotExist:
-			return Response({'error': 'User not found'}, status=404)
+			return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
