@@ -26,7 +26,7 @@ class AcceptFriendRequestView(generics.UpdateAPIView):
 
 		instance.accepted = True
 		instance.save()
-		return Response({"message": "Friend request accepted"})
+		return Response({"message": "Friend request accepted"}, status=status.HTTP_200_OK)
 
 class RejectFriendRequestView(generics.DestroyAPIView):
 	queryset = Friendship.objects.all()
@@ -40,9 +40,9 @@ class RejectFriendRequestView(generics.DestroyAPIView):
 		try:
 			friendship = Friendship.objects.get(pk=pk, receiver=request.user, accepted=False)
 			friendship.delete()
-			return Response({"message": "Friend request rejected"})
+			return Response({"message": "Friend request rejected"}, status=status.HTTP_200_OK)
 		except Friendship.DoesNotExist:
-			return Response({"error": "Friend request not found or accepted"})
+			return Response({"error": "Friend request not found or already accepted"}, status=status.HTTP_404_NOT_FOUND)
 
 class FriendsListView(generics.ListAPIView):
 	serializer_class = PublicUserSerializer
@@ -83,6 +83,6 @@ class RemoveFriendshipView(generics.DestroyAPIView):
 				accepted=True
 			)
 			friendship.delete()
-			return Response({"message": "Friendship removed"})
+			return Response({"message": "Friendship removed"}, status=status.HTTP_200_OK)
 		except Friendship.DoesNotExist:
-			return Response({"error": "Friendship not found"})
+			return Response({"error": "Friendship not found"}, status=status.HTTP_404_NOT_FOUND)

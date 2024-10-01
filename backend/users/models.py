@@ -30,12 +30,13 @@ def user_profile_picture_path(instance, filename):
 class User(AbstractBaseUser):
 	username = models.CharField(max_length=12, unique=True)
 	email = models.EmailField(max_length=254, unique=True)
-	profile_picture = models.ImageField(upload_to=user_profile_picture_path, blank=True, null=True)
-	skin = models.CharField(max_length=254, blank=True, null=True)
-
+	profile_picture = models.ImageField(upload_to=user_profile_picture_path)
+	skin = models.CharField(max_length=254)
 	is_online = models.BooleanField(default=False)
 	is_active = models.BooleanField(default=True)
 	is_superuser = models.BooleanField(default=False)
+
+	login42 = models.CharField(max_length=8, unique=True, blank=True, null=True, default=None)
 
 	objects = UserManager()
 
