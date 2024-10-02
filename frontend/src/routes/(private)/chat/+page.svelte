@@ -131,10 +131,12 @@
                         </div>
                         <div class="modal-body d-flex justify-content-center row row-cols-4 friend-container m-0 me-2 mb-2">
                             {#each listOfFriend as friend}
-                                {#if friend.username || !friendSearch}
+                                {#if friend.username.includes(friendSearch) || !friendSearch}
                                     <div class="col text-center p-0 m-2">
-                                        <button class="btn text-light bg-gradient border rounded" on:click={resetFriendSearch} on:click={createRoom(friend.username, friend.id)} data-bs-dismiss="modal" aria-label="Close">
-                                            <ImgOnline class="align-self-center" path={friend?.profile_picture_url} status={friend?.is_online} width=50% height=50% />
+                                        <button class="text-center btn text-light bg-gradient border rounded" on:click={resetFriendSearch} on:click={createRoom(friend.username, friend.id)} data-bs-dismiss="modal" aria-label="Close">
+                                            <div class="d-flex justify-content-center">
+                                                <ImgOnline path={friend?.profile_picture_url} status={friend?.is_online} width=50% height=50% />
+                                            </div>
                                             <p class="">{friend.username}</p>
                                             <i class="bi bi-plus" style="font-size:2em"></i>
                                         </button>    
@@ -152,14 +154,14 @@
             {#if latestDiscussion[0]}
                 <div class="mx-3 my-2 discussions-container">
                     {#each latestDiscussion as msg}
-                        <div type="button" class="d-flex border rounded container my-2 friend-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2)" on:click={createRoom(msg.username, msg.id)}>
+                        <div type="button" class="d-flex border rounded p-2 container my-2 friend-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2)" on:click={createRoom(msg.username, msg.id)}>
                             <ImgOnline path={msg?.profile_picture_url} status={msg?.is_online} width=20% height=15%/>
-                            <div class="d-flex">
-                                <div class="row p-1">
-                                    <h5 class='text-light ms-4'>{msg.username}</h5>
+                            <div class="ms-5">
+                                <div class="row">
+                                    <h5 class='text-light text-truncate'>{msg.username}</h5>
                                 </div>
-                                <div class="d-flex mt-4">
-                                    <p class='text-truncate' style="color:grey">
+                                <div class="row">
+                                    <p class='ms-2 m-0 p-0 text-truncate' style="color:grey">
                                         {#if msg.last_message.sender == state.user?.id}
                                             Me:
                                         {:else}
@@ -169,7 +171,6 @@
                                     </p>
                                 </div>
                             </div>
-                            
                         </div>
                     {/each}
                 </div>
@@ -227,6 +228,7 @@
     .friend-container{
         height: 20% !important;
         overflow-y: auto;
+        overflow-x: hidden;
         scrollbar-width: thin;
         scrollbar-color: black grey;
     }

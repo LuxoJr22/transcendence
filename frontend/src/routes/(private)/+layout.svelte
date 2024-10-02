@@ -25,8 +25,9 @@
 
     onDestroy(() =>{
         wsOnline.close(0);
-    }
-    )
+        
+    });
+
 	async function handleLogout() {
 		logout();
         window.location.href = '/login';

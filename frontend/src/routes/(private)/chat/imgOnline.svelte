@@ -6,7 +6,7 @@
 </script>
 
 <div class="icon-container" style="width:{width}; height:{height}">
-    <img src={path} class="rounded-circle m-2 align-items-center">
+    <img src={path} class="rounded-circle align-items-center">
     {#if status}
         <div class="status-circle online">
         </div>
@@ -34,7 +34,7 @@
         width: 15px;
         height: 15px;
         border-radius: 50%;
-        transform: translateY(-35%);
+        transform: translate(20%, -30%);
         background-color: grey;
         border: 2px solid white;
         bottom: 0;
