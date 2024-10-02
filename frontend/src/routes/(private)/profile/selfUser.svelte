@@ -210,7 +210,9 @@
     <div class="d-flex">
         <div class="flex-column col-3 border-end my-3">
             <div class="border-bottom mx-3 me-4 pb-3">
-                <a href="" type="button" data-bs-toggle="modal" data-bs-target="#pictureModal"><img src={state.user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2"></a>
+                <div class="d-flex justify-content-center align-items-center">
+                    <a href="" type="button" data-bs-toggle="modal" data-bs-target="#pictureModal"><img src={state.user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2"></a>
+                </div>
                 <div class="modal fade" id="pictureModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                       <div class="modal-content">
@@ -352,7 +354,7 @@
                             <p class="col-4 text-center text-light h4">{game.opponent.username}</p>
                             <div class="d-flex">
                                 <p class="col-5" style="color:grey;">{game.date}</p>
-                                <p class="col-2 text-light game-badge text-center">{game.gamemode.toUpperCase()}</p>
+                                <p class="col-2 game-badge text-center">{game.gamemode.toUpperCase()}</p>
                                 <p class="col-5 text-end" style="color:grey;">{game.hours}</p>
                             </div>
                         </div>
@@ -364,7 +366,7 @@
                             <p class="col-4 text-center text-light h4">{game.opponent.username}</p>
                             <div class="d-flex">
                                 <p class="col-5" style="color:grey;">{game.date}</p>
-                                <p class="col-2 text-light game-badge text-center">{game.gamemode.toUpperCase()}</p>
+                                <p class="col-2 game-badge text-center">{game.gamemode.toUpperCase()}</p>
                                 <p class="col-5 text-end" style="color:grey;">{game.hours}</p>
                             </div>
                         </div>
@@ -381,17 +383,12 @@
 </div>
 
 <style>
+
     .img-circle {
-        width: 90%;
-        overflow: hidden;
+        width: 80%;
+        height: 80%;
         object-fit: cover;
         aspect-ratio: 1;
-    }
-
-    .img-circle img {
-        width: auto;
-        height: auto;
-        transform: translateX(-50%);
     }
 
     .title-profile {
@@ -445,8 +442,9 @@
     .game-badge {
         border: 1px solid rgba(255, 255, 255, 0.3); /* Bord plus subtil */
         border-radius: 2px;
-        background: linear-gradient(145deg, rgb(91, 33, 131), rgb(54, 14, 85)); /* Dégradé pour simuler la lumière */
-        box-shadow: 3px 3px 5px rgb(18, 7, 49),
+        background: linear-gradient(145deg, rgb(214, 213, 170), rgb(241, 255, 52));
+        box-shadow: 1px 1px 4px rgb(241, 255, 49);
+        font-weight: 800;
     }
 
     .my-bg-black {

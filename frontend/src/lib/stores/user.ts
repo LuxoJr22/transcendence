@@ -4,8 +4,8 @@ import { refresh_token } from './auth';
 export interface Profile {
    id: number;
    username: string;
-   email: string;
    profile_picture: string;
+   is_online:  boolean;
 }
 
 export const profile = writable<Profile>();
@@ -20,11 +20,12 @@ export async function profileData(id: number): Promise<void> {
    
    if (response.ok) {
       const profileData = await response.json();
+      console.log(profileData);
       profile.set({
          id: profileData.id,
          username: profileData.username,
-         email: profileData.email,
          profile_picture: profileData.profile_picture_url,
+         is_online: profileData.is_online
       });
    } else {
       console.error('Failed to fetch profile data:');

@@ -1,10 +1,11 @@
 <script lang="ts">
     import { afterNavigate , goto } from '$app/navigation';
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import {get} from 'svelte/store';
     import { auth, fetchUser, logout , refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
+    import { profileData } from '$lib/stores/user';
 
 	let state: AuthState;
 	$: $auth, state = $auth;
@@ -15,9 +16,17 @@
             state = value;
         });
         if (status != 'success')
-            goto('/login')
+            goto('/login');
 	});
+    let wsOnline : WebSocket;
+    onMount(() => {
+        wsOnline = new WebSocket('/ws/status/?token=' + localStorage.getItem('access_token'));
+    });
 
+    onDestroy(() =>{
+        wsOnline.close(0);
+    }
+    )
 	async function handleLogout() {
 		logout();
         window.location.href = '/login';

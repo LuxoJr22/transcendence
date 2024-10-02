@@ -122,7 +122,17 @@
     <div class="d-flex">
             <div class="flex-column col-3 border-end my-3">
                 <div class="border-bottom mx-3 me-4 pb-3">
-                    <img src={user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2">
+                    {#if user?.is_online}
+                    <div class="d-flex justify-content-center align-items-end">
+                        <img src={user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2">
+                        <span class="mt-2 badge rounded-pill bg-success">Online</span>
+                    </div>
+                    {:else}
+                    <div class="d-flex justify-content-center align-items-end">
+                        <img src={user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2">
+                        <span class="mt-2 badge rounded-pill bg-secondary">Offline</span>
+                    </div>
+                    {/if}
                 </div>
                 <div class="p-4">
                     <h5 class="text-light"><i class="bi-person pe-3"></i>{user?.username}</h5>
@@ -184,17 +194,12 @@
 </div>
 
 <style>
-    .img-circle {
-        width: 90%;
-        overflow: hidden;
+
+    .img-circle{
+        width: 80%;
+        height: 80%;
         object-fit: cover;
         aspect-ratio: 1;
-    }
-
-    .img-circle img {
-        width: auto;
-        height: auto;
-        transform: translateX(-50%);
     }
 
     .title-profile {
