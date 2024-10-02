@@ -4,9 +4,9 @@
 
     let chart;
 
+    
     export let victories = 0;
     export let defeats = 0;
-
 
     const data = {
         labels: ['Victory', 'Defeat'],
@@ -26,15 +26,23 @@
 
     const options = {
         responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+            }
+        },
     };
 
     onMount(() => {
-        const ctx = document.getElementById('myChart').getContext('2d');
-        chart = new Chart(ctx, {
-            type: 'pie',
-            data,
-            options
-        });
+        if (victories != 0 || defeats != 0)
+        {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'pie',
+                data,
+                options
+            });
+        }
     });
 
     onDestroy(() => {
@@ -44,4 +52,8 @@
     });
 </script>
 
-<canvas id="myChart"></canvas>
+{#if victories != 0 && defeats != 0}
+    <canvas id="myChart"></canvas>
+{:else}
+    <h4 class="text-center" style="color:grey;">No matchs played</h4>
+{/if}

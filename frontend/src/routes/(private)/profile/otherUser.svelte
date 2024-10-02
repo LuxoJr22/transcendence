@@ -115,13 +115,13 @@
                     {:else if !game.won}
                     <div class="d-flex alert bg-danger mx-3 my-2 ms-4 my-text-black">
                         <div class="col text-center">
-                            {game.user}     
+                            {game.user}
                         </div>
                         <div class="col text-center">
-                            {game.score}     
+                            {game.score}
                         </div>
                         <div class="col text-center">
-                            {game.opponent}     
+                            {game.opponent}
                         </div>
                     </div>
                     {/if}

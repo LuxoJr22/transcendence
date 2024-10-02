@@ -132,7 +132,7 @@
                             {#each listOfFriend as friend}
                                 {#if friend.username || !friendSearch}
                                     <div class="col text-center p-0 m-2">
-                                        <button class="btn text-light friend-card bg-gradient border rounded" on:click={resetFriendSearch} on:click={createRoom(friend.username, friend.id)} data-bs-dismiss="modal" aria-label="Close">
+                                        <button class="btn text-light bg-gradient border rounded" on:click={resetFriendSearch} on:click={createRoom(friend.username, friend.id)} data-bs-dismiss="modal" aria-label="Close">
                                             <img src={friend.profile_picture_url} class="img-circle rounded-circle m-2" style="object-fit:cover; width:50%; height:50%;">
                                             <p class="">{friend.username}</p>
                                             <i class="bi bi-plus" style="font-size:2em"></i>

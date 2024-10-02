@@ -6,10 +6,27 @@
     import type { AuthState } from '$lib/stores/auth';
     import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
     import type { friendInterface } from '$lib/stores/friendship';
+    import { profileData } from '$lib/stores/user';
 
-    let victories = 15;
-    let defeats = 3;
-    let gamesHistory = [];
+    interface User {
+        id: number,
+        username: string,
+        score: number,
+        profile_picture_url: string
+    }
+
+    interface Game {
+        me: User,
+        opponent: User,
+        gamemode: String,
+        type: String,
+        winner: Number,
+        date: String,
+        hours: String
+    }
+
+
+    let gamesHistory = new Array<Game>();
 
     let state: AuthState;
     state = $auth;
@@ -17,22 +34,63 @@
     let listOfFriend : friendInterface[];
     listOfFriend = $friendList; 
 
-
     onMount(async () => {
-        //await fetchHistoryMatches();
+        await fetchHistoryMatches();
         await fetchFriendList();
         auth.subscribe((value : AuthState) =>{
             state = value;
         });
         friendList.subscribe((value : friendInterface[]) => {
             listOfFriend = value;
-            console.log(value);
         });
     });
     
     
-
+    let winRate = new Array<number>();
+    winRate[0] = 0;
+    winRate[1] = 0;
+    $: victories = winRate[0];
+    $: defeats = winRate[1]; 
+    let finish = false;
     /******************HISTORY******************/
+
+    function calcWinRate(data: any){
+        for (let i = 0; data[i] ; i++){
+            if (data[i].winner == state.user?.id)
+                winRate[0] += 1;
+            else
+                winRate[1] += 1;
+        }
+        return (winRate)
+    }
+
+    async function parseHistoryMatches(data : any){
+        for (let i = 0; data[i] ; i++){
+            let player1 : any = await profileData(data[i].player1 == state.user?.id ? data[i].player1 : data[i].player2);
+            let player2 : any = await profileData(data[i].player1 != state.user?.id ? data[i].player1 : data[i].player2);
+            let game = {
+                me: {
+                    id: player1.id,
+                    username: player1.username,
+                    score: 5,
+                    profile_picture_url : player1.profile_picture_url
+                },
+                opponent: {
+                    id: player2.id,
+                    username: player2.username,
+                    score: 5,
+                    profile_picture_url : player2.profile_picture_url
+                },
+                gamemode: data[i].gamemode,
+                type: data[i].type,
+                winner: data[i].winner,
+                date: data[i].match_date.substring(0, 10),
+                hours: data[i].match_date.substring(11, 16)
+            }
+            gamesHistory.push(game);
+        }
+        return (gamesHistory);
+    }
 
     export async function fetchHistoryMatches(){
         const response = await fetch("/api/pong/history/", {
@@ -43,13 +101,14 @@
         });
 
         if (response.ok) {
-            gamesHistory = await response.json();
-            console.log(games);
+            const data = await response.json();
+            console.log(data);
+            gamesHistory = await parseHistoryMatches(data);
+            winRate = calcWinRate(data);
+            finish = true;
+            console.log(winRate);
         }
     }
-    
-    let actualPage = 1;
-    let nbrGame = 0;
     let firstGame = 0;
     let i = 0;
 
@@ -129,7 +188,7 @@
     let errorsPassword : string;
 
     async function updateNewPassword() {
-       const response = await updatePassword(newPassword, currentPassword);
+       const response : any = await updatePassword(newPassword, currentPassword);
         if (response.password)
         {
             errorsPassword = response.password;
@@ -185,7 +244,7 @@
             </div>
                 <div class="mx-3 me-4 mb-5 friend-container">
                     {#each listOfFriend as friend}
-                        <div class="border rounded d-flex me-3 mb-2 bg-gradient">
+                        <div class="border rounded d-flex me-3 mb-2 my-bg-black">
                             <img src={friend.profile_picture_url} class="img-circle rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
                             <div class="d-flex">
                                 <p class="text-light ms-2 mt-3" style="font-size:100%;">{friend.username}</p>
@@ -271,54 +330,51 @@
         </div>
         <div class="flex-column col-4 border-end my-3 ">
             <div>
-                <h2 class="text-light text-center p-3 title-profile">Win Rate</h2>
+                <h2 class="text-center p-3 title-profile">Win Rate</h2>
             </div>
-            <div style="height:100%;">
-                <Pie {victories} {defeats}></Pie>
+            <div class="d-flex justify-content-center" style="height:40%;">
+                {#if finish}
+                    <Pie victories={victories} defeats={defeats}></Pie>
+                {/if}
             </div>
+            <h2 class="text-center p-3 title-profile">Skin</h2>
         </div>
-        <div class="d-flex justify-content-center flex-column col-5 my-3">
-            <div>
-                <h2 class="text-light text-center p-3 title-profile">History</h2>
-                <div class="d-flex history-container border rounded justify-content-center">
-                    {#if gamesHistory[0] != null}
-                        {#each gamesHistory as game}
-                            {#if game.won}
-                            <div class="d-flex alert bg-primary mx-3 my-2 ms-4 my-text-black">
-                                <div class="col text-center">
-                                    {game.user}     
-                                </div>
-                                <div class="col text-center">
-                                    {game.score}     
-                                </div>
-                                <div class="col text-center">
-                                    {game.opponent}     
-                                </div>
+        <div class="justify-content-center flex-column col-5">
+            <h2 class="text-light text-center p-3 title-profile">History</h2>
+            <div class="d-flex flex-column history-container my-bg-black border rounded justify-content-top">
+                {#if gamesHistory[0] != null}
+                    {#each gamesHistory as game}
+                    {#if game.winner != game.opponent.id}
+                        <div class="row border rounded match my-1 bg-dark col-12 text-truncate">
+                            <p class="text-center text-primary h3 m-0 p-0">Win</p>
+                            <p class="col-4 text-center text-light h4">Me</p>
+                            <p class="col-4 text-center text-light h4">{game.me.score} / {game.opponent.score}</p>
+                            <p class="col-4 text-center text-light h4">{game.opponent.username}</p>
+                            <div class="d-flex">
+                                <p class="col-5" style="color:grey;">{game.date}</p>
+                                <p class="col-2 text-light game-badge text-center">{game.gamemode.toUpperCase()}</p>
+                                <p class="col-5 text-end" style="color:grey;">{game.hours}</p>
                             </div>
-                            {:else if !game.won}
-                            <div class="d-flex alert bg-danger mx-3 my-2 ms-4 my-text-black">
-                                <div class="col text-center">
-                                    {game.user}     
-                                </div>
-                                <div class="col text-center">
-                                    {game.score}     
-                                </div>
-                                <div class="col text-center">
-                                    {game.opponent}     
-                                </div>
-                            </div>
-                            {/if}
-                        {/each}
-                        {:else}
-                        <div class="d-flex align-items-center">
-                           <h5 class="" style="color:grey;">No match to Display</h5>
                         </div>
-                        {/if}
-                </div>
-                <div class="d-flex justify-content-center mt-5">
-                <button class="btn btn-light m-1" on:click={prevButton}>Prev</button>
-                <button class="btn btn-light m-1" on:click={nextButton}>Next</button>
-                </div>
+                    {:else}
+                        <div class="row border rounded match my-1 bg-dark col-12 text-truncate">
+                            <p class="text-center text-danger h3 m-0 p-0">Lose</p>
+                            <p class="col-4 text-center text-light h4">Me</p>
+                            <p class="col-4 text-center text-light h4">{game.me.score} / {game.opponent.score}</p>
+                            <p class="col-4 text-center text-light h4">{game.opponent.username}</p>
+                            <div class="d-flex">
+                                <p class="col-5" style="color:grey;">{game.date}</p>
+                                <p class="col-2 text-light game-badge text-center">{game.gamemode.toUpperCase()}</p>
+                                <p class="col-5 text-end" style="color:grey;">{game.hours}</p>
+                            </div>
+                        </div>
+                    {/if}
+                    {/each}
+                {:else}
+                    <div class="d-flex align-items-center">
+                        <h5 class="" style="color:grey;">No match to Display</h5>
+                    </div>
+                {/if}
             </div>
         </div>
     </div>
@@ -347,9 +403,6 @@
         color : rgb(255, 255, 255);
     }
 
-    .bg-defeats {
-        background-color: rgb(112, 78, 163);
-    }
     .align-img-end {
         transform: translateX(-200%);
     }
@@ -367,12 +420,6 @@
         scrollbar-color: black grey;
     }
 
-    div::-webkit-scrollbar-thumb {
-        border: 4px solid;
-        border-radius: 10px;       
-        background-clip: padding-box; 
-    }
-
     .friend-title{
         font-family: Nabla;
         font-size: 175%;
@@ -382,8 +429,27 @@
     }
     .history-container{
         width: 22vw;
-        height: 40vh;
+        height: 45vh;
         min-height: 60%;
         margin: 0 auto;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: black grey;
+    }
+    .match {
+        width: 90%;
+        height: 25%;
+        margin: auto;
+    }
+
+    .game-badge {
+        border: 1px solid rgba(255, 255, 255, 0.3); /* Bord plus subtil */
+        border-radius: 2px;
+        background: linear-gradient(145deg, rgb(91, 33, 131), rgb(54, 14, 85)); /* Dégradé pour simuler la lumière */
+        box-shadow: 3px 3px 5px rgb(18, 7, 49),
+    }
+
+    .my-bg-black {
+        background-color: rgba(0, 0, 0, 0.4);
     }
 </style>

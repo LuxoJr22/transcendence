@@ -165,7 +165,7 @@ function AccessTokenExpirated(){
     let refresh_token : string;
     token = localStorage.getItem('access_token')
     refresh_token = localStorage.getItem('refresh_token')
-    if (token == null || refresh_token == null || refresh_token == '' || token == '')
+    if (token == null || token == '')
         return (true);
     let content : string = token.split('.')[1].replaceAll('-', '+').replaceAll('_', '/');
     let expiration = window.atob(content);
@@ -176,6 +176,10 @@ export async function refresh_token(): Promise<void> {
     if (!AccessTokenExpirated())
         return ;
     const refreshToken = localStorage.getItem('refresh_token');
+    if (refreshToken == null || refreshToken == ''){
+        logout();
+        return ;
+    }
     const response = await fetch('/api/token/refresh/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
