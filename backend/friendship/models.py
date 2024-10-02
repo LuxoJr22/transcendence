@@ -11,4 +11,15 @@ class Friendship(models.Model):
 		unique_together = ('requester', 'receiver')
 
 	def __str__(self):
-		return f"{self.requester.username} -> {self.receiver.username} ({'Accepted' if self.accepted else 'Pending'})"
+		return f"{self.requester.username}'s friendrequest to {self.receiver.username} ({'Accepted' if self.accepted else 'Pending'})"
+
+class Block(models.Model):
+	blocker = models.ForeignKey(User, related_name='blocks_sent', on_delete=models.CASCADE)
+	blocked = models.ForeignKey(User, related_name='blocks_received', on_delete=models.CASCADE)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		unique_together = ('blocker', 'blocked')
+
+	def __str__(self):
+		return f"{self.blocker.username} blocked {self.blocked.username}"

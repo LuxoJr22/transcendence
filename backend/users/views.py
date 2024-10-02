@@ -70,6 +70,14 @@ class UserProfileView(generics.RetrieveAPIView):
 		user = generics.get_object_or_404(User, id=user_id)
 		return user
 
+class UserListView(generics.ListAPIView):
+	queryset = User.objects.all()
+	serializer_class = PublicUserSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		return User.objects.exclude(id=self.request.user.id)
+
 class UserSkinUpdateView(generics.UpdateAPIView):
 	serializer_class = UserSkinSerializer
 	permission_classes = [IsAuthenticated]
