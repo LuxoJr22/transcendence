@@ -154,11 +154,16 @@
                         <div type="button" class="d-flex border rounded img-circle container my-2 friend-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2)" on:click={createRoom(msg.username, msg.id)}>
                             <img src={msg.profile_picture_url} class="rounded-circle m-2 align-items-center" style="object-fit:cover; width:15%; height:15%;">
                             <div class="d-flex">
-                                <div class="row">
+                                <div class="row p-1">
                                     <h5 class='text-light'>{msg.username}</h5>
                                 </div>
                                 <div class="d-flex row justify-content-end align-items-end ms-4 mt-4">
-                                    <p class='text-light text-truncate'>
+                                    <p class='text-truncate' style="color:grey">
+                                        {#if msg.last_message.sender == state.user?.id}
+                                            Me:
+                                        {:else}
+                                            {msg.username}:  
+                                        {/if}
                                         {msg.last_message.content}
                                     </p>
                                 </div>
