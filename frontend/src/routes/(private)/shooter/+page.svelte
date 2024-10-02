@@ -594,4 +594,4 @@
     </div>
 </div>
 
-<canvas bind:this={canvas} class="game"></canvas>
+<canvas bind:this={canvas} class="d-flex flex-column game"></canvas>

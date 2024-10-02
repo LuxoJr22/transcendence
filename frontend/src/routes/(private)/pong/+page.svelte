@@ -5,6 +5,7 @@
 	import { Player } from "./player.js";
 	import { Bot } from "./bot.js";
 	import { shade } from "./watershader";
+	import { Firework } from './firework.js';
 
 	let canvas;
 	var scoring = 0;
@@ -22,14 +23,18 @@
 			skins = data
 		}
 
+		var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 16 * 9}
+		var winner = 0
+
 
 
 		const scene = new THREE.Scene();
 		const cam = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
 		var end = 0
-		//scene.background = new THREE.Color(0x54A0E4);
+		
 
 		var in_game = 0
+		var startend = 0
 
 
 		var bind = {up: 90, down: 83, left:81, right:68, charge:32}
@@ -39,6 +44,7 @@
 		var scores = [0, 0];
 		var bots = [];
 		var id = 0;
+		var fireworks = [];
 		var ui = document.getElementById("ui");
 		var score = document.getElementById("score");
 		var versus = document.getElementById("versus")
@@ -189,17 +195,22 @@
 		scene.add(light)
 
 		const dl = new THREE.DirectionalLight( 0xffffff, 2 );
-		dl.position.set( 0, 0, 5 );
+		dl.position.set( 0, 0, 30);
 		scene.add( dl );
 
 		const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
-		renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
-        ui.style.width = window.innerWidth * 0.7 + "px";
-        ui.style.height = (window.innerWidth * 0.70) / 16 * 9 + "px";
+		renderer.setSize( canvasSize.width, canvasSize.height);
+        ui.style.width = canvasSize.width + "px";
+        ui.style.height = canvasSize.height + "px";
         ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
         ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+		score1.style.fontSize = canvasSize.height / 10 + "px"
+		score2.style.fontSize = canvasSize.height / 10 + "px"
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
+
+		
+
 
 		cam.position.z = 20;
 
@@ -290,7 +301,6 @@
 					er.controller.yp = 0;
 			}
 		}
-
 		window.addEventListener(
 		"gamepadconnected",
 		(e) => {
@@ -308,11 +318,15 @@
 		);
 
 		window.onresize = function(event){
-			renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
-            ui.style.width = window.innerWidth * 0.7 + "px";
-            ui.style.height = (window.innerWidth * 0.70) / 16 * 9 + "px";
-            ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
-            ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+			canvasSize.width = window.innerWidth * 0.7
+			canvasSize.height = window.innerWidth * 0.7 / 16 * 9
+			renderer.setSize( canvasSize.width, canvasSize.height);
+			ui.style.width = canvasSize.width + "px";
+			ui.style.height = canvasSize.height + "px";
+			ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+			ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+			score1.style.fontSize = canvasSize.height / 10 + "px"
+			score2.style.fontSize = canvasSize.height / 10 + "px"
 		}
 
 		function onDocumentKeyDown(event) {
@@ -369,13 +383,31 @@
 				versus.style.display = 'none'
 				renderer.setScissorTest( false );
 				renderer.setViewport(0, 0, window.innerWidth * 0.7, (window.innerWidth * 0.70) / 16 * 9)
-			 er.controllanims.xp = 0
+				renderer.setClearColor( new THREE.Color(0xAAAAFF ) );
+				er.controllanims.xp = 0
 				play.controllanims.xp = 0
 				in_game = 1 
 			}
 			else if (data.event == 'endMatch')
 			{
+				let copyBind = JSON.parse(JSON.stringify(bind))
+				
 				end = 1
+				winner = data.id
+				if (winner == 1)
+				{
+					bind["up"] = copyBind["right"]
+					bind["left"] = copyBind["up"]
+					bind["down"] = copyBind["left"]
+					bind["right"] = copyBind["down"]
+				}
+				else
+				{
+					bind["up"] = copyBind["left"]
+					bind["left"] = copyBind["down"]
+					bind["down"] = copyBind["right"]
+					bind["right"] = copyBind["up"]
+				}
 			}
 			else if (data.event == 'frame')
 			{
@@ -395,14 +427,14 @@
 				er.controllanims = data.player2[3]
 				sphere.position.set(data.ball, data.bally, sphere.position.z);
 				scoring = data.scoring
-				if (id == 1 && end == 0)
+				if (id == 1)
 				{
 					chatSocket.send(JSON.stringify({
 						'event':'frame',
 						'player1':play.controller,
 					}))
 				}
-				if (id == 2 && end == 0)
+				if (id == 2)
 				{
 					chatSocket.send(JSON.stringify({
 						'event':'frame',
@@ -412,17 +444,10 @@
 			}
 		}
 
-		//#endregion
+		chatSocket.onclose = function(e) {
+			window.location.href = '/';
+		}
 
-		//var composer = new EffectComposer( renderer );
-		//composer.addPass( new RenderPass( scene, camera ) );
-
-		/*var afterimagePass = new AfterimagePass();
-		composer.addPass( afterimagePass );*/
-
-
-		//var renderPixelatedPass = new RenderPixelatedPass( 2, scene, camera );
-		//composer.addPass( renderPixelatedPass );
 
 		function animate() {
 			requestAnimationFrame( animate );
@@ -444,7 +469,29 @@
 					element.update();
 					element.scoring = scoring;
 				});
-				frames ++;
+				if (end == 1)
+				{
+					cam.rotation.x = THREE.MathUtils.lerp(cam.rotation.x, Math.PI / 2, 0.1)
+					cam.rotation.y = THREE.MathUtils.lerp(cam.rotation.y, -Math.pow(-1, winner) * Math.PI / 2, 0.1)
+					cam.position.z = THREE.MathUtils.lerp(cam.position.z, 2, 0.1)
+					startend += dt
+					if (startend >= 20)
+						chatSocket.close()
+					if( THREE.MathUtils.randInt( 1, 50 ) === 10)
+    				{
+    				    fireworks.push( new Firework( scene, [20 * Math.pow(-1, winner)] ) ); 
+    				}
+    				// update fireworks 
+    				for( var i = 0; i < fireworks.length; i++ )
+    				{
+    				    if( fireworks[ i ].done ) // cleanup 
+    				    {
+    				        fireworks.splice( i, 1 ); 
+    				        continue; 
+    				    }
+    				    fireworks[ i ].update(dt);
+    				}
+				}
 				renderer.render( scene, cam );
 			}
 			else
@@ -557,5 +604,5 @@
 </div>
 
 
-<canvas bind:this={canvas} class='game'></canvas>
+<canvas bind:this={canvas} class='d-flex flex-column game'></canvas>
 

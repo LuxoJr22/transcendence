@@ -158,6 +158,7 @@ class PongConsumer(WebsocketConsumer):
 		self.room_group_name = self.scope['url_route']['kwargs']['room_name']
 		self.user = self.scope['user']
 		self.id = 0
+		self.winner = 0
 
 		try:
 			self.pongroom = get_object_or_404(PongGroup, group_name=self.room_group_name)
@@ -258,15 +259,15 @@ class PongConsumer(WebsocketConsumer):
 		if (self.game.winner != 0 and self.pong_match.winner == None):
 			self.pong_match.winner = self.game.winner
 			self.pong_match.save()
-		if (self.pong_match.winner != None):
+		if (self.pong_match.winner != None and self.winner == 0):
 			if (self.pong_match.winner == self.game.player1.id):
-				winner = 1
+				self.winner = 1
 			else:
-				winner = 2
+				self.winner = 2
 			self.send(text_data=json.dumps({
 				'type':'Pong',
 				'event':'endMatch',
-				'id': winner,
+				'id': self.winner,
 			}))
 			return
 
