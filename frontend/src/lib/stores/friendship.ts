@@ -5,6 +5,7 @@ export interface friendInterface {
     id: number;
     username: string;
     profile_picture: string;
+    is_online: boolean;
 }
 
 export let friendList = writable<friendInterface[]>([]);

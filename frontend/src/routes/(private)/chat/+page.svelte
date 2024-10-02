@@ -8,7 +8,8 @@
     import type { Messages } from '$lib/stores/chat';
     import { beforeUpdate, afterUpdate } from 'svelte';
     import { profileData, profile } from '$lib/stores/user';
-    import type { Profile} from '$lib/stores/user';
+    import type { Profile } from '$lib/stores/user';
+    import ImgOnline from './imgOnline.svelte' 
 
     let state: AuthState;
     state = $auth;
@@ -133,7 +134,7 @@
                                 {#if friend.username || !friendSearch}
                                     <div class="col text-center p-0 m-2">
                                         <button class="btn text-light bg-gradient border rounded" on:click={resetFriendSearch} on:click={createRoom(friend.username, friend.id)} data-bs-dismiss="modal" aria-label="Close">
-                                            <img src={friend.profile_picture_url} class="img-circle rounded-circle m-2" style="object-fit:cover; width:50%; height:50%;">
+                                            <ImgOnline class="align-self-center" path={friend?.profile_picture_url} status={friend?.is_online} width=50% height=50% />
                                             <p class="">{friend.username}</p>
                                             <i class="bi bi-plus" style="font-size:2em"></i>
                                         </button>    
@@ -151,13 +152,13 @@
             {#if latestDiscussion[0]}
                 <div class="mx-3 my-2 discussions-container">
                     {#each latestDiscussion as msg}
-                        <div type="button" class="d-flex border rounded img-circle container my-2 friend-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2)" on:click={createRoom(msg.username, msg.id)}>
-                            <img src={msg.profile_picture_url} class="rounded-circle m-2 align-items-center" style="object-fit:cover; width:15%; height:15%;">
+                        <div type="button" class="d-flex border rounded container my-2 friend-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2)" on:click={createRoom(msg.username, msg.id)}>
+                            <ImgOnline path={msg?.profile_picture_url} status={msg?.is_online} width=20% height=15%/>
                             <div class="d-flex">
                                 <div class="row p-1">
-                                    <h5 class='text-light'>{msg.username}</h5>
+                                    <h5 class='text-light ms-4'>{msg.username}</h5>
                                 </div>
-                                <div class="d-flex row justify-content-end align-items-end ms-4 mt-4">
+                                <div class="d-flex mt-4">
                                     <p class='text-truncate' style="color:grey">
                                         {#if msg.last_message.sender == state.user?.id}
                                             Me:
@@ -275,5 +276,4 @@
     .sendBox input {
         border-radius: 10px;
     }
-
 </style>
