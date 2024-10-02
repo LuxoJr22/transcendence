@@ -2,18 +2,25 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
 from users.models import User
+from friendship.models import Block
 from .models import Message
 
 class ChatConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
-		self.receiver = self.scope['url_route']['kwargs']['user_id']
+		self.receiver_id = self.scope['url_route']['kwargs']['user_id']
 		self.sender = self.scope['user']
 
 		if not self.sender.is_authenticated:
 			await self.close()
 			return
+		if await sync_to_async(lambda: Block.objects.filter(blocker=self.sender, blocked__id=self.receiver_id).exists())():
+			await self.close()
+			return
+		if await sync_to_async(lambda: Block.objects.filter(blocker__id=self.receiver_id, blocked=self.sender).exists())():
+			await self.close()
+			return
 
-		self.room_group_name = f'chat_{min(self.sender.id, int(self.receiver))}_{max(self.sender.id, int(self.receiver))}'
+		self.room_group_name = f'chat_{min(self.sender.id, int(self.receiver_id))}_{max(self.sender.id, int(self.receiver_id))}'
 
 		await self.channel_layer.group_add(
 			self.room_group_name,
@@ -31,7 +38,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		text_data_json = json.loads(text_data)
 		message = text_data_json['message']
 
-		await self.save_message(self.sender, self.receiver, message)
+		await self.save_message(self.sender, self.receiver_id, message)
 
 		await self.channel_layer.group_send(
 			self.room_group_name,

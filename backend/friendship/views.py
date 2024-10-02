@@ -2,9 +2,8 @@ from django.db import models
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Friendship
-from .serializers import FriendshipSerializer, CreateFriendshipSerializer
-from users.models import User
+from .models import Friendship, Block
+from .serializers import FriendshipSerializer, CreateFriendshipSerializer, BlockSerializer, CreateBlockSerializer
 from users.serializers import PublicUserSerializer
 
 class SendFriendRequestView(generics.CreateAPIView):
@@ -26,7 +25,7 @@ class AcceptFriendRequestView(generics.UpdateAPIView):
 
 		instance.accepted = True
 		instance.save()
-		return Response({"message": "Friend request accepted"})
+		return Response({"message": "Friend request accepted"}, status=status.HTTP_200_OK)
 
 class RejectFriendRequestView(generics.DestroyAPIView):
 	queryset = Friendship.objects.all()
@@ -40,9 +39,9 @@ class RejectFriendRequestView(generics.DestroyAPIView):
 		try:
 			friendship = Friendship.objects.get(pk=pk, receiver=request.user, accepted=False)
 			friendship.delete()
-			return Response({"message": "Friend request rejected"})
+			return Response({"message": "Friend request rejected"}, status=status.HTTP_200_OK)
 		except Friendship.DoesNotExist:
-			return Response({"error": "Friend request not found or accepted"})
+			return Response({"error": "Friend request not found or already accepted"}, status=status.HTTP_404_NOT_FOUND)
 
 class FriendsListView(generics.ListAPIView):
 	serializer_class = PublicUserSerializer
@@ -69,7 +68,6 @@ class FriendRequestsListView(generics.ListAPIView):
 		return Friendship.objects.filter(receiver=self.request.user, accepted=False)
 
 class RemoveFriendshipView(generics.DestroyAPIView):
-	queryset = Friendship.objects.all()
 	serializer_class = FriendshipSerializer
 	permission_classes = [IsAuthenticated]
 
@@ -83,6 +81,34 @@ class RemoveFriendshipView(generics.DestroyAPIView):
 				accepted=True
 			)
 			friendship.delete()
-			return Response({"message": "Friendship removed"})
+			return Response({"message": "Friendship removed"}, status=status.HTTP_200_OK)
 		except Friendship.DoesNotExist:
-			return Response({"error": "Friendship not found"})
+			return Response({"error": "Friendship not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class BlockUserView(generics.CreateAPIView):
+	serializer_class = CreateBlockSerializer
+	permission_classes = [IsAuthenticated]
+
+	def perform_create(self, serializer):
+		blocker = self.request.user
+		blocked = serializer.validated_data['blocked']
+		Friendship.objects.filter(
+			(models.Q(requester=blocker, receiver=blocked) | models.Q(requester=blocked, receiver=blocker))
+		).delete()
+
+		serializer.save(blocker=blocker)
+
+class UnblockUserView(generics.DestroyAPIView):
+	serializer_class = BlockSerializer
+	permission_classes = [IsAuthenticated]
+
+	def delete(self, request, *args, **kwargs):
+		user = request.user
+		blocked_id = kwargs.get('blocked_id')
+
+		try:
+			block = Block.objects.get(blocker=user, blocked__id=blocked_id)
+			block.delete()
+			return Response({"message": "User unblocked"}, status=status.HTTP_200_OK)
+		except Block.DoesNotExist:
+			return Response({"error": "Block not found"}, status=status.HTTP_404_NOT_FOUND)

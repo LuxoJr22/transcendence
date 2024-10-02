@@ -1,11 +1,12 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db import models
 from django.db.models import Max
+from users.models import User
+from friendship.models import Block
 from .models import Message
 from .serializers import MessageSerializer, ChatHistorySerializer
-from users.models import User
 
 class MessageListView(generics.ListAPIView):
 	serializer_class = MessageSerializer
@@ -24,8 +25,18 @@ class ChatHistoryView(generics.ListAPIView):
 	def get_queryset(self):
 		user = self.request.user
 
+		blocked_users = Block.objects.filter(models.Q(blocker=user) | models.Q(blocked=user)).values_list('blocker', 'blocked')
+		blocked_user_ids = set()
+		for blocker, blocked in blocked_users:
+			if blocker == user.id:
+				blocked_user_ids.add(blocked)
+			else:
+				blocked_user_ids.add(blocker)
+
 		last_message_subquery = Message.objects.filter(
-			models.Q(sender=user) | models.Q(receiver=user)
+			(models.Q(sender=user) | models.Q(receiver=user)) &
+			~models.Q(sender__in=blocked_user_ids) &
+			~models.Q(receiver__in=blocked_user_ids)
 		).values(
 			'sender', 'receiver'
 		).annotate(
@@ -52,4 +63,4 @@ class ChatHistoryView(generics.ListAPIView):
 			reverse=True
 		)
 		serializer = self.get_serializer(queryset, many=True)
-		return Response(serializer.data)
+		return Response(serializer.data, status=status.HTTP_200_OK)
