@@ -32,6 +32,8 @@ class User(AbstractBaseUser):
 
 	profile_picture = models.ImageField(upload_to=user_profile_picture_path, default='profile_pictures/default.jpg')
 	skin = models.CharField(max_length=254, default='default.glb')
+	pong_elo = models.IntegerField(default=600)
+	shooter_elo = models.IntegerField(default=600)
 
 	is_online = models.BooleanField(default=False)
 	is_active = models.BooleanField(default=True)

@@ -2,12 +2,18 @@ import json
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from django.shortcuts import get_object_or_404
-from .models import Shooter
+from .models import Shooter, ShooterMatchmaking
 from .game_class import Game
 import math
 import time
 
 dictio = {}
+
+# class ShooterMatchmakingConsumer(WebsocketConsumer):
+# 	def connect(self):
+# 		self.room_group_name = 'shooter_matchmaking'
+# 		self.user = self.scope['user']
+
 
 class ShooterConsumer(WebsocketConsumer):
 	def connect(self):

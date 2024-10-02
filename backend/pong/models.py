@@ -21,6 +21,8 @@ class PongMatch(models.Model):
 	player2 = models.IntegerField()
 	type = models.CharField(max_length=128)
 	gamemode = models.CharField(max_length=128)
+	score1 = models.IntegerField(default=0)
+	score2 = models.IntegerField(default=0)
 	winner = models.IntegerField(null=True, blank=True)
 	match_date = models.DateTimeField(default=timezone.now)
 
