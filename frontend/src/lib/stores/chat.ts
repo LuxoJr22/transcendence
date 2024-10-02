@@ -17,7 +17,6 @@ export async function fetchChatMessages(id: number){
     }
     });
     const data = await response.json();
-    console.log('data');
     messages.set(data);
 };
 

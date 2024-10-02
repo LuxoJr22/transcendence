@@ -26,7 +26,6 @@
         });
         friendList.subscribe((value : friendInterface[]) => {
             listOfFriend = value;
-            console.log(value);
         });
     });
     
@@ -44,7 +43,6 @@
 
         if (response.ok) {
             gamesHistory = await response.json();
-            console.log(games);
         }
     }
     

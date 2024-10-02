@@ -5,6 +5,8 @@ from django.db import models
 from django.shortcuts import get_object_or_404
 from users.models import User
 from .models import PongGroup, PongMatchmaking, PongMatch
+from datetime import timedelta
+from django.utils import timezone
 from .game_class import Game
 
 import sys
@@ -90,7 +92,7 @@ class MatchmakingConsumer(WebsocketConsumer):
 		self.room_group_name = f'{self.gamemode}_matchmaking'
 		self.user = self.scope['user']
 		self.t = 0
-		self.elo_range = 0
+		self.range = 0
 
 		try:
 			self.matchmaking_room = get_object_or_404(PongMatchmaking, group_name=self.room_group_name)
@@ -110,17 +112,14 @@ class MatchmakingConsumer(WebsocketConsumer):
 		self.accept()
 
 		self.send(text_data=json.dumps({
-			'type': 'doMatchmaking',
+			'type': 'Pong_matchmaking',
 			'event': 'Research',
 		}))
-		print("send Research", file=sys.stderr)
 
 	def receive(self, text_data):
-		print("receive", file=sys.stderr)
 		text_data_json = json.loads(text_data)
 		event = text_data_json['event']
 		if (event == 'Research'):
-			print("Research event receive", file=sys.stderr)
 			self.doMatchmaking(text_data_json)
 
 	def disconnect(self, code):
@@ -132,10 +131,8 @@ class MatchmakingConsumer(WebsocketConsumer):
 			self.matchmaking_room.users_online.remove(self.user)
 
 	def doMatchmaking(self, event):
-		print("doMatchmaking", file=sys.stderr)
 
 		if (self.range < 150 and self.t < time.perf_counter()):
-			print("doMatchmaking if range", file=sys.stderr)
 			self.range += 30
 			self.t = time.perf_counter() + 5
 		oponents = list(self.matchmaking_room.users_online.filter(
@@ -144,32 +141,31 @@ class MatchmakingConsumer(WebsocketConsumer):
 			~models.Q(id=self.user.id)))
 
 		if len(oponents) > 0:
-			print("doMatchmaking if len(oponents) > 0", file=sys.stderr)
 			self.player1 = self.user.id
 			self.player2 = oponents[0].id
 
-			self.pongmatch = PongMatch.objects.create(
-				player1 = self.player1,
-				player2 = self.player2,
-				gamemode = self.gamemode,
-				type = "normal"
-			)
-			dictio[f'{self.gamemode}_{self.pongmatch.id}'] = Game(self.gamemode, self.pongmatch.id, self.player1, self.player2)
+			if (PongMatch.objects.filter(models.Q(player2=self.user.id) & models.Q(match_date__gte=timezone.now() - timedelta(seconds=5))).count() == 0):
+				self.pongmatch = PongMatch.objects.create(
+					player1 = self.player1,
+					player2 = self.player2,
+					gamemode = self.gamemode,
+					type = "normal"
+				)
+				dictio[f'{self.gamemode}_{self.pongmatch.id}'] = Game(self.gamemode, self.pongmatch.id, self.player1, self.player2)
 
-			async_to_sync(self.channel_layer.group_send)(
-				self.room_group_name,
-				{
-					'type': 'Pong_match',
-					'event': 'Match',
-					'player1_id': self.player1,
-					'player2_id': self.player2,
-					'match_id':self.pongmatch.id,
-				} 
-			)
+				async_to_sync(self.channel_layer.group_send)(
+					self.room_group_name,
+					{
+						'type': 'Pong_match',
+						'event': 'Match',
+						'player1_id': self.player1,
+						'player2_id': self.player2,
+						'match_id':self.pongmatch.id,
+					} 
+				)
 		else:
-			print("doMatchmaking else", file=sys.stderr)
 			self.send(text_data=json.dumps({
-			'type': 'doMatchmaking',
+			'type': 'Pong_matchmaking',
 			'event': 'Research',
 			}))
 
@@ -295,18 +291,18 @@ class PongConsumer(WebsocketConsumer):
 			self.pong_match.score2 = self.game.player2.score
 			self.pong_match.save()
 
-			player1 = User.objects.get(id=self.game.player1.id)
-			player2 = User.objects.get(id=self.game.player2.id)
-			elo_diff = player1.pong_elo - player2.pong_elo / 50
-			if (self.game.winner == player1.id):
-				player1.pong_elo += (10 - int(elo_diff))
-				player2.pong_elo -= (10 - int(elo_diff))
-			else:
-				player2.pong_elo += (10 + int(elo_diff))
-				player1.pong_elo -= (10 + int(elo_diff))
-			player1.save()
-			player2.save()
-
+			if (self.game.winner == self.user.id):
+				player1 = User.objects.get(id=self.game.player1.id)
+				player2 = User.objects.get(id=self.game.player2.id)
+				elo_diff = (player1.pong_elo - player2.pong_elo) / 50
+				if (self.game.winner == player1.id and self.pong_match.type == 'normal'):
+					player1.pong_elo = player1.pong_elo + (10 - int(elo_diff))
+					player2.pong_elo = player2.pong_elo - (10 - int(elo_diff))
+				elif (self.pong_match.type == 'normal'):
+					player2.pong_elo += (10 + int(elo_diff))
+					player1.pong_elo -= (10 + int(elo_diff))
+				player1.save()
+				player2.save()
 		if (self.pong_match.winner != None and self.winner == 0):
 			if (self.pong_match.winner == self.game.player1.id):
 				self.winner = 1

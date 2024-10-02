@@ -269,7 +269,6 @@
 			let data = JSON.parse(e.data)
 			if (data.event == 'Connected')
 			{
-				console.log('connected')
 				id = data.id
 				if (id == 1)
 				{

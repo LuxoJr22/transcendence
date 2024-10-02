@@ -30,6 +30,12 @@
 					localStorage.setItem('game_id', data.match_id);
 					window.location.href = '/' + gamemode;
 				}
+				if (data.event == 'Research')
+				{
+					ws.send(JSON.stringify({
+						'event':'Research',
+					}))
+				}
 			}
 		}
 		else if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "private") { //state.isAuthenticated && 
