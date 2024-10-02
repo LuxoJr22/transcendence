@@ -6,7 +6,7 @@
     import type { AuthState } from '$lib/stores/auth';
     import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
     import type { friendInterface } from '$lib/stores/friendship';
-    import { profileData } from '$lib/stores/user';
+    import { userData } from '$lib/stores/user';
 
     interface User {
         id: number,
@@ -66,8 +66,8 @@
 
     async function parseHistoryMatches(data : any){
         for (let i = 0; data[i] ; i++){
-            let player1 : any = await profileData(data[i].player1 == state.user?.id ? data[i].player1 : data[i].player2);
-            let player2 : any = await profileData(data[i].player1 != state.user?.id ? data[i].player1 : data[i].player2);
+            let player1 : any = await userData(data[i].player1 == state.user?.id ? data[i].player1 : data[i].player2);
+            let player2 : any = await userData(data[i].player1 != state.user?.id ? data[i].player1 : data[i].player2);
             let game = {
                 me: {
                     id: player1.id,
