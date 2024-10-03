@@ -118,10 +118,7 @@
     .opacity:hover {
         opacity: 0.5;
     }
-/* 
-    :global(body) {
-        background-color: var(--bs-dark);
-    } */
+
     .text-warning-subtle {
         color: var(--bs-warning-bg-subtle);
     }
@@ -139,12 +136,12 @@
     }
     
     .button-dropdown{
-        box-shadow: 0px 0px 0px #a2a4a5;
+        box-shadow: 1px 2px #a2a4a5;
     }
 
     @keyframes buttonPush {
         0% {
-            box-shadow: 0px 0px #a2a4a5;
+            box-shadow: 1px 2px #a2a4a5;
             transform:translateY(0);
         }
         100% {

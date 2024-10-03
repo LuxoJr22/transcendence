@@ -62,7 +62,7 @@
             else
                 winRate[1] += 1;
         }
-        return (winRate)
+        return (winRate);
     }
 
     async function parseHistoryMatches(data : any){
@@ -110,17 +110,6 @@
             console.log(winRate);
         }
     }
-    let firstGame = 0;
-    let i = 0;
-
-    function prevButton(){
-        firstGame -= 5;
-    }
-
-    function nextButton(){
-        firstGame += 5;
-    }
-
     /********updateProfilePicture********/
 
     let newProfilePicture : File;
