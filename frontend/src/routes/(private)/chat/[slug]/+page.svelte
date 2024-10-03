@@ -157,7 +157,7 @@
                         <div class="modal-body d-flex justify-content-center row row-cols-4 user-container m-0 me-2 mb-2">
                             {#each allUser as user}
                                 {#if user.username.includes(userSearch) || !userSearch}
-                                    <div class="col text-center p-0 m-2">
+                                    <div class="col text-center p-0 m-2" role="button">
                                         <button class="text-center btn text-light bg-gradient border rounded" on:click={resetFriendSearch} on:click={loadRoom(user.id)} data-bs-dismiss="modal" aria-label="Close">
                                             <div class="d-flex justify-content-center">
                                                 <ImgOnline path={user?.profile_picture_url} status={user?.is_online} width=50% height=50% />
@@ -207,11 +207,6 @@
             <div class="d-flex m-4">
                 {#if user == null}
                     <h4 style="color:grey">No discussion selectionned</h4>
-                {:else}
-                <div class='d-flex img-circle'>
-                    <img class="rounded-circle m-2" style="width:70%" src={user?.profile_picture}>
-                </div>
-                <h4 class="text-light m-4">{user?.username}</h4>
                 {/if}
             </div>
             {#if user != null}
@@ -263,20 +258,6 @@
         overflow-y: auto;
     }
 
-    .img-circle {
-        width: 20%;
-        overflow: hidden;
-        object-fit: cover;
-    }
-
-    .img-circle img {
-        width: auto;
-        height: auto;
-        z-index: 1;
-        aspect-ratio: 1;
-        object-fit: cover;
-    }
-
     .modal-body {
         height: 23vh !important;
     }
@@ -285,7 +266,7 @@
         overflow-y: auto;
         scrollbar-width: thin;
         scrollbar-color: black grey;
-        height: 45%;
+        height: 75%;
         background-color: rgba(0, 0, 0, 0.2)
     }
 

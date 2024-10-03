@@ -62,20 +62,20 @@
         {#if state.isAuthenticated}
         <div class="row">
             <div class="dropdown col-3">
-                <a class="btn" style="text-decoration:none; color:white;" type="button" data-bs-toggle="dropdown" aria-expanded="false" on:click={fetchFriendRequests}>
+                <button class="btn" style="text-decoration:none; color:white;" type="button" data-bs-toggle="dropdown" aria-expanded="false" on:click={fetchFriendRequests}>
                 <i class="bi bi-bell"></i>
-                </a>
+                </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                 {#each requestsList as request, i}
                     {#if request.receiver.id == state.user?.id}
                     <div class="d-flex align-items-center p-2 m-2 mt-1 border rounded">
                         <p class="dropdown-item mb-0" style="">{request.requester.username} sent you a friend request</p>
-                        <a class="" style="" on:click={() => acceptFriendRequest(request.id)}>
+                        <button class="btn p-0 m-0" style="" on:click={() => acceptFriendRequest(request.id)}>
                             <i class="bi bi-person-check-fill p-2" style="color:green; font-size:1.3rem;"></i>
-                        </a>
-                        <a class="" on:click={() => declineFriendRequest(request.id)}>
+                        </button>
+                        <button class="btn p-0 m-0" on:click={() => declineFriendRequest(request.id)}>
                             <i class="bi bi-person-fill-x p-2" style="color:red; font-size:1.3rem;"></i>
-                        </a>
+                        </button>
                     </div>
                     {/if}
                 {/each}

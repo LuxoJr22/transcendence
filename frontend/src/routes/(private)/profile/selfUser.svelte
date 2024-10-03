@@ -212,7 +212,7 @@
         <div class="flex-column col-3 border-end my-3">
             <div class="border-bottom mx-3 me-4 pb-3">
                 <div class="d-flex justify-content-center align-items-center">
-                    <a href="" type="button" data-bs-toggle="modal" data-bs-target="#pictureModal"><img src={state.user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2"></a>
+                    <button class="btn" type="button" data-bs-toggle="modal" data-bs-target="#pictureModal"><img alt="user profile" src={state.user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2"></button>
                 </div>
                 <div class="modal fade" id="pictureModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -264,7 +264,7 @@
                 </div>
         </div>
         <div class="align-self-end align-img-end mb-3">
-            <a href="" type="button" data-bs-toggle="modal" data-bs-target="#userDataModal" style="text-decoration: none"><i class="bi bi-pencil hover-effect" style="color: grey; font-size: 1.3em"></i></a>
+            <button class="btn" type="button" data-bs-toggle="modal" data-bs-target="#userDataModal" style="text-decoration: none"><i class="bi bi-pencil hover-effect" style="color: grey; font-size: 1.3em"></i></button>
         </div>
         <div class="modal fade" id="userDataModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -398,10 +398,6 @@
     .title-profile {
         font-family: Nabla;
         font-size: 250%;
-    }
-
-    .my-text-black{
-        color : rgb(255, 255, 255);
     }
 
     .align-img-end {

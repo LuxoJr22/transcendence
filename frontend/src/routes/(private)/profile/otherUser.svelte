@@ -124,12 +124,12 @@
                 <div class="border-bottom mx-3 me-4 pb-3">
                     {#if user?.is_online}
                     <div class="d-flex justify-content-center align-items-end">
-                        <img src={user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2">
+                        <img alt="user profile" src={user?.profile_picture} class="img-circle rounded-circle ms-2">
                         <span class="mt-2 badge rounded-pill bg-success">Online</span>
                     </div>
                     {:else}
                     <div class="d-flex justify-content-center align-items-end">
-                        <img src={user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2">
+                        <img alt="user profile" src={user?.profile_picture} class="img-circle rounded-circle ms-2">
                         <span class="mt-2 badge rounded-pill bg-secondary">Offline</span>
                     </div>
                     {/if}
@@ -139,7 +139,7 @@
                 </div>
             </div>
             <div class="align-self-end align-img-end mb-3">
-                <button href="" type="button" style="text-decoration: none" class="p-0 btn" on:click={addFriend}><i class="bi bi-person-add hover-effect" style="color: grey; font-size: 1.3em"></i></button>
+                <button type="button" class="p-0 btn" on:click={addFriend}><i class="bi bi-person-add hover-effect" style="color: grey; font-size: 1.3em"></i></button>
             </div>
         <div class="flex-column col-4 border-end my-3 ">
             <div>
@@ -207,13 +207,6 @@
         font-size: 250%;
     }
 
-    .my-text-black{
-        color : rgb(255, 255, 255);
-    }
-
-    .bg-defeats {
-        background-color: rgb(112, 78, 163);
-    }
     .align-img-end {
         transform: translateX(-200%);
     }

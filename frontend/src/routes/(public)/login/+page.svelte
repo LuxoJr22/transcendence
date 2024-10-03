@@ -56,7 +56,7 @@
             </div>
             <div class="btn-group-vertical col-12" role="group" aria-label="Vertical button group">
                 <button type="submit" class="m-1 btn btn-primary" on:click={resetLoginErrors}>Login</button>
-                <a href="api/oauth42/" type="button" class="m-1 btn btn-light">Login with <img src={logo42} alt="" class="ms-1" style="height:1.5rem;"/></a>
+                <a href="api/oauth42/" type="button" class="m-1 btn btn-light">Login with <img src={logo42} alt="42 school logo" class="ms-1" style="height:1.5rem;"/></a>
             </div>
         </form>
     </div>

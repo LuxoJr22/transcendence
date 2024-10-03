@@ -6,7 +6,7 @@
 </script>
 
 <div class="icon-container" style="width:{width}; height:{height}">
-    <img src={path} class="rounded-circle align-items-center">
+    <img alt="avatar" src={path} class="rounded-circle align-items-center">
     {#if status}
         <div class="status-circle online">
         </div>
