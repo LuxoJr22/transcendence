@@ -58,6 +58,10 @@
     
     onMount(async () => {
         await fetchAllUser();
+        let userId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
+        if (userId != 'home'){
+            await profileData(parseInt(userId));
+        }
         auth.subscribe((value : AuthState) =>{
             state = value;
         });
@@ -68,10 +72,20 @@
             user = value;
         });
         latestDiscussion = await fetchLatestDiscussion();
+        if (parseInt(userId) == state.user?.id)
+                window.location.href = '/chat/home/'
+        else if (userId != 'home'){
+            createRoom(parseInt(userId));
+        }
     });
 
     let ws : WebSocket;
-    async function createRoom(username : string, id : number){
+
+    function loadRoom(userId : number){
+        window.location.href = '/chat/' + (userId.toString()) + '/'; 
+    }
+
+    async function createRoom(id : number){
         await profileData(id);
         const token = localStorage.getItem('access_token');
         if (id)
@@ -142,7 +156,7 @@
                             {#each allUser as user}
                                 {#if user.username.includes(userSearch) || !userSearch}
                                     <div class="col text-center p-0 m-2">
-                                        <button class="text-center btn text-light bg-gradient border rounded" on:click={resetFriendSearch} on:click={createRoom(user.username, user.id)} data-bs-dismiss="modal" aria-label="Close">
+                                        <button class="text-center btn text-light bg-gradient border rounded" on:click={resetFriendSearch} on:click={loadRoom(user.id)} data-bs-dismiss="modal" aria-label="Close">
                                             <div class="d-flex justify-content-center">
                                                 <ImgOnline path={user?.profile_picture_url} status={user?.is_online} width=50% height=50% />
                                             </div>
@@ -163,7 +177,7 @@
             {#if latestDiscussion[0]}
                 <div class="mx-3 my-2 discussions-container">
                     {#each latestDiscussion as msg}
-                        <div type="button" class="d-flex border rounded p-2 container my-2 user-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2)" on:click={createRoom(msg.username, msg.id)}>
+                        <div type="button" class="d-flex border rounded p-2 container my-2 user-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2)" on:click={loadRoom(msg.id)}>
                             <ImgOnline path={msg?.profile_picture_url} status={msg?.is_online} width=20% height=15%/>
                             <div class="ms-5">
                                 <div class="row">
