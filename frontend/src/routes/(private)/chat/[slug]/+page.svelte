@@ -1,5 +1,5 @@
 <script lang='ts'>
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import { auth, refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchChatMessages, messages, updateMessages } from '$lib/stores/chat';
@@ -72,8 +72,10 @@
             user = value;
         });
         latestDiscussion = await fetchLatestDiscussion();
+        if (userId == 'home')
+            user = null;
         if (parseInt(userId) == state.user?.id)
-                window.location.href = '/chat/home/'
+            window.location.href = '/chat/home/';
         else if (userId != 'home'){
             createRoom(parseInt(userId));
         }
