@@ -10,6 +10,10 @@ class UserStatusConsumer(WebsocketConsumer):
 				"online_users",
 				self.channel_name
 			)
+			async_to_sync(self.channel_layer.group_add)(
+				f"user_{self.user.id}",
+				self.channel_name
+			)
 			self.accept()
 			self.update_user_status(online=True)
 
@@ -19,12 +23,19 @@ class UserStatusConsumer(WebsocketConsumer):
 				"online_users",
 				self.channel_name
 			)
+			async_to_sync(self.channel_layer.group_discard)(
+				f"user_{self.user.id}",
+				self.channel_name
+			)
 			self.update_user_status(online=False)
 
 	def update_user_status(self, online):
 		self.user.is_online = online
 		self.user.save()
 
-	# def receive(self, text_data):
-	# 	data = json.loads(text_data)
-	# 	pass
+	def notify_user(self, event):
+		message = event["message"]
+		self.send(text_data=json.dumps({
+			"type": "notification",
+			"message": message,
+		}))
