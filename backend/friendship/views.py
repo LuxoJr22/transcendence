@@ -2,16 +2,29 @@ from django.db import models
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from users.serializers import PublicUserSerializer
 from .models import Friendship, Block
 from .serializers import FriendshipSerializer, CreateFriendshipSerializer, BlockSerializer, CreateBlockSerializer
-from users.serializers import PublicUserSerializer
 
 class SendFriendRequestView(generics.CreateAPIView):
 	serializer_class = CreateFriendshipSerializer
 	permission_classes = [IsAuthenticated]
 
 	def perform_create(self, serializer):
-		serializer.save(requester=self.request.user)
+		friendship = serializer.save(requester=self.request.user)
+		receiver = friendship.receiver
+		sender = self.request.user.username
+
+		channel_layer = get_channel_layer()
+		async_to_sync(channel_layer.group_send)(
+			f"user_{receiver.id}",
+			{
+				"type": "notify_user",
+				"message": f"{sender} sent you a friend request",
+			}
+		)
 
 class AcceptFriendRequestView(generics.UpdateAPIView):
 	queryset = Friendship.objects.all()
