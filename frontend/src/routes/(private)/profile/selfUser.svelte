@@ -253,6 +253,7 @@
                                 <p class="text-light ms-3 mt-3" style="font-size:100%;">{friend.username}</p>
                             </div>
                             <div class="d-flex">
+                                <a class="btn" href="/chat/{friend.id}"><i class="bi bi-chat" style="color:white;"></i></a>
                                 <button class="btn" on:click={deleteFriend(friend.id)}><i class="bi bi-x-lg" style="color:red;"></i></button>
                             </div>
                         </div>
@@ -337,7 +338,7 @@
             <div>
                 <h2 class="text-center p-3 title-profile">Win Rate</h2>
             </div>
-            <div class="d-flex justify-content-center" style="height:40%;">
+            <div class="d-flex justify-content-center align-items-center" style="height:40%;">
                 {#if finish}
                     <Pie victories={victories} defeats={defeats}></Pie>
                 {/if}
@@ -376,7 +377,7 @@
                     {/if}
                     {/each}
                 {:else}
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex m-auto">
                         <h5 class="" style="color:grey;">No match to Display</h5>
                     </div>
                 {/if}

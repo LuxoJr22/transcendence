@@ -145,7 +145,7 @@
             <div>
                 <h2 class="text-light text-center p-3 title-profile">Win Rate</h2>
             </div>
-            <div class="d-flex justify-content-center" style="height:40%;">
+            <div class="d-flex justify-content-center align-items-center" style="height:40%;">
                 {#if finish}
                 <Pie {victories} {defeats}></Pie>
                 {/if}
@@ -184,7 +184,7 @@
                     {/if}
                     {/each}
                 {:else}
-                    <div class="d-flex align-items-center">
+                    <div class="d-flex m-auto">
                         <h5 class="" style="color:grey;">No match to Display</h5>
                     </div>
                 {/if}
