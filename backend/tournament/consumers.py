@@ -19,7 +19,7 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 		try:
 			self.tournament_room = get_object_or_404(Tournament, name=self.tournament_name)
 		except:
-			self.disconnect()
+			self.disconnect(0)
 
 
 		async_to_sync(self.channel_layer.group_add)(

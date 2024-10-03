@@ -3,6 +3,7 @@ from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from django.shortcuts import get_object_or_404
 from .models import Shooter, ShooterMatch
+from users.models import User
 from .game_class import Game
 import operator
 import time
@@ -14,6 +15,7 @@ WAITING = 0
 LAUNCHING = 1
 LAUNCHED = 2 
 FINISHED = 3
+QUIT = 4
 
 
 class ShooterConsumer(WebsocketConsumer):
@@ -34,7 +36,7 @@ class ShooterConsumer(WebsocketConsumer):
 		try:
 			self.shootermatch = get_object_or_404(ShooterMatch, room_name=self.room_group_name)
 		except:
-			self.disconnect()
+			self.disconnect(0)
 		if self.user not in self.shooter_room.users_online.all():
 			self.shooter_room.users_online.add(self.user)
 		if self.room_group_name not in dictio:
@@ -104,7 +106,28 @@ class ShooterConsumer(WebsocketConsumer):
 
 		if (self.game.game_state == FINISHED):
 			newlist = sorted(self.game.players, key=operator.itemgetter('score', 'kill', 'death'), reverse=True)
-			self.game.game_state = 8
+			
+
+			player = list(self.shootermatch.players.all())
+			for play in player:
+				score = list(filter(lambda p: p['id'] == play.id, self.game.players))
+				if (self.shootermatch.scores == None):
+					self.shootermatch.scores = [score[0]['score']]
+				else:
+					self.shootermatch.scores.append(score[0]['score'])
+			self.shootermatch.save()
+			gain = 10
+			for play in newlist:
+				usr = User.objects.filter(id=play["id"]).all().first()
+				usr.shooter_elo += gain
+				gain -= 5
+				usr.save()
+			self.game.game_state = QUIT
+		if (self.game.game_state == QUIT):
+			self.send(text_data=json.dumps({
+			'type':'Shooter',
+			'event':'Quit',
+		}))
 
 		event = text_data_json['event']
 		id = text_data_json['id'] - 1

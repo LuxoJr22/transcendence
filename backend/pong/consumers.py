@@ -11,6 +11,9 @@ from .game_class import Game
 
 import sys
 
+WAITING = 0
+LAUNCHED = 1
+
 dictio = {}
 
 class PrivateMatchmakingConsumer(WebsocketConsumer):
@@ -30,10 +33,10 @@ class PrivateMatchmakingConsumer(WebsocketConsumer):
 		try:
 			self.pongmatch = get_object_or_404(PongMatch, id=self.game_id)
 		except:
-			self.disconnect()
+			self.disconnect(0)
 
 		if self.user.id != self.pongmatch.player1 and self.user.id != self.pongmatch.player2:
-			self.disconnect()
+			self.disconnect(0)
 
 		async_to_sync(self.channel_layer.group_add)(
 			self.room_group_name,
@@ -201,7 +204,7 @@ class PongConsumer(WebsocketConsumer):
 		)
 
 		if (self.room_group_name not in dictio):
-			self.disconnect()
+			self.disconnect(0)
 		self.game = dictio[self.room_group_name]
 
 		if self.user not in self.pongroom.users_online.all():
@@ -211,12 +214,12 @@ class PongConsumer(WebsocketConsumer):
 		elif self.game.player2.id == self.user.id:
 			self.id = 2
 		else:
-			self.disconnect()
+			self.disconnect(0)
 		
 		try:
 			self.pong_match = get_object_or_404(PongMatch, id=self.game.game_id)
 		except:
-			self.disconnect()
+			self.disconnect(0)
 		self.accept()
 		self.send(text_data=json.dumps({
 			'type':'Pong',
@@ -232,9 +235,21 @@ class PongConsumer(WebsocketConsumer):
 		if self.user in self.pongroom.users_online.all():
 			self.pongroom.users_online.remove(self.user)
 		if self.pongroom.users_online.count() == 0:
+			if (self.game.game_state == LAUNCHED and self.game.winner == 0 and self.pong_match.winner == None):
+				self.pong_match.winner = self.user.id
+				self.game.winner = self.user.id
+				player1 = User.objects.get(id=self.game.player1.id)
+				player2 = User.objects.get(id=self.game.player2.id)
+				elo_diff = (player1.pong_elo - player2.pong_elo) / 50
+				if (self.game.winner == player1.id and self.pong_match.type == 'normal'):
+					player1.pong_elo = player1.pong_elo + (10 - int(elo_diff))
+					player2.pong_elo = player2.pong_elo - (10 - int(elo_diff))
+				elif (self.pong_match.type == 'normal'):
+					player2.pong_elo += (10 + int(elo_diff))
+					player1.pong_elo -= (10 + int(elo_diff))
+				player1.save()
+				player2.save()
 			del dictio[self.room_group_name]
-			if (self.game.winner != 0 and self.pong_match.winner == None):
-				self.pong_match.winner = self.id
 			self.pongroom.delete()
 
 	def receive(self, text_data):
@@ -253,6 +268,7 @@ class PongConsumer(WebsocketConsumer):
 			self.game.player2.ready = 1
 		if (self.game.player1.ready == self.game.player2.ready == 1):
 			time.sleep(5)
+			self.game.game_state = LAUNCHED
 			async_to_sync(self.channel_layer.group_send)(
 				self.room_group_name,
 				{

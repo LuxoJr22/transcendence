@@ -428,8 +428,9 @@
                 play.cam.getObject().rotation.x = data.rotation.x
                 play.cam.getObject().rotation.y = data.rotation.y
                 play.cam.getObject().rotation.z = data.rotation.z
-
             }
+            if (data.event == "Quit")
+                window.location.href = '/';
 		}
 
         function timer_update(totalSeconds)
