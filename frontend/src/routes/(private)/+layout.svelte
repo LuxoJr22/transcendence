@@ -73,7 +73,7 @@
                         <a class="" style="" on:click={() => acceptFriendRequest(request.id)}>
                             <i class="bi bi-person-check-fill p-2" style="color:green; font-size:1.3rem;"></i>
                         </a>
-                        <a class="" style="" on:click={() => declineFriendRequest(request.id)}>
+                        <a class="" on:click={() => declineFriendRequest(request.id)}>
                             <i class="bi bi-person-fill-x p-2" style="color:red; font-size:1.3rem;"></i>
                         </a>
                     </div>

@@ -2,8 +2,6 @@
     import { onMount } from 'svelte';
     import { auth, refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
-    import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
-    import type { friendInterface } from '$lib/stores/friendship';
     import { fetchChatMessages, messages, updateMessages } from '$lib/stores/chat';
     import type { Messages } from '$lib/stores/chat';
     import { beforeUpdate, afterUpdate } from 'svelte';
@@ -11,11 +9,9 @@
     import type { Profile } from '$lib/stores/user';
     import ImgOnline from '../../../../lib/static/imgOnline.svelte' 
 
+
     let state: AuthState;
     state = $auth;
-
-    let listOfFriend : friendInterface[];
-    listOfFriend = $friendList;
 
     let chatMessages : Messages[];
     chatMessages = $messages;
@@ -23,33 +19,47 @@
     let user : Profile;
     user = $profile;
 
+    let allUser = new Array<Profile>();
+
     let newMessage = '';
     
     let latestDiscussion = [];
 
     async function fetchLatestDiscussion(){
-        const accessToken = localStorage.getItem('access_token');;
+        const accessToken = localStorage.getItem('access_token');
         const response = await fetch('/api/chat/history/', {
         headers: {
             'Authorization': `Bearer ${accessToken}`,
         }
         });
-        const data = await response.json();
-        return (data);
+        if (response.ok){
+            const data = await response.json();
+            return (data);
+        }
     };
 
-    let friendSearch : string;
+    let userSearch : string;
     function resetFriendSearch (){
-        friendSearch = '';
+        userSearch = '';
+    }
+
+    async function fetchAllUser(){
+        await refresh_token();
+        const accessToken = localStorage.getItem('access_token');
+        const response = await fetch('/api/user/list/', {
+            headers : { 'Authorization': `Bearer ${accessToken}`}
+        });
+
+        if (response.ok){
+            allUser = await response.json();
+        }
+
     }
     
     onMount(async () => {
-        await fetchFriendList();
+        await fetchAllUser();
         auth.subscribe((value : AuthState) =>{
             state = value;
-        });
-        friendList.subscribe((value : friendInterface[]) => {
-            listOfFriend = value;
         });
         messages.subscribe((value : Messages[]) => {
             chatMessages = value;
@@ -117,33 +127,33 @@
         <div class="col-3 border-end">
             <div class="d-flex m-4 row">
                 <h4 class="text-light col-10 mt-2 text-truncate">Discussions</h4>
-                <button type="button" class="btn col-2 p-0" data-bs-toggle="modal" data-bs-target="#friendListModal"><i class="bi bi-plus" style="color:white; font-size:2em"></i></button>
-                <div class="modal fade" id="friendListModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="friendListModalLabel" aria-hidden="true">
+                <button type="button" class="btn col-2 p-0" data-bs-toggle="modal" data-bs-target="#userListModal"><i class="bi bi-plus" style="color:white; font-size:2em"></i></button>
+                <div class="modal fade" id="userListModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="userListModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content text-light bg-dark">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="friendListModalLabel">Friends List</h1>
+                            <h1 class="modal-title fs-5" id="userListModalLabel">Friends List</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" on:click={resetFriendSearch}></button>
                         </div>
                         <div class="d-flex justify-content-center">
-                            <input class="form-control m-2 mt-4" placeholder="Find a friend to chat" bind:value={friendSearch} style="width:80%">
+                            <input class="form-control m-2 mt-4" placeholder="Find a user to chat" bind:value={userSearch} style="width:80%">
                         </div>
-                        <div class="modal-body d-flex justify-content-center row row-cols-4 friend-container m-0 me-2 mb-2">
-                            {#each listOfFriend as friend}
-                                {#if friend.username.includes(friendSearch) || !friendSearch}
+                        <div class="modal-body d-flex justify-content-center row row-cols-4 user-container m-0 me-2 mb-2">
+                            {#each allUser as user}
+                                {#if user.username.includes(userSearch) || !userSearch}
                                     <div class="col text-center p-0 m-2">
-                                        <button class="text-center btn text-light bg-gradient border rounded" on:click={resetFriendSearch} on:click={createRoom(friend.username, friend.id)} data-bs-dismiss="modal" aria-label="Close">
+                                        <button class="text-center btn text-light bg-gradient border rounded" on:click={resetFriendSearch} on:click={createRoom(user.username, user.id)} data-bs-dismiss="modal" aria-label="Close">
                                             <div class="d-flex justify-content-center">
-                                                <ImgOnline path={friend?.profile_picture_url} status={friend?.is_online} width=50% height=50% />
+                                                <ImgOnline path={user?.profile_picture_url} status={user?.is_online} width=50% height=50% />
                                             </div>
-                                            <p class="">{friend.username}</p>
+                                            <p class="">{user.username}</p>
                                             <i class="bi bi-plus" style="font-size:2em"></i>
                                         </button>    
                                     </div>
                                 {/if}
                             {/each}
-                            {#if !listOfFriend[0]}
-                                <p class="d-flex justify-content-center mt-3" style="color:grey;">Empty friend list</p>
+                            {#if !allUser[0]}
+                                <p class="d-flex justify-content-center mt-3" style="color:grey;">Empty user list</p>
                             {/if}
                         </div>
                         </div>
@@ -153,7 +163,7 @@
             {#if latestDiscussion[0]}
                 <div class="mx-3 my-2 discussions-container">
                     {#each latestDiscussion as msg}
-                        <div type="button" class="d-flex border rounded p-2 container my-2 friend-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2)" on:click={createRoom(msg.username, msg.id)}>
+                        <div type="button" class="d-flex border rounded p-2 container my-2 user-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2)" on:click={createRoom(msg.username, msg.id)}>
                             <ImgOnline path={msg?.profile_picture_url} status={msg?.is_online} width=20% height=15%/>
                             <div class="ms-5">
                                 <div class="row">
@@ -224,7 +234,7 @@
         overflow-y: auto;
     }
 
-    .friend-container{
+    .user-container{
         height: 20% !important;
         overflow-y: auto;
         overflow-x: hidden;
