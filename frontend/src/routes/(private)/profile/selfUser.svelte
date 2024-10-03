@@ -253,7 +253,7 @@
                 </div>
         </div>
         <div class="align-self-end align-img-end mb-3">
-            <button class="btn" type="button" data-bs-toggle="modal" data-bs-target="#userDataModal" style="text-decoration: none"><i class="bi bi-pencil hover-effect" style="color: grey; font-size: 1.3em"></i></button>
+            <button class="btn m-0 p-0" type="button" data-bs-toggle="modal" data-bs-target="#userDataModal" style="text-decoration: none"><i class="bi bi-pencil hover-effect" style="color: grey; font-size: 1.3em"></i></button>
         </div>
         <div class="modal fade" id="userDataModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -399,7 +399,8 @@
 
     .friend-container{
         width: 90%;
-        height: 20%;
+        height: 150px;
+        min-height: 20%;
         max-height: 20%;
         overflow: auto !important;
         scrollbar-width: thin;
