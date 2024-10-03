@@ -20,12 +20,14 @@
 	});
     let wsOnline : WebSocket;
     onMount(() => {
-        wsOnline = new WebSocket('/ws/status/?token=' + localStorage.getItem('access_token'));
+       if (state.accessToken != null)
+           wsOnline = new WebSocket('/ws/status/?token=' + localStorage.getItem('access_token'));
     });
 
     onDestroy(() =>{
-        wsOnline.close(0);
-        
+        if (wsOnline.readyState == 1){
+            wsOnline.close(0);
+        }
     });
 
 	async function handleLogout() {
