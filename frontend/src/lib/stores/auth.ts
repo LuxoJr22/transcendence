@@ -51,6 +51,35 @@ export async function login(username: string, password: string): Promise<void> {
     }
 }
 
+export async function login42(){
+    let code = new URLSearchParams(window.location.search).get('code');
+        
+    let response;
+    if (code && code != ''){
+        response = await fetch('/api/oauth42/callback/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code }),
+        });
+    }
+    if (response && response.ok){
+        const data = await response.json();
+        auth.set({
+            isAuthenticated: true,
+            user: {
+                id: data.user.id,
+                username: data.user.username,
+                email: data.user.email,
+                profile_picture: data.user.profile_picture_url,
+
+            }
+        });
+        localStorage.setItem('access_token', data.access);
+        localStorage.setItem('refresh_token', data.refresh);
+        return ('success');
+    }
+}
+
 export async function updateInformations(email: string, username: string): Promise<void> {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {

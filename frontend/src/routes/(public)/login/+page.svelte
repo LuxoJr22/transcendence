@@ -1,7 +1,8 @@
 <script lang="ts">;
     import { goto } from '$app/navigation';
-    import { login , auth} from '$lib/stores/auth';
+    import { login , login42, auth} from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth'
+    import { onMount } from 'svelte';
 
     let username = '';
     let password = '';
@@ -18,6 +19,14 @@
         else
             errorsLogin = true;
     }
+
+    onMount(async () => {
+        const status = await login42();
+        if (status == 'success'){
+            window.location.href= '/';
+        }
+    })
+
 
     const logo42 = new URL('$lib/assets/42_Logo.svg', import.meta.url).href
 </script>
@@ -47,7 +56,7 @@
             </div>
             <div class="btn-group-vertical col-12" role="group" aria-label="Vertical button group">
                 <button type="submit" class="m-1 btn btn-primary" on:click={resetLoginErrors}>Login</button>
-                <a href="https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-695587cb7aebd8ec53be9fd30a29b6ddc80fb47b198a9b1601abfc4a9792217b&redirect_uri=http%3A%2F%2Fc3r2p3%3A8080%2F&response_type=code" type="button" class="m-1 btn btn-light">Login with <img src={logo42} alt="" class="ms-1" style="height:1.5rem;"/></a>
+                <a href="api/oauth42/" type="button" class="m-1 btn btn-light">Login with <img src={logo42} alt="" class="ms-1" style="height:1.5rem;"/></a>
             </div>
         </form>
     </div>
