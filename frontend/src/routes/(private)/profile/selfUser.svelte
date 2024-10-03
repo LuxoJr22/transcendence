@@ -7,6 +7,7 @@
     import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
     import type { friendInterface } from '$lib/stores/friendship';
     import { userData } from '$lib/stores/user';
+    import ImgOnline from '$lib/static/imgOnline.svelte';
 
     interface User {
         id: number,
@@ -246,10 +247,12 @@
             </div>
                 <div class="mx-3 me-4 mb-5 friend-container">
                     {#each listOfFriend as friend}
-                        <div class="border rounded d-flex me-3 mb-2 my-bg-black">
-                            <img src={friend.profile_picture_url} class="img-circle rounded-circle m-2" style="object-fit:cover; width:15%; height:20%;">
+                        <div class="border rounded d-flex align-items-center me-2 mb-2 my-bg-black">
+                            <div class="d-flex ms-2 align-items-center">
+                                <ImgOnline path={friend?.profile_picture_url} status={friend?.is_online} width=20% height=20% />
+                                <p class="text-light ms-3 mt-3" style="font-size:100%;">{friend.username}</p>
+                            </div>
                             <div class="d-flex">
-                                <p class="text-light ms-2 mt-3" style="font-size:100%;">{friend.username}</p>
                                 <button class="btn" on:click={deleteFriend(friend.id)}><i class="bi bi-x-lg" style="color:red;"></i></button>
                             </div>
                         </div>

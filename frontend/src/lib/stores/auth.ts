@@ -65,7 +65,7 @@ export async function updateInformations(email: string, username: string): Promi
     const data = await response.json();
 
     if (response.ok) {
-        fetchUser();
+        await fetchUser();
         return ;
     } else {
         return (data);
@@ -88,7 +88,7 @@ export async function updatePassword(password: string, current_password: string)
     const data = await response.json();
 
     if (response.ok) {
-        fetchUser();
+        await fetchUser();
         return ('success');
     } else {
         return (data);
@@ -116,7 +116,7 @@ export async function updateProfilePicture(profile_picture: File) {
     const data = await response.json();
 
     if (response.ok) {
-        fetchUser();
+        await fetchUser();
         return ('success');
     }
     else {

@@ -9,7 +9,7 @@
     import { beforeUpdate, afterUpdate } from 'svelte';
     import { profileData, profile } from '$lib/stores/user';
     import type { Profile } from '$lib/stores/user';
-    import ImgOnline from './imgOnline.svelte' 
+    import ImgOnline from '../../../../lib/static/imgOnline.svelte' 
 
     let state: AuthState;
     state = $auth;
@@ -35,7 +35,6 @@
         }
         });
         const data = await response.json();
-        console.log(data);
         return (data);
     };
 
