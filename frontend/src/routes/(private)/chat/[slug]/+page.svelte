@@ -1,5 +1,6 @@
 <script lang='ts'>
     import { onDestroy, onMount } from 'svelte';
+    import { goto } from "$app/navigation"
     import { auth, refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchChatMessages, messages, updateMessages } from '$lib/stores/chat';
@@ -8,7 +9,6 @@
     import { profileData, profile } from '$lib/stores/user';
     import type { Profile } from '$lib/stores/user';
     import ImgOnline from '../../../../lib/static/imgOnline.svelte' 
-
 
     let state: AuthState;
     state = $auth;
@@ -74,7 +74,7 @@
         latestDiscussion = await fetchLatestDiscussion();
         if (userId == 'home')
             user = null;
-        if (parseInt(userId) == state.user?.id)
+        if (parseInt(userId) == state.user?.id || window.location.href == '/chat')
             window.location.href = '/chat/home/';
         else if (userId != 'home'){
             createRoom(parseInt(userId));
@@ -117,7 +117,6 @@
         }
         latestDiscussion = await fetchLatestDiscussion();
     }
-
 
     /****************autoScroll****************/
 
@@ -162,8 +161,8 @@
                                             <div class="d-flex justify-content-center">
                                                 <ImgOnline path={user?.profile_picture_url} status={user?.is_online} width=50% height=50% />
                                             </div>
-                                            <p class="">{user.username}</p>
-                                            <i class="bi bi-plus" style="font-size:2em"></i>
+                                            <p class="text-center">{user.username}</p>
+                                            <i class="bi bi-plus pt-2" style="font-size:1.8em"></i>
                                         </button>    
                                     </div>
                                 {/if}
@@ -179,14 +178,16 @@
             {#if latestDiscussion[0]}
                 <div class="mx-3 my-2 discussions-container">
                     {#each latestDiscussion as msg}
-                        <div type="button" class="d-flex border rounded p-2 container my-2 user-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2)" on:click={loadRoom(msg.id)}>
-                            <ImgOnline path={msg?.profile_picture_url} status={msg?.is_online} width=20% height=15%/>
+                        <div type="button" class="d-flex border rounded p-2 container my-2 user-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2);" on:click={loadRoom(msg.id)}>
+                            <div class="d-flex align-items-center" style="flex-shrink: 0; width: 20%; height: 15%;">
+                                <ImgOnline path={msg?.profile_picture_url} status={msg?.is_online} width=100% height=100%/>
+                            </div>    
                             <div class="ms-5">
                                 <div class="row">
-                                    <h5 class='text-light text-truncate'>{msg.username}</h5>
+                                    <a title="profile page" href="/profile/{user?.id}" class='text-light text-truncate h5 opacity' on:click={(event) => event.stopPropagation()}>{msg.username}</a>
                                 </div>
                                 <div class="row">
-                                    <p class='ms-2 m-0 p-0 text-truncate' style="color:grey">
+                                    <p class='ms-2 m-0 p-0 text-truncate' style="color:grey;">
                                         {#if msg.last_message.sender == state.user?.id}
                                             Me:
                                         {:else}
@@ -283,5 +284,14 @@
     }
     .sendBox input {
         border-radius: 10px;
+    }
+
+    .opacity{
+        text-decoration:none;
+    }
+
+    .opacity:hover {
+        opacity: 1;
+        text-decoration: underline;
     }
 </style>
