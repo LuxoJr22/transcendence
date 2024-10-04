@@ -64,6 +64,7 @@ class PrivateMatchmakingConsumer(WebsocketConsumer):
 					'event': 'Match',
 					'player1_id': self.player1,
 					'player2_id': self.player2,
+					'match_id':self.game_id,
 				} 
 			)
 

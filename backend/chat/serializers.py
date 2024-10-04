@@ -6,7 +6,7 @@ from users.serializers import PublicUserSerializer
 class MessageSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Message
-		fields = ['id', 'sender', 'receiver', 'content', 'timestamp']
+		fields = ['id', 'sender', 'receiver', 'content', 'is_invitation', 'gamemode', 'match_id', 'timestamp']
 
 class ChatHistorySerializer(PublicUserSerializer):
 	last_message = serializers.SerializerMethodField()
