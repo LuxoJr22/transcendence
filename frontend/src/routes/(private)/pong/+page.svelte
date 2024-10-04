@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import { Player } from "./player.js";
@@ -7,6 +7,7 @@
 	import { shade } from "./watershader";
 	import { Firework } from './firework.js';
 
+	var pongSocket: WebSocket;
 	let canvas;
 	var scoring = 0;
 
@@ -356,15 +357,15 @@
 
 		var frames = 0
 		let url = '/ws/pong/pong/' + localStorage.getItem('room_name') + '/?token=' + localStorage.getItem('access_token');
-		const chatSocket = new WebSocket(url)
+		pongSocket = new WebSocket(url)
 
-		chatSocket.onmessage = function(e) {
+		pongSocket.onmessage = function(e) {
 	
 			let data = JSON.parse(e.data)
 			if (data.event == 'Connected')
 			{
 				id = data.id
-				chatSocket.send(JSON.stringify({
+				pongSocket.send(JSON.stringify({
 					'event':'ready',
 					'id':id,
 				}))
@@ -428,14 +429,14 @@
 				scoring = data.scoring
 				if (id == 1)
 				{
-					chatSocket.send(JSON.stringify({
+					pongSocket.send(JSON.stringify({
 						'event':'frame',
 						'player1':play.controller,
 					}))
 				}
 				if (id == 2)
 				{
-					chatSocket.send(JSON.stringify({
+					pongSocket.send(JSON.stringify({
 						'event':'frame',
 						'player2':er.controller,
 					}))
@@ -443,7 +444,7 @@
 			}
 		}
 
-		chatSocket.onclose = function(e) {
+		pongSocket.onclose = function(e) {
 			window.location.href = '/';
 		}
 
@@ -475,7 +476,7 @@
 					cam.position.z = THREE.MathUtils.lerp(cam.position.z, 2, 0.1)
 					startend += dt
 					if (startend >= 20)
-						chatSocket.close()
+						pongSocket.close()
 					if( THREE.MathUtils.randInt( 1, 50 ) === 10)
     				{
     				    fireworks.push( new Firework( scene, [20 * Math.pow(-1, winner)] ) ); 
@@ -527,6 +528,11 @@
 		animate();
 	})();
 	});
+
+	onDestroy(() => {
+		if (pongSocket)
+			pongSocket.close();
+	})
 </script>
 
 <style>

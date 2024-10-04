@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 
@@ -18,7 +18,7 @@
 		
 		if (localStorage.getItem('access_token'))
 			await fetchUser();
-		if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "public") { //state.isAuthenticated &&
+		if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "public") {
 			ws = new WebSocket('/ws/pong_matchmaking/' + gamemode + '/?token=' + state.accessToken);
 			ws.onmessage = (event) => {
 				let data = JSON.parse(event.data);
@@ -38,7 +38,7 @@
 				}
 			}
 		}
-		else if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "private") { //state.isAuthenticated && 
+		else if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "private") {
 			var game_id = localStorage.getItem('game_id')
 			ws = new WebSocket('/ws/pong_private_matchmaking/' + gamemode + '/' + game_id + '/?token=' + state.accessToken);
 			ws.onmessage = (event) => {
@@ -55,6 +55,11 @@
 		}
 		else
 			window.location.href = '/';
+	});
+
+	onDestroy(() => {
+		if (ws)
+			ws.close();
 	});
 
 </script>
