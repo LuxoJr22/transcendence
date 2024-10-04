@@ -1,6 +1,40 @@
-<script>
+<script lang="ts">
     const img = new URL('$lib/assets/pong.png', import.meta.url).href
     const img1 = new URL('$lib/assets/game2.png', import.meta.url).href
+
+    //const create_tournament = document.getElementById("create_button");
+
+    var tournament_name : string
+
+    async function create_tournament() {
+        console.log(tournament_name)
+        const response = await fetch('api/tournament/create/', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json' ,'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+        body: JSON.stringify({ "name":`${tournament_name}`, 'nb_player':4}),
+		});
+		const data = await response.json();
+        if (response.ok)
+		{
+			window.location.href = `/tournament/${data.id}`;
+		}
+    }
+
+
+    /*let url = '/ws/tournament/pong/tournoi/?token=' + localStorage.getItem('access_token');
+    const chatSocket = new WebSocket(url)
+
+
+     chatSocket.onmessage = function(e) {
+	
+        let data = JSON.parse(e.data)
+
+        if (data.event = "Match")
+        {
+            localStorage.setItem('game_id', data.game_id);
+            window.location.href = 'matchmaking/pong/private';
+        }
+    }*/
     
 </script>
 
@@ -18,7 +52,7 @@
                 <div>
                     <div class="mb-3">
                         <label for="formGroupExampleInput" class="form-label"><h4>Tournament's name</h4></label>
-                        <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Enter name">
+                        <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Enter name" bind:value={tournament_name}>
                     </div>
                 </div>
                 <div class="">
@@ -60,9 +94,21 @@
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-center mb-4">
-                <button type="button" class="btn btn-dark btn-lg mb-5 p-3">Create Tournament</button>
+            <div class="d-flex justify-content-center mb-4" >
+                {#if tournament_name==undefined || tournament_name==""}
+                    <button class="btn btn-dark btn-lg mb-5 p-3 mybtn" style="opacity:0.7" title="Insert a Tournament name">Create Tournament</button>
+                {:else}
+                    <button type="button" class="btn btn-dark btn-lg mb-5 p-3" on:click={create_tournament}>Create Tournament</button>
+                {/if}
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .mybtn:hover {
+        opacity: 0.7 !important;
+        background-color: #212529 !important;
+        cursor:not-allowed;
+    }
+</style>

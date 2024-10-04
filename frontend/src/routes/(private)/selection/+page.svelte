@@ -216,6 +216,7 @@
 					draggable.throwed = 1;
 					draggable.targetx = found[i].point.x 
 					draggable.targetz = found[i].point.z
+					draggable.moving = 0;
 					ui.style.cursor = "url('src/routes/(private)/selection/public/hand.png'), auto";
 
 					draggable = null
