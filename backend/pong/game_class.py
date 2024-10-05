@@ -11,7 +11,9 @@ class Game:
 		self.winner = 0
 		self.scoring = 0
 		self.lastscore = 1
+		self.game_state = 0
 		self.gamemode = gamemode
+		self.limit = {'yp':7, 'yn':-7}
 		self.ballx = 0
 		self.bally = 0
 		self.balldir = 1.5
@@ -24,6 +26,7 @@ class Game:
 		else :
 			self.player1 = Player(-17, 0, {"px": 0, "py":8, "nx":-18, "ny":-8}, 1, player1)
 			self.player2 = Player(17, 0, {"px": 18, "py":8, "nx": 0, "ny":-8}, -1, player2)
+			self.limit = {'yp': 10, 'yn':-10}
 
 
 	def update(self):
@@ -61,7 +64,7 @@ class Game:
 			self.balldir = lerp(self.balldir, -self.ballspeed, 0.05, dt)
 		if (self.balldir > 0 ):
 			self.balldir = lerp(self.balldir, self.ballspeed, 0.05, dt)
-		if (self.bally >= 7 or self.bally <= -7):
+		if ((self.bally >= self.limit["yp"] and self.balldiry > 0) or (self.bally <= self.limit["yn"] and self.balldiry < 0)):
 			self.balldiry *= -1
 		if (self.ballx >= 18 or self.ballx <= -18):
 			if (self.ballx >= 18):
@@ -78,6 +81,8 @@ class Game:
 			self.ballx = 0
 			self.bally = 16
 			self.endscoring = self.t + 2
+			if (self.winner):
+				self.endscoring += 20
 		if (self.endscoring < self.t and self.scoring):
 			self.reset()
 

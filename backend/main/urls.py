@@ -10,6 +10,7 @@ urlpatterns = [
 	path('api/', include('chat.urls')),
 	path('api/', include('tournament.urls')),
 	path('api/', include('pong.urls')),
+	path('api/', include('shooter.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

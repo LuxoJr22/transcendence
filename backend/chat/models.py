@@ -8,5 +8,9 @@ class Message(models.Model):
 	content = models.TextField()
 	timestamp = models.DateTimeField(default=timezone.now)
 
+	is_invitation = models.BooleanField(default=False)
+	gamemode = models.CharField(max_length=12, null=True, blank=True)
+	match_id = models.IntegerField(null=True, blank=True)
+
 	def __str__(self):
 		return f"Message from {self.sender} to {self.receiver} at {self.timestamp}"

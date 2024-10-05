@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
@@ -11,6 +11,7 @@
 	import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 	import {CrtShader} from "./crtShader.js";
 
+	var pongSocket: WebSocket;
 	let canvas;
 	var scoring = 0;
 
@@ -40,7 +41,7 @@
 
 		const WinMesh = await loader.loadAsync('src/routes/(private)/pong_retro/public/win.glb');
 		WinMesh.scene.rotation.x = Math.PI / 2
-		WinMesh.scene.position.z = 17
+		WinMesh.scene.position.z = 15
 		WinMesh.scene.position.x = -2.25
 		WinMesh.scene.scale.y = 0.1
 		const winMat = new THREE.MeshStandardMaterial( { color: 0x0000FF } ); 
@@ -52,7 +53,7 @@
 
 		const LoseMesh = await loader.loadAsync('src/routes/(private)/pong_retro/public/lose.glb');
 		LoseMesh.scene.rotation.x = Math.PI / 2
-		LoseMesh.scene.position.z = 17
+		LoseMesh.scene.position.z = 15
 		LoseMesh.scene.position.x = -2.25
 		LoseMesh.scene.scale.y = 0.1
 		const loseMat = new THREE.MeshStandardMaterial( { color: 0xFF0000 } ); 
@@ -119,7 +120,7 @@
 
 		textur.wrapT = THREE.RepeatWrapping;
 
-		const plain = new THREE.Mesh(new THREE.PlaneGeometry(54, 36), new THREE.MeshStandardMaterial( { map :textur }));
+		const plain = new THREE.Mesh(new THREE.PlaneGeometry(52, 30), new THREE.MeshStandardMaterial( { map :textur }));
 		//plain.layers.toggle(1)
 
 
@@ -145,10 +146,12 @@
         ui.style.height = canvasSize.height + "px";
         ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
         ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+		score1.style.fontSize = canvasSize.height / 10 + "px"
+		score2.style.fontSize = canvasSize.height / 10 + "px"
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
 
-		camera.position.z = 20;
+		camera.position.z = 18;
 
 		var xSpeed = 0.15;
 		var ySpeed = 0.15;
@@ -231,6 +234,8 @@
             ui.style.height = canvasSize.height + "px";
             ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
             ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+			score1.style.fontSize = canvasSize.height / 10 + "px"
+			score2.style.fontSize = canvasSize.height / 10 + "px"
 		}
 
 		function onDocumentKeyDown(event) {
@@ -258,18 +263,17 @@
 		//#region Collision
 
 		let url = '/ws/pong/pong_retro/' + localStorage.getItem('room_name') + '/?token=' + localStorage.getItem('access_token');
-		const chatSocket = new WebSocket(url)
+		pongSocket = new WebSocket(url)
 
-		chatSocket.onmessage = function(e) {
+		pongSocket.onmessage = function(e) {
 	
 			let data = JSON.parse(e.data)
 			if (data.event == 'Connected')
 			{
-				console.log('connected')
 				id = data.id
 				if (id == 1)
 				{
-				chatSocket.send(JSON.stringify({
+				pongSocket.send(JSON.stringify({
 					'event':'frame',
 					'player1':play.controller,
 					'game':"pong_retro"
@@ -277,7 +281,7 @@
 				}
 				if (id == 2)
 				{
-				chatSocket.send(JSON.stringify({
+				pongSocket.send(JSON.stringify({
 					'event':'frame',
 					'player2':er.controller,
 				}))
@@ -285,6 +289,8 @@
 			}
 			else if (data.event == 'endMatch')
 			{
+				scene.remove(play.mesh)
+				scene.remove(er.mesh)
 				end = 1;
 				if (data.id == id)
 					endtext = WinMesh.scene;
@@ -312,14 +318,14 @@
 				scoring = data.scoring
 				if (id == 1 && end == 0)
 				{
-					chatSocket.send(JSON.stringify({
+					pongSocket.send(JSON.stringify({
 						'event':'frame',
 						'player1':play.controller,
 					}))
 				}
 				if (id == 2 && end == 0)
 				{
-					chatSocket.send(JSON.stringify({
+					pongSocket.send(JSON.stringify({
 						'event':'frame',
 						'player2':er.controller,
 					}))
@@ -327,7 +333,7 @@
 			}
 		}
 
-		chatSocket.onclose = function(e) {
+		pongSocket.onclose = function(e) {
 			window.location.href = '/';
 		}
 
@@ -433,12 +439,12 @@
 			if (end == 1)
 			{
 				startend += dt
-				if (Math.floor(startend % 2) == 0)
+				if (Math.floor(startend % 2) == 1)
 					scene.remove(endtext)
 				else
 					scene.add(endtext)
 				if (startend >= 5)
-					chatSocket.close()
+					pongSocket.close()
 			}
 			scene.traverse(nonBloomed)
 			composer.render();
@@ -451,6 +457,11 @@
 		animate();
 	})();
 	});
+
+	onDestroy(() => {
+		if (pongSocket)
+			pongSocket.close()
+	})
 </script>
 
 <style>
@@ -480,6 +491,7 @@
 		font-family: "Silkscreen", sans-serif;
 		/*font-family: "Tiny5", sans-serif;*/
   		/* font-weight: 400; */
+		margin-top: 3%;
   		font-style: normal;
 		color:white;
 		font-size: 70px;
@@ -498,4 +510,4 @@
 </div>
 
 
-<canvas bind:this={canvas} class="game"></canvas>
+<canvas bind:this={canvas} class="d-flex flex-column game"></canvas>

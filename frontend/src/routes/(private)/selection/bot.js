@@ -3,9 +3,10 @@ import { SkeletonCollider } from "./skeletoncollider.js"
 import { equal } from "./utils.js"
 
 export class Bot{
-	constructor(mesh, scene){
+	constructor(mesh, scene, name){
 		this.scene = scene
-		this.mesh = mesh
+		this.name = name
+		this.mesh = mesh.scene
 		this.mesh.traverse(function(node) {
             if (node.isMesh)
                 node.castShadow = true;
@@ -14,12 +15,14 @@ export class Bot{
         })
 		const pick = []
 		this.skeletoncollider = new SkeletonCollider(this.mesh, this.scene, pick)
-		this.target = this.mesh.getObjectByName("Bone001").children;
-		this.target.concat(this.pick)
 		this.scene.add(this.mesh)
 		this.left = this.mesh.getObjectByName("Bone003L");
 		this.right = this.mesh.getObjectByName("Bone003R");
 		this.bone = this.mesh.getObjectByName("Bone");
+		this.target = this.mesh.getObjectByName("Bone001").children;
+		this.dest = [0, 0, 0]
+		this.iscalled = 0
+		this.target = this.target.concat(pick)
 		this.gravity = -9.81
 		this.movements =  {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
 		this.lastmove = 0
@@ -47,28 +50,52 @@ export class Bot{
 			this.moving = 0
 		if (this.mesh.position.y > 0)
 		{
-			this.mesh.position.y += this.gravity * dt * 3
-			this.mesh.rotation.x = THREE.MathUtils.lerp(this.mesh.rotation.x, 0, 0.1)
+			if (!this.ispicked)
+			{
+				this.mesh.position.y += this.gravity * dt * 3
+				this.mesh.rotation.x = THREE.MathUtils.lerp(this.mesh.rotation.x, 0, 0.1)
+			}
 			this.isground = 0
 		}
 		else
+		{
+			if (this.isground == 0)
+				this.mesh.rotation.x = 0
 			this.isground = 1
-		if (this.moving && !this.ispicked)
+			
+		}
+		if (this.moving && !this.ispicked && !this.iscalled)
 		{
 			this.movements.xp = 0.1
-			this.mesh.translateZ(0.06)
+			this.mesh.translateZ(0.04)
 			this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, this.rotationy, 0.1)
-			//this.rotationy += this.rotation
 		}
-		else
+		else if (!this.iscalled)
 			this.movements.xp = 0
 
 		if (this.throwed)
 			this.throw()
 		if (!this.ispicked)
 			this.movelegs()
-		else
+		else if (this.ispicked)
 			this.picked()
+		if (this.iscalled)
+			this.called()
+	}
+	called()
+	{
+		this.mesh.translateZ(0.1)
+		this.movements.xp = 0.2
+		if (this.mesh.position.x >= this.dest[0] - 0.1 && this.mesh.position.x <= this.dest[0] + 0.1 
+			&& this.mesh.position.z >= this.dest[2] - 0.1 && this.mesh.position.z <= this.dest[2] + 0.1)
+		{
+			this.mesh.position.x = this.dest[0]
+			this.mesh.position.z = this.dest[2]
+			this.mesh.rotation.y = 0
+			this.iscalled = 0
+			this.movements.xp = 0
+		}
+		
 	}
 	throw()
 	{
@@ -107,11 +134,15 @@ export class Bot{
 	}
 	move()
 	{
-		if (THREE.MathUtils.randInt(0, 2) == 0 && !this.ispicked && this.isground)
+		if (THREE.MathUtils.randInt(0, 2) == 0 && !this.ispicked && this.isground && !this.throwed && !this.iscalled)
 		{
 			this.moving = 1
 			this.rotationy = THREE.MathUtils.randFloat(0, 3.14)
 			this.rotation = THREE.MathUtils.randFloat(-0.01, 0.01)
+		}
+		if (this.mesh.position.y > 17 || this.mesh.position.y < -17 || this.mesh.position.x > 33 || this.mesh.position.x < -33)
+		{
+			this.moving = 0;
 		}
 	}
 	movelegs()

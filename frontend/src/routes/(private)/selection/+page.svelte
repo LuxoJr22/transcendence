@@ -11,8 +11,11 @@
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
 		scene.background = new THREE.Color(0xCCCCCC);
+		var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 16 * 9}
 
-
+		var game = document.getElementById("gameCanvas");
+		var ui = document.getElementById("ui")
+		var whistle = document.getElementById("whistle")
 
 		var t = 0;
 		const clock = new THREE.Clock();
@@ -21,29 +24,28 @@
 
 		var bots = [];
 
-
 		const pop = await loader.loadAsync('src/lib/assets/skins/vazy.glb');
 		pop.scene.scale.set(0.5, 0.5, 0.5);
-		pop.scene.position.set(0, 0, 5)
+		pop.scene.position.set(0, 0, 8)
 		bots.push(new Bot(pop, scene, 'vazy.glb'))
 
 
 		const gentleman = await loader.loadAsync('src/lib/assets/skins/gentleman.glb');
 		gentleman.scene.scale.set(0.5, 0.5, 0.5);
+		gentleman.scene.position.set(5, 0, 8)
 		bots.push(new Bot(gentleman, scene, 'gentleman.glb'))
-
-		gentleman.scene.position.set(10, 0, 5)
 
 		const pirate = await loader.loadAsync('src/lib/assets/skins/pirate.glb');
 		pirate.scene.scale.set(0.5, 0.5, 0.5);
+		pirate.scene.position.set(-5, 0, 8)
 		bots.push(new Bot(pirate, scene, 'pirate.glb'))
-
-		pirate.scene.position.set(-10, 0, 5)
+		
 
 		const def = await loader.loadAsync('src/lib/assets/skins/default.glb');
 		def.scene.scale.set(0.5, 0.5, 0.5);
+		def.scene.position.set(-10, 0, 8)
 		bots.push(new Bot(def, scene, 'default.glb'))
-		def.scene.position.set(-20, 0, 5)
+		
 
 
 
@@ -55,6 +57,7 @@
 
 		var mat = new THREE.MeshStandardMaterial( { map : texture})
 		const plain = new THREE.Mesh(new THREE.PlaneGeometry(100, 50), mat);
+		plain.position.x = 12.5
 		plain.rotation.x = -Math.PI / 2
 		scene.add(plain)
 		plain.name = "floor"
@@ -64,12 +67,16 @@
 		const light = new THREE.AmbientLight(0xffffff)
 		scene.add(light)
 
-		const dl = new THREE.DirectionalLight( 0xffffff, 2 );
+		const dl = new THREE.DirectionalLight( 0xffffff, 1.5);
 		dl.position.set( 0, 5, 0 );
 		scene.add( dl );
 
 		const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
-		renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+		renderer.setSize( canvasSize.width, canvasSize.height);
+		ui.style.width = canvasSize.width + "px";
+        ui.style.height = canvasSize.height + "px";
+        ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+        ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		var top = renderer.domElement.getBoundingClientRect().top
 		var left = renderer.domElement.getBoundingClientRect().left
 		renderer.shadowMap.enabled = true;
@@ -77,17 +84,13 @@
 		
 
 
-		//const controls = new OrbitControls( camera, renderer.domElement );
-		//controls.update();
-
-
 		camera.position.z = 20;
 		camera.position.y = 15;
-		camera.rotation.x = -Math.PI / 3.5
+		camera.rotation.x = -Math.PI / 3
 
 		const plan = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), mat);
-		plan.position.y = 24
-		plan.rotation.x = -Math.PI / 3.5
+		plan.position.y = 16
+		plan.rotation.x = -Math.PI / 3
 		plan.name = "frontplane"
 		scene.add(plan)
 		plan.visible = false
@@ -152,7 +155,13 @@
 		);
 
 		window.onresize = function(event){
-			renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
+			canvasSize.width = window.innerWidth * 0.7
+			canvasSize.height = window.innerWidth * 0.7 / 16 * 9
+			renderer.setSize( canvasSize.width, canvasSize.height);
+			ui.style.width = canvasSize.width + "px";
+        	ui.style.height = canvasSize.height + "px";
+        	ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+        	ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 			top = renderer.domElement.getBoundingClientRect().top
 			left = renderer.domElement.getBoundingClientRect().left
 		}
@@ -163,6 +172,29 @@
 		const clickmouse = new THREE.Vector2()
 		const moveMouse = new THREE.Vector2()
 		var draggable = null
+
+		whistle.addEventListener('click', (e) => {
+			var i = 0
+			while (bots[i])
+			{
+				bots[i].moving = 0;
+				bots[i].iscalled = 1;
+				bots[i].mesh.rotation.y = 0
+				let destx = i * 5 - ((bots.length - 1) * 5 / 2)
+				let hypo = Math.sqrt(Math.pow(bots[i].mesh.position.x - destx, 2) + Math.pow(bots[i].mesh.position.z - 8, 2))
+				let scal = 8 - bots[i].mesh.position.z
+				let angle = Math.acos(scal / ( hypo))
+				if (hypo == 0)
+					angle = 0
+				bots[i].mesh.rotation.y = angle
+				if (destx - bots[i].mesh.position.x < 0)
+					bots[i].mesh.rotation.y *= -1
+				if (destx - bots[i].mesh.position.x == 0 && 8 - bots[i].mesh.position.z < 0 )
+					bots[i].mesh.rotation.y *= -1
+				bots[i].dest = [i * 5 - ((bots.length - 1) * 5 / 2), 0, 8]
+				i ++
+			}
+		})
 
 		window.addEventListener('click', async(event) => {
 			if (draggable)
@@ -184,6 +216,7 @@
 					draggable.throwed = 1;
 					draggable.targetx = found[i].point.x 
 					draggable.targetz = found[i].point.z
+					ui.style.cursor = "url('src/routes/(private)/selection/public/hand.png'), auto";
 
 					draggable = null
 				}
@@ -200,13 +233,14 @@
 			{
 				var obj = found[1].object
 				var i = 0
-				console.log(obj)
 				while (bots[i])
 				{
 					if (bots[i].target.includes(obj))
 					{
 						
 						draggable = bots[i]
+						ui.style.cursor = "url('src/routes/(private)/selection/public/closedHand.png'), auto";
+						draggable.throwed = 0 
 						bots[i].ispicked = 1
 						const response = await fetch('api/user/skin/update/', {
 							method: 'PATCH',
@@ -234,10 +268,10 @@
 					for (let o of found) {
 						if (o.object.name == "frontplane"){
 							draggable.mesh.position.x = THREE.MathUtils.lerp(draggable.mesh.position.x, o.point.x, 0.1)
-							draggable.mesh.position.z = THREE.MathUtils.lerp(draggable.mesh.position.z, o.point.z, 0.1)
-							draggable.mesh.position.y = THREE.MathUtils.lerp(draggable.mesh.position.y, o.point.y, 0.1)
+							draggable.mesh.position.z = THREE.MathUtils.lerp(draggable.mesh.position.z, o.point.z + 1, 0.1)
+							draggable.mesh.position.y = THREE.MathUtils.lerp(draggable.mesh.position.y, o.point.y - 1, 0.1)
 							draggable.mesh.rotation.y = THREE.MathUtils.lerp(draggable.mesh.rotation.y, 0, 0.1)
-							draggable.mesh.rotation.x = THREE.MathUtils.lerp(draggable.mesh.rotation.x, -Math.PI / 3.5, 0.1)
+							draggable.mesh.rotation.x = THREE.MathUtils.lerp(draggable.mesh.rotation.x, -Math.PI / 6, 0.1)
 						}
 					}
 				}
@@ -268,10 +302,44 @@
 </script>
 
 <style>
+	#ui {
+        position: absolute;
+		width: 10px;
+		height: 10px;
+		cursor: url("src/routes/(private)/selection/public/hand.png"), auto;
+    }
+
+
+	#whistle {
+		display: block;
+		position: relative;
+		max-width:10%;
+		top: 75%;
+		left: 85%
+	}
+
+	#whistle >img {
+		display: block !important;
+		position: relative;
+		height: 100%;
+		width: 100%;
+		/* transform: translate(-50%, 50%); */
+	}
+
 	.game {
 	        /*border-radius: 3% !important;*/
 	        margin: auto !important;
+
 	    }
+	#gameCanvas {
+		cursor: url("src/routes/(private)/selection/public/hand.png"), auto;
+	}
 </style>
 
-<canvas bind:this={canvas} class="game"></canvas>
+<div id="ui">
+	<div id="whistle">
+		<img src="src/routes/(private)/selection/public/whistle4.png"/>
+	</div>
+</div>
+
+<canvas bind:this={canvas} class="d-flex flex-column game" id="gameCanvas"></canvas>

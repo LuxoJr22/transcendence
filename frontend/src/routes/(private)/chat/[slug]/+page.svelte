@@ -22,7 +22,7 @@
     let allUser = new Array<Profile>();
 
     let newMessage = '';
-    
+
     let latestDiscussion : History[];
     latestDiscussion = $history;
 
@@ -95,9 +95,8 @@
             updateMessages(data);
             await fetchLatestDiscussion();
             await fetchChatMessages(id);
-            if (data.match_id) {
-                if (data.sender == state.user?.username)
-                    joinPrivateGame(data.gamemode, data.match_id);
+            if (data.match_id && data.sender == state.user?.username) {
+                joinPrivateGame(data.gamemode, data.match_id);
             }           
         };
         await fetchChatMessages(id);
@@ -145,7 +144,6 @@
             ws.close();
         }
     });
-
     /****************autoScroll****************/
 
     let div;
@@ -204,6 +202,7 @@
                 </div>
             </div>
             {#if latestDiscussion && latestDiscussion[0]}
+
                 <div class="mx-3 my-2 discussions-container">
                     {#each latestDiscussion as msg}
                         <div type="button" class="d-flex border rounded p-2 container my-2 user-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2);" on:click={loadRoom(msg.id)}>

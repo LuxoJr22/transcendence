@@ -13,6 +13,19 @@
     let canvas;
 
     onMount(() => { (async () => {
+        var match_id
+
+        const response = await fetch('api/shooter/create/', {
+		method: 'POST',
+		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		});
+		const data = await response.json();
+		if (response.ok)
+		{
+			match_id = data.match
+		}
+
+        var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 16 * 9}
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
         
@@ -28,6 +41,7 @@
         var circle = document.getElementById("circular");
         var ficon = document.getElementById("flagicon");
         var scoreboard = document.getElementById("scoreboard")
+        var timer = document.getElementById("timer")
         var table_body = document.getElementById("mytbody")
 
         var score_cells = []
@@ -124,11 +138,12 @@
         dl.shadow.camera.right = -size;
 
         const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
-        renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
-        ui.style.width = window.innerWidth * 0.7 + "px";
-        ui.style.height = (window.innerWidth * 0.70) / 16 * 9 + "px";
+        renderer.setSize( canvasSize.width, canvasSize.height);
+        ui.style.width = canvasSize.width + "px";
+        ui.style.height = canvasSize.height + "px";
         ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
         ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+        timer.style.fontSize = canvasSize.height / 10 + "px"
 		renderer.shadowMap.enabled = true;
         document.body.appendChild( renderer.domElement );
 
@@ -223,11 +238,15 @@
         );
 
         window.onresize = function(event){
-            renderer.setSize( window.innerWidth * 0.70, (window.innerWidth * 0.70) / 16 * 9);
-            ui.style.width = window.innerWidth * 0.7 + "px";
-            ui.style.height = (window.innerWidth * 0.70) / 16 * 9 + "px";
+			canvasSize.width = window.innerWidth * 0.7
+			canvasSize.height = window.innerWidth * 0.7 / 16 * 9
+            renderer.setSize( canvasSize.width, canvasSize.height);
+            ui.style.width = canvasSize.width + "px";
+            ui.style.height = canvasSize.height + "px";
             ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
             ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+            timer.style.fontSize = canvasSize.height / 10 + "px"
+
             
         }
 
@@ -300,7 +319,7 @@
             players.push(pl);
         }
 
-        let url = '/ws/shooter/?token=' + localStorage.getItem('access_token');
+        let url = '/ws/shooter/shooter_' + match_id + '/?token=' + localStorage.getItem('access_token');
 		const chatSocket = new WebSocket(url)
         
 		chatSocket.onmessage = function(e) {
@@ -375,6 +394,7 @@
             if (data.event == 'frame')
             {
                 let i = 0
+                timer_update(Math.floor(data.timer))
                 while (players[i])
                 {
                     let actid = players[i].id
@@ -408,9 +428,22 @@
                 play.cam.getObject().rotation.x = data.rotation.x
                 play.cam.getObject().rotation.y = data.rotation.y
                 play.cam.getObject().rotation.z = data.rotation.z
-
             }
+            if (data.event == "Quit")
+                window.location.href = '/';
 		}
+
+        function timer_update(totalSeconds)
+        {
+            if (totalSeconds < 0)            
+                totalSeconds = 0
+            let seconds = totalSeconds % 60;
+            let secondsTens = Math.floor(seconds / 10);
+            let secondsOnes = seconds % 10;
+            let minutes = Math.floor(totalSeconds / 60);
+
+            timer.innerHTML = "" + minutes + ":" + secondsTens + secondsOnes;
+        }
 
 
         function onDocumentKeyDown(event) {
@@ -493,6 +526,7 @@
 </script>
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
     #ui {
         position: absolute;
 		width: 10px;
@@ -519,6 +553,12 @@
         transform: translate(-50%, -50%);
     }
 
+    #timer {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%);
+    }
+
     #circular {
         pointer-events: none;
         position: absolute;
@@ -529,6 +569,20 @@
         border-radius: 50%;
         background: conic-gradient(#cccccc 0deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg);
     }
+
+    .text {
+		font-family: "Luckiest Guy", cursive;
+  		font-weight: 400;
+  		font-style: normal;
+		color:white;
+		font-size: 70px;
+		text-shadow:
+		2px 2px 0 #000,
+		-2px 2px 0 #000,
+		-2px -2px 0 #000,
+		2px -2px 0 #000;
+	}
+
 
     .game {
         /*border-radius: 3% !important;*/
@@ -575,6 +629,7 @@
     </div>
     <div>
         <img id="flagicon" alt="flag" src="src/routes/(private)/shooter/public/flag.png"/>
+        <span class="text" id="timer"></span>
     </div>
     <div id="crosshair">
         <div id="circular"></div>
@@ -594,4 +649,4 @@
     </div>
 </div>
 
-<canvas bind:this={canvas} class="game"></canvas>
+<canvas bind:this={canvas} class="d-flex flex-column game"></canvas>

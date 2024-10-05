@@ -1,8 +1,8 @@
 all:
-	@docker-compose -f docker-compose.yml up
+	@docker compose -f docker-compose.yml up
 
 clean:
-	@docker-compose -f docker-compose.yml down
+	@docker compose -f docker-compose.yml down
 
 fclean: clean
 #	@docker run -it -v ./:/trans alpine rm -rf /trans/database # Used for delete database folder at school
@@ -14,6 +14,7 @@ fclean: clean
 re: clean all
 
 prune: fclean
-	@docker-system prune -af
+	@docker system prune -af
+	@docker volume prune -f
 
 .PHONY: all clean fclean re prune
