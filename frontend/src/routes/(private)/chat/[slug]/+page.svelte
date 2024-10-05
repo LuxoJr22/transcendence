@@ -3,8 +3,8 @@
     import { goto } from "$app/navigation"
     import { auth, refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
-    import { fetchChatMessages, messages, updateMessages } from '$lib/stores/chat';
-    import type { Messages } from '$lib/stores/chat';
+    import { fetchChatMessages, messages, updateMessages, fetchLatestDiscussion , history} from '$lib/stores/chat';
+    import type { Messages, History } from '$lib/stores/chat';
     import { beforeUpdate, afterUpdate } from 'svelte';
     import { profileData, profile } from '$lib/stores/user';
     import type { Profile } from '$lib/stores/user';
@@ -22,21 +22,9 @@
     let allUser = new Array<Profile>();
 
     let newMessage = '';
-    
-    let latestDiscussion = [];
 
-    async function fetchLatestDiscussion(){
-        const accessToken = localStorage.getItem('access_token');
-        const response = await fetch('/api/chat/history/', {
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-        }
-        });
-        if (response.ok){
-            const data = await response.json();
-            return (data);
-        }
-    };
+    let latestDiscussion : History[];
+    latestDiscussion = $history;
 
     let userSearch : string;
     function resetFriendSearch (){
@@ -58,6 +46,7 @@
     
     onMount(async () => {
         await fetchAllUser();
+        await fetchLatestDiscussion();
         let userId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
         if (userId != 'home'){
             await profileData(parseInt(userId));
@@ -71,7 +60,9 @@
         profile.subscribe((value : Profile) =>{
             user = value;
         });
-        latestDiscussion = await fetchLatestDiscussion();
+        history.subscribe((value: History[]) =>{
+            latestDiscussion = value
+        })
         if (userId == 'home')
             user = null;
         if (parseInt(userId) == state.user?.id || window.location.href == '/chat')
@@ -100,10 +91,13 @@
             };
         };
         ws.onmessage = async function (event){
-            updateMessages(event.data);
-            latestDiscussion = await fetchLatestDiscussion();
+            const data = JSON.parse(event.data);
+            updateMessages(data);
+            await fetchLatestDiscussion();
             await fetchChatMessages(id);
-            
+            if (data.match_id && data.sender == state.user?.username) {
+                joinPrivateGame(data.gamemode, data.match_id);
+            }           
         };
         await fetchChatMessages(id);
     }
@@ -115,9 +109,41 @@
             ws.send(JSON.stringify({message}));
             newMessage = '';
         }
-        latestDiscussion = await fetchLatestDiscussion();
+        await fetchLatestDiscussion();
     }
 
+    async function inviteToPong(){
+        if (ws && ws.readyState === WebSocket.OPEN){
+            ws.send(JSON.stringify({
+                'message': 'Pong invite',
+                'invite_pong': true,
+                'gamemode': 'pong'
+            }));
+        }
+        await fetchLatestDiscussion();
+    }
+
+    async function inviteToPongRetro(){
+        if (ws && ws.readyState === WebSocket.OPEN){
+            ws.send(JSON.stringify({
+            'message': 'Pong invite',
+            'invite_pong': true,
+            'gamemode': 'pong_retro'
+            }));
+        }
+        await fetchLatestDiscussion();
+}
+
+    function joinPrivateGame(gamemode: string, match_id: string) {
+        localStorage.setItem('game_id', match_id);
+        window.location.href = `/matchmaking/${gamemode}/private/`;
+    }
+
+    onDestroy(() => {
+        if (ws){
+            ws.close();
+        }
+    });
     /****************autoScroll****************/
 
     let div;
@@ -175,16 +201,17 @@
                     </div>
                 </div>
             </div>
-            {#if latestDiscussion[0]}
+            {#if latestDiscussion && latestDiscussion[0]}
+
                 <div class="mx-3 my-2 discussions-container">
                     {#each latestDiscussion as msg}
                         <div type="button" class="d-flex border rounded p-2 container my-2 user-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2);" on:click={loadRoom(msg.id)}>
                             <div class="d-flex align-items-center" style="flex-shrink: 0; width: 20%; height: 15%;">
                                 <ImgOnline path={msg?.profile_picture_url} status={msg?.is_online} width=100% height=100%/>
-                            </div>    
+                            </div>
                             <div class="ms-5">
                                 <div class="row">
-                                    <a title="profile page" href="/profile/{user?.id}" class='text-light text-truncate h5 opacity' on:click={(event) => event.stopPropagation()}>{msg.username}</a>
+                                    <a title="profile page" href="/profile/{msg?.id}" class='text-light text-truncate h5 opacity' on:click={(event) => event.stopPropagation()}>{msg.username}</a>
                                 </div>
                                 <div class="row">
                                     <p class='ms-2 m-0 p-0 text-truncate' style="color:grey;">
@@ -193,7 +220,7 @@
                                         {:else}
                                             {msg.username}:  
                                         {/if}
-                                        {msg.last_message.content}
+                                            {msg.last_message.content}
                                     </p>
                                 </div>
                             </div>
@@ -217,6 +244,10 @@
                         <div class="d-flex justify-content-end text-center">
                             <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
                         </div>
+                    {:else if msg.is_invitation} 
+                        <div class="d-flex justify-content-start text-center" role="button" on:click={() => joinPrivateGame(msg.gamemode, msg.match_id)}>
+                            <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
+                        </div>
                     {:else}
                         <div class="d-flex justify-content-start text-center">
                             <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
@@ -231,6 +262,8 @@
                     <form class="sendBox mb-2">
                         <input type="text" bind:value={newMessage} class="">
                         <button class="btn btn-primary btn-sm" on:click={sendMessage}>Send</button>
+                        <button class="btn btn-primary btn-sm" on:click={inviteToPong}>Pong Invitation</button>
+                        <button class="btn btn-primary btn-sm" on:click={inviteToPongRetro}>Pong Retro Invitation</button>
                     </form>
                 </div>
                 {/if}
