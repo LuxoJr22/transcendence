@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
@@ -11,6 +11,7 @@
 	import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 	import {CrtShader} from "./crtShader.js";
 
+	var pongSocket: WebSocket;
 	let canvas;
 	var scoring = 0;
 
@@ -262,9 +263,9 @@
 		//#region Collision
 
 		let url = '/ws/pong/pong_retro/' + localStorage.getItem('room_name') + '/?token=' + localStorage.getItem('access_token');
-		const chatSocket = new WebSocket(url)
+		pongSocket = new WebSocket(url)
 
-		chatSocket.onmessage = function(e) {
+		pongSocket.onmessage = function(e) {
 	
 			let data = JSON.parse(e.data)
 			if (data.event == 'Connected')
@@ -272,7 +273,7 @@
 				id = data.id
 				if (id == 1)
 				{
-				chatSocket.send(JSON.stringify({
+				pongSocket.send(JSON.stringify({
 					'event':'frame',
 					'player1':play.controller,
 					'game':"pong_retro"
@@ -280,7 +281,7 @@
 				}
 				if (id == 2)
 				{
-				chatSocket.send(JSON.stringify({
+				pongSocket.send(JSON.stringify({
 					'event':'frame',
 					'player2':er.controller,
 				}))
@@ -317,14 +318,14 @@
 				scoring = data.scoring
 				if (id == 1 && end == 0)
 				{
-					chatSocket.send(JSON.stringify({
+					pongSocket.send(JSON.stringify({
 						'event':'frame',
 						'player1':play.controller,
 					}))
 				}
 				if (id == 2 && end == 0)
 				{
-					chatSocket.send(JSON.stringify({
+					pongSocket.send(JSON.stringify({
 						'event':'frame',
 						'player2':er.controller,
 					}))
@@ -332,7 +333,7 @@
 			}
 		}
 
-		chatSocket.onclose = function(e) {
+		pongSocket.onclose = function(e) {
 			window.location.href = '/';
 		}
 
@@ -443,7 +444,7 @@
 				else
 					scene.add(endtext)
 				if (startend >= 5)
-					chatSocket.close()
+					pongSocket.close()
 			}
 			scene.traverse(nonBloomed)
 			composer.render();
@@ -456,6 +457,11 @@
 		animate();
 	})();
 	});
+
+	onDestroy(() => {
+		if (pongSocket)
+			pongSocket.close()
+	})
 </script>
 
 <style>
