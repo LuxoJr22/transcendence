@@ -28,7 +28,7 @@
 					ws.close();
 					localStorage.setItem('room_name', room_name);
 					localStorage.setItem('game_id', data.match_id);
-					window.location.href = '/' + gamemode;
+					window.location.href = '/' + gamemode + '/';
 				}
 				if (data.event == 'Research')
 				{
@@ -49,7 +49,7 @@
 					ws.close();
 					localStorage.setItem('room_name', room_name);
 					localStorage.setItem('game_id', data.match_id);
-					window.location.href = '/' + gamemode;
+					window.location.href = '/' + gamemode + '/';
 				}
 			}
 		}
