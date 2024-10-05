@@ -98,7 +98,6 @@ export class Shooter {
 
 		if (this.cam && !test[0])
 		{
-			//console.log((this.velocity.x * dt * this.direction.z * -1) + (this.velocity.z * dt * this.direction.x))
 			this.cam.getObject().position.x += this.velocity.x * dt * this.direc.y * -1;
 			this.cam.getObject().position.z += this.velocity.x * dt * this.direc.x;
 			this.cam.getObject().position.x += this.velocity.z * dt * this.direc.x;

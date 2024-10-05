@@ -186,7 +186,6 @@
 				let angle = Math.acos(scal / ( hypo))
 				if (hypo == 0)
 					angle = 0
-				console.log(angle)
 				bots[i].mesh.rotation.y = angle
 				if (destx - bots[i].mesh.position.x < 0)
 					bots[i].mesh.rotation.y *= -1

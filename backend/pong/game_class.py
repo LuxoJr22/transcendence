@@ -11,6 +11,7 @@ class Game:
 		self.winner = 0
 		self.scoring = 0
 		self.lastscore = 1
+		self.game_state = 0
 		self.gamemode = gamemode
 		self.limit = {'yp':7, 'yn':-7}
 		self.ballx = 0
