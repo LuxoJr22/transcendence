@@ -35,20 +35,10 @@
 		auth.subscribe((value : AuthState) =>{
             state = value;
         });
-        if (status != 'success')
-            goto('/login');
+		let token = localStorage.getItem('access_token');
+        if (!token || token === '')
+            window.location.href = '/login';
 	});
-    let wsOnline : WebSocket;
-    onMount(() => {
-       if (state.accessToken != null)
-           wsOnline = new WebSocket('/ws/status/?token=' + localStorage.getItem('access_token'));
-    });
-
-    onDestroy(() =>{
-        if (wsOnline.readyState == 1){
-            wsOnline.close(0);
-        }
-    });
 
     let wsOnline : WebSocket;
     onMount( async () => {
