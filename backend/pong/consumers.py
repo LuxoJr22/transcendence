@@ -84,7 +84,7 @@ class PrivateMatchmakingConsumer(WebsocketConsumer):
 			'player1_id': event['player1_id'],
 			'player2_id': event['player2_id'],
 			'gamemode': self.gamemode,
-			'match_id': event["match_id"],
+			'match_id': self.game_id,
 			'room_name': f'{self.gamemode}_{self.game_id}'
 		}))
 

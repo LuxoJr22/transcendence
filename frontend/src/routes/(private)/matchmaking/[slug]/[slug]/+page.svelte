@@ -19,7 +19,7 @@
 		if (localStorage.getItem('access_token'))
 			await fetchUser();
 		if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "public") { //state.isAuthenticated &&
-			ws = new WebSocket('/ws/pong_matchmaking/' + gamemode + '/?token=' + state.accessToken);
+			ws = new WebSocket('ws://localhost:8000/ws/pong_matchmaking/' + gamemode + '/?token=' + state.accessToken);
 			ws.onmessage = (event) => {
 				let data = JSON.parse(event.data);
 				if (data.event == 'Match' && state.user?.id == data.player1_id || state.user?.id == data.player2_id) {
@@ -40,7 +40,7 @@
 		}
 		else if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "private") { //state.isAuthenticated && 
 			var game_id = localStorage.getItem('game_id')
-			ws = new WebSocket('/ws/pong_private_matchmaking/' + gamemode + '/' + game_id + '/?token=' + state.accessToken);
+			ws = new WebSocket('ws://localhost:8000/ws/pong_private_matchmaking/' + gamemode + '/' + game_id + '/?token=' + state.accessToken);
 			ws.onmessage = (event) => {
 				let data = JSON.parse(event.data);
 				if (data.event == 'Match' && state.user?.id == data.player1_id || state.user?.id == data.player2_id) {

@@ -27,13 +27,37 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 			self.channel_name
 		)
 
-		if self.user not in self.tournament_room.participants.all():
+		if self.user not in self.tournament_room.participants.all() and self.tournament_room.participants.count() < self.tournament_room.nb_player:
 			self.tournament_room.participants.add(self.user)
-		
-		self.accept()
 
-		values = []
+		self.accept()
+		if self.tournament_room.last_round == None:
+			nb_player = self.tournament_room.nb_player
+		else:
+			nb_player = self.tournament_room.participants.count()
+
+		async_to_sync(self.channel_layer.group_send)(
+				self.room_group_name,
+				{
+					'type': 'Connection',
+					'event': 'connection',
+					'players': list(self.tournament_room.participants.all().values("username")),
+					'games': list(self.tournament_room.matchs.all().values("player1", "player2", "score1", "score2", "winner")),
+					'nb_players': nb_player,
+				} 
+			)
 		
+	def Connection(self, event):
+		self.send(text_data=json.dumps({
+			'type': 'Tournament',
+			'event': 'Connection',
+			'players': event['players'],
+			'games': event['games'],
+			'nb_players': event['nb_players']
+		}))
+		
+	def launch_match(self):
+		values = []
 		if self.tournament_room.participants.count() == self.tournament_room.nb_player and self.tournament_room.last_round == None:
 			qs = self.tournament_room.participants.all()
 			values = [item.id for item in qs]
@@ -70,7 +94,6 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 					'event': 'Match',
 				} 
 			)
-		
 
 
 	def disconnect(self, code):
@@ -78,8 +101,15 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-		if self.user in self.tournament_room.participants.all():
+		if self.user in self.tournament_room.participants.all() and self.tournament_room.last_round == None:
+			print("dico", file=sys.stderr)
 			self.tournament_room.participants.remove(self.user)
+	
+	def receive(self, text_data):
+		text_data_json = json.loads(text_data)
+		event = text_data_json['event']
+		if (event == 'Match_button'):
+			self.launch_match()
 
 	def Starting_matchs(self, event):
 		qs = self.tournament_room.matchs.all()
@@ -87,6 +117,7 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 
 		for game in values:
 			if self.user.id == game["player1"] or self.user.id == game["player2"]:
+				print(game["id"], file=sys.stderr)
 				self.send(text_data=json.dumps({
 					'type': 'Starting_match',
 					'event': 'Match',

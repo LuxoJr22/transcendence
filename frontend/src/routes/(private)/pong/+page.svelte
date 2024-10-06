@@ -355,7 +355,7 @@
 
 
 		var frames = 0
-		let url = '/ws/pong/pong/' + localStorage.getItem('room_name') + '/?token=' + localStorage.getItem('access_token');
+		let url = 'ws://localhost:8000/ws/pong/pong/' + localStorage.getItem('room_name') + '/?token=' + localStorage.getItem('access_token');
 		const chatSocket = new WebSocket(url)
 
 		chatSocket.onmessage = function(e) {
@@ -540,7 +540,6 @@
     }
 
 	#score {
-		display: none;
 		position: absolute;
 		width: 100%;
 		height: 100%;
