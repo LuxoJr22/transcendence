@@ -69,17 +69,27 @@
         for (let i = 0; data[i] ; i++){
             let player1 : any = await userData(data[i].player1 == state.user?.id ? data[i].player1 : data[i].player2);
             let player2 : any = await userData(data[i].player1 != state.user?.id ? data[i].player1 : data[i].player2);
+            let scoreMe = 0;
+            let scoreOpponent = 0;
+            if (data[i].player1 == state.user?.id){
+                scoreMe = data[i].score1;
+                scoreOpponent = data[i].score2; 
+            }
+            else {
+                scoreMe = data[i].score2;
+                scoreOpponent = data[i].score1;
+            }
             let game = {
                 me: {
                     id: player1.id,
                     username: player1.username,
-                    score: 5,
+                    score: scoreMe,
                     profile_picture_url : player1.profile_picture_url
                 },
                 opponent: {
                     id: player2.id,
                     username: player2.username,
-                    score: 5,
+                    score: scoreOpponent,
                     profile_picture_url : player2.profile_picture_url
                 },
                 gamemode: data[i].gamemode,
@@ -336,31 +346,29 @@
         </div>
         <div class="justify-content-center flex-column col-5">
             <h2 class="text-light text-center p-3 title-profile">History</h2>
-            <div class="d-flex flex-column history-container my-bg-black border rounded justify-content-top">
+            <div class="flex-column history-container justify-content-top">
                 {#if gamesHistory[0] != null}
                     {#each gamesHistory as game}
                     {#if game.winner != game.opponent.id}
-                        <div class="row border rounded match my-1 bg-dark col-12 text-truncate">
-                            <p class="text-center text-primary h3 m-0 p-0">Win</p>
-                            <p class="col-4 text-center text-light h4">Me</p>
-                            <p class="col-4 text-center text-light h4">{game.me.score} / {game.opponent.score}</p>
-                            <p class="col-4 text-center text-light h4">{game.opponent.username}</p>
-                            <div class="d-flex">
-                                <p class="col-5" style="color:grey;">{game.date}</p>
-                                <p class="col-2 game-badge text-center">{game.gamemode.toUpperCase()}</p>
-                                <p class="col-5 text-end" style="color:grey;">{game.hours}</p>
-                            </div>
+                    <div class="row border border-primary rounded match my-1 bg-dark text-truncate">
+                        <p class="col-4 text-center text-light h4">Me</p>
+                        <p class="col-4 text-center text-light h4">{game.me.score} / {game.opponent.score}</p>
+                        <p class="col-4 text-center text-light h4">{game.opponent.username}</p>
+                        <div class="d-flex">
+                            <p class="col-4" style="color:grey;">{game.date}</p>
+                            <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
+                            <p class="col-4 text-end" style="color:grey;">{game.hours}</p>
                         </div>
+                    </div>
                     {:else}
-                        <div class="row border rounded match my-1 bg-dark col-12 text-truncate">
-                            <p class="text-center text-danger h3 m-0 p-0">Lose</p>
+                        <div class="row border border-danger rounded match my-1 bg-dark text-truncate">
                             <p class="col-4 text-center text-light h4">Me</p>
                             <p class="col-4 text-center text-light h4">{game.me.score} / {game.opponent.score}</p>
                             <p class="col-4 text-center text-light h4">{game.opponent.username}</p>
                             <div class="d-flex">
-                                <p class="col-5" style="color:grey;">{game.date}</p>
-                                <p class="col-2 game-badge text-center">{game.gamemode.toUpperCase()}</p>
-                                <p class="col-5 text-end" style="color:grey;">{game.hours}</p>
+                                <p class="col-4" style="color:grey;">{game.date}</p>
+                                <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
+                                <p class="col-4 text-end" style="color:grey;">{game.hours}</p>
                             </div>
                         </div>
                     {/if}
@@ -417,23 +425,28 @@
     .history-container{
         width: 22vw;
         height: 45vh;
-        min-height: 60%;
         margin: 0 auto;
         overflow-y: auto;
         scrollbar-width: thin;
         scrollbar-color: black grey;
+        font-size: 0.9vw;
     }
+
     .match {
         width: 90%;
-        height: 25%;
+        min-width:90%;
+        height: 15%;
         margin: auto;
     }
 
-    .game-badge {
-        border: 1px solid rgba(255, 255, 255, 0.3); /* Bord plus subtil */
-        border-radius: 2px;
-        background: linear-gradient(145deg, rgb(214, 213, 170), rgb(241, 255, 52));
-        box-shadow: 1px 1px 4px rgb(241, 255, 49);
+    .h4 {
+        font-size: 1.15vw;
+    }
+    .h3 {
+        font-size: 1.3vw;
+    }
+
+    .game-title {
         font-weight: 800;
     }
 
