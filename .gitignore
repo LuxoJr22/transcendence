@@ -10,3 +10,5 @@ vite.config.ts.timestamp-*
 venv-backend
 database
 __pycache__
+/backend/static
+/backend/staticfiles

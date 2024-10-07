@@ -36,8 +36,10 @@ class User(AbstractBaseUser):
 	shooter_elo = models.IntegerField(default=600)
 
 	is_online = models.BooleanField(default=False)
+
 	is_active = models.BooleanField(default=True)
 	is_superuser = models.BooleanField(default=False)
+	is_staff = models.BooleanField(default=False)
 
 	objects = UserManager()
 
@@ -55,3 +57,9 @@ class User(AbstractBaseUser):
 				old_user.profile_picture.delete(save=False)
 
 		super().save(*args, **kwargs)
+
+	def has_perm(self, perm, obj=None):
+		return self.is_superuser
+
+	def has_module_perms(self, app_label):
+		return self.is_superuser
