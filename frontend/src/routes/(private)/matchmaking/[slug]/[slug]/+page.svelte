@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 
@@ -18,8 +18,8 @@
 		
 		if (localStorage.getItem('access_token'))
 			await fetchUser();
-		if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "public") { //state.isAuthenticated &&
-			ws = new WebSocket('ws://localhost:8000/ws/pong_matchmaking/' + gamemode + '/?token=' + state.accessToken);
+		if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "public") {
+			ws = new WebSocket('/ws/pong_matchmaking/' + gamemode + '/?token=' + state.accessToken);
 			ws.onmessage = (event) => {
 				let data = JSON.parse(event.data);
 				if (data.event == 'Match' && state.user?.id == data.player1_id || state.user?.id == data.player2_id) {
@@ -28,7 +28,7 @@
 					ws.close();
 					localStorage.setItem('room_name', room_name);
 					localStorage.setItem('game_id', data.match_id);
-					window.location.href = '/' + gamemode;
+					window.location.href = '/' + gamemode + '/';
 				}
 				if (data.event == 'Research')
 				{
@@ -38,24 +38,31 @@
 				}
 			}
 		}
-		else if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "private") { //state.isAuthenticated && 
+		else if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "private") {
 			var game_id = localStorage.getItem('game_id')
-			ws = new WebSocket('ws://localhost:8000/ws/pong_private_matchmaking/' + gamemode + '/' + game_id + '/?token=' + state.accessToken);
+			console.log("bonbon")
+			ws = new WebSocket('ws/pong_private_matchmaking/' + gamemode + '/' + game_id + '/?token=' + state.accessToken);
+			console.log("alors")
 			ws.onmessage = (event) => {
 				let data = JSON.parse(event.data);
+				console.log(event)
 				if (data.event == 'Match' && state.user?.id == data.player1_id || state.user?.id == data.player2_id) {
 					let gamemode = data.gamemode;
 					let room_name = data.room_name;
-					ws.close();
 					localStorage.setItem('room_name', room_name);
-					localStorage.setItem('game_id', data.match_id);
-					window.location.href = '/' + gamemode;
+					ws.close();
+					window.location.href = '/' + gamemode + '/';
 				}
 			}
 		}
 		else
 			window.location.href = '/';
 	});
+
+	// onDestroy(() => {
+	// 	if (ws)
+	// 		ws.close();
+	// });
 
 </script>
 

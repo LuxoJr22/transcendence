@@ -51,6 +51,35 @@ export async function login(username: string, password: string): Promise<void> {
     }
 }
 
+export async function login42(){
+    let code = new URLSearchParams(window.location.search).get('code');
+        
+    let response;
+    if (code && code != ''){
+        response = await fetch('/api/oauth42/callback/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code }),
+        });
+    }
+    if (response && response.ok){
+        const data = await response.json();
+        auth.set({
+            isAuthenticated: true,
+            user: {
+                id: data.user.id,
+                username: data.user.username,
+                email: data.user.email,
+                profile_picture: data.user.profile_picture_url,
+
+            }
+        });
+        localStorage.setItem('access_token', data.access);
+        localStorage.setItem('refresh_token', data.refresh);
+        return ('success');
+    }
+}
+
 export async function updateInformations(email: string, username: string): Promise<void> {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
@@ -65,7 +94,7 @@ export async function updateInformations(email: string, username: string): Promi
     const data = await response.json();
 
     if (response.ok) {
-        fetchUser();
+        await fetchUser();
         return ;
     } else {
         return (data);
@@ -88,7 +117,7 @@ export async function updatePassword(password: string, current_password: string)
     const data = await response.json();
 
     if (response.ok) {
-        fetchUser();
+        await fetchUser();
         return ('success');
     } else {
         return (data);
@@ -116,7 +145,7 @@ export async function updateProfilePicture(profile_picture: File) {
     const data = await response.json();
 
     if (response.ok) {
-        fetchUser();
+        await fetchUser();
         return ('success');
     }
     else {
@@ -165,7 +194,7 @@ function AccessTokenExpirated(){
     let refresh_token : string;
     token = localStorage.getItem('access_token')
     refresh_token = localStorage.getItem('refresh_token')
-    if (token == null || refresh_token == null || refresh_token == '' || token == '')
+    if (token == null || token == '')
         return (true);
     let content : string = token.split('.')[1].replaceAll('-', '+').replaceAll('_', '/');
     let expiration = window.atob(content);
@@ -176,6 +205,10 @@ export async function refresh_token(): Promise<void> {
     if (!AccessTokenExpirated())
         return ;
     const refreshToken = localStorage.getItem('refresh_token');
+    if (refreshToken == null || refreshToken == ''){
+        logout();
+        return ;
+    }
     const response = await fetch('/api/token/refresh/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

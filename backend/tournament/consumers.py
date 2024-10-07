@@ -101,9 +101,9 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-		if self.user in self.tournament_room.participants.all() and self.tournament_room.last_round == None:
-			print("dico", file=sys.stderr)
-			self.tournament_room.participants.remove(self.user)
+		# if self.user in self.tournament_room.participants.all() and self.tournament_room.last_round == None:
+		# 	print("dico", file=sys.stderr)
+		# 	self.tournament_room.participants.remove(self.user)
 	
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
