@@ -240,17 +240,17 @@
             {#if user != null}
             <div class="m-5 chat-box border rounded" bind:this={div}>
                 {#each chatMessages as msg}
-                    {#if msg.sender == state.user?.id}
+                    {#if msg.sender == state.user?.id && !msg.is_invitation}
                         <div class="d-flex justify-content-end text-center">
                             <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
                         </div>
-                    {:else if msg.is_invitation} 
-                        <div class="d-flex justify-content-start text-center" role="button" on:click={() => joinPrivateGame(msg.gamemode, msg.match_id)}>
-                            <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
-                        </div>
-                    {:else}
+                    {:else if msg.sender != state.user?.id}
                         <div class="d-flex justify-content-start text-center">
-                            <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
+                            {#if msg.is_invitation}
+                                <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}<button class="ms-2 btn btn-success btn-sm" on:click={() => joinPrivateGame(msg.gamemode, msg.match_id)}>Play</button></p>
+                            {:else}
+                                <p class="col-auto border rounded bg-light p-2 m-2 msgBox">{msg.content}</p>
+                            {/if}
                         </div>
                     {/if}
                 {/each}
@@ -262,8 +262,17 @@
                     <form class="sendBox mb-2">
                         <input type="text" bind:value={newMessage} class="">
                         <button class="btn btn-primary btn-sm" on:click={sendMessage}>Send</button>
-                        <button class="btn btn-primary btn-sm" on:click={inviteToPong}>Pong Invitation</button>
-                        <button class="btn btn-primary btn-sm" on:click={inviteToPongRetro}>Pong Retro Invitation</button>
+                    <div class="btn-group p-0">
+                        <button type="button" class="btn btn-success btn-sm dropdown-toggle " data-bs-toggle="dropdown" aria-expanded="false">Play</button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <button class="dropdown-item" on:click={inviteToPong}>Pong Invitation</button>                                
+                            </li>
+                            <li>
+                                <button class="dropdown-item" on:click={inviteToPongRetro}>Pong Retro Invitation</button>
+                            </li>
+                        </ul>
+                      </div>
                     </form>
                 </div>
                 {/if}
@@ -317,6 +326,7 @@
     }
     .sendBox input {
         border-radius: 10px;
+        height:110%;
     }
 
     .opacity{
