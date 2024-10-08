@@ -100,7 +100,6 @@
 <nav class="navbar">
     <div class="container-fluid container-size">
         <a href="/" class="navbar-item navbar-brand fs-1 layout-title text-warning-subtle ms-4 opacity" on:click={(event) => {handleGoto(event, '/')}}>t r i p l u m</a>
-        {#if state.isAuthenticated}
         <div class="row">
             <div class="dropdown col-3">
                 <button class="btn" style="text-decoration:none; color:white;" type="button" data-bs-toggle="dropdown" aria-expanded="false" on:click={fetchFriendRequests}>
@@ -138,9 +137,6 @@
                 </ul>
             </div>
         </div>
-        {:else}
-            <a href="/login" class="btn btn-light mb-4" >Login</a>
-        {/if}
     </div>
 </nav>
 
