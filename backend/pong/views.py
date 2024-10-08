@@ -11,7 +11,8 @@ class PongMatchHistoryView(generics.ListAPIView):
 	permission_classes = [IsAuthenticated]
 
 	def get_queryset(self):
-		user = self.request.user
+		user_id = self.kwargs['user_id']
+		user = generics.get_object_or_404(User, id=user_id)
 		return PongMatch.objects.filter(
 			(models.Q(player1=user.id) | models.Q(player2=user.id)) & models.Q(winner__isnull=False)
 		)
