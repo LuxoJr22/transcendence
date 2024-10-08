@@ -62,6 +62,7 @@ class UserSerializer(ValidationMixin, serializers.ModelSerializer):
 	def create(self, validated_data):
 		password = validated_data.pop('password', None)
 		user = User.objects.create_user(**validated_data, password=password)
+		user.save()
 		return user
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -109,12 +110,11 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 		return attrs
 
 	def update(self, instance, validated_data):
-		password = validated_data.pop('password', None)
 		validated_data.pop('current_password', None)
 		for attr, value in validated_data.items():
 			setattr(instance, attr, value)
-		if password:
-			instance.set_password(password)
+		if 'password' in validated_data:
+			instance.set_password(validated_data['password'])
 		instance.save()
 		return instance
 
