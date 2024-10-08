@@ -2,13 +2,15 @@
     import { onMount } from 'svelte';
     import { get } from 'svelte/store'
     import Pie from './pie.svelte';
-    import { auth, fetchUser, updateInformations, updateProfilePicture , updatePassword, refresh_token } from '$lib/stores/auth';
+    import { auth, updatePassword} from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
     import type { friendInterface } from '$lib/stores/friendship';
     import { userData } from '$lib/stores/user';
     import ImgOnline from '$lib/static/imgOnline.svelte';
     import ProfilePicture from '$lib/static/UpdateUserInformation/profilePicture.svelte';
+    import Username from '$lib/static/UpdateUserInformation/username.svelte';
+    import Email from '$lib/static/UpdateUserInformation/email.svelte';
 
     interface User {
         id: number,
@@ -122,46 +124,6 @@
         }
     }
     
-    /********updateEmailAndUsername********/
-
-    let newUsername : string;
-    let newEmail : string;
-    let errorsMessage : string;
-    let errorsEmail = false;
-    let errorsUsername = false;
-
-    function resetValue(){
-        errorsMessage = '';
-        errorsUsername = false;
-        errorsEmail = false;
-    }
-
-    async function updateEmailAndUsername(){
-        const data = await updateInformations((newEmail == '' ? state.user?.email : newEmail), (newUsername == '' ? state.user?.username : newUsername));
-        if (!data)
-        {
-            errorsMessage = 'success';
-            if (newEmail)
-                errorsEmail = true;
-            if (newUsername)
-                errorsUsername = true;
-        }
-        else if (data.email)
-        {
-            errorsMessage = data.email;
-            errorsEmail = true;
-        }
-        else if (data.username)
-        {
-            errorsMessage = data.username;
-            errorsUsername = true;
-        }
-        else
-            errorsMessage = '';
-        newEmail = '';
-        newUsername = '';
-    }
-    
     /********updatePassword********/
 
     let newPassword : string;
@@ -231,39 +193,11 @@
                     <div class="modal-body">
                         <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeUsername" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change username</button>
                         <div class="collapse" id="collapseChangeUsername">
-                            <div class="card card-body">
-                                <form on:submit|preventDefault="{updateEmailAndUsername}">
-                                    <input type="text" class="form-control" bind:value={newUsername}>
-                                    <button class="btn btn-success my-2" type="submit" on:click={resetValue}>Confirm</button>
-                                    {#if errorsMessage == 'success' && errorsUsername}
-                                        <div class="alert alert-success" role="alert">
-                                            Username changed with success
-                                        </div>
-                                    {:else if errorsMessage && errorsUsername == true}
-                                    <div class="alert alert-danger" role="alert">
-                                        {errorsMessage}
-                                    </div>
-                                    {/if}
-                                </form>
-                            </div>
+                            <Username state={state} />
                         </div>
                         <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeEmail" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change Email</button>
                         <div class="collapse" id="collapseChangeEmail">
-                            <div class="card card-body">
-                                <form on:submit|preventDefault="{updateEmailAndUsername}">
-                                    <input type="text" class="form-control" bind:value={newEmail}>
-                                    <button class="btn btn-success my-2" type="submit" on:click={resetValue}>Confirm</button>
-                                    {#if errorsMessage == 'success' && errorsEmail == true}
-                                        <div class="alert alert-success" role="alert">
-                                            Email changed with success
-                                        </div>
-                                    {:else if errorsMessage && errorsEmail == true}
-                                    <div class="alert alert-danger" role="alert">
-                                        {errorsMessage}
-                                    </div>
-                                    {/if}
-                                </form>
-                            </div>
+                            <Email />
                         </div>
                         <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangePassword" aria-expanded="false" aria-controls="collapseExample">Change password</button>
                         <div class="collapse" id="collapseChangePassword">
