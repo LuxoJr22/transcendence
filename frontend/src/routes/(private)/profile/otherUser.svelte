@@ -4,6 +4,7 @@
     import type { Profile } from '$lib/stores/user';
     import { profileData, userData, profile } from '$lib/stores/user';
     import History from '$lib/static/Profile/History/otherHistory.svelte';
+    import { login } from '$lib/stores/auth';
 
     export let userId;
     let data : any;
@@ -51,7 +52,28 @@
     
     /******************HandleFriend******************/
 
-    let statusAddFriendRequest;
+    interface Notifications {
+        date: number,
+        content: string
+    }
+
+    let notifications = new Array<Notifications>(1);
+
+    function parseNotifications(data : any){
+        notifications = notifications.filter(notif => Date.now() - notif.date < 5001);
+        let tmp = '';
+        if (data.receiver)
+            tmp = "Friend request send with success";
+        else if (data.non_field_errors)
+            tmp = data.non_field_errors;
+        let notif : Notifications = {
+            date: Date.now(),
+            content: tmp
+        };
+        notifications.unshift(notif);
+    }
+
+    let statusAddFriendRequest : any;
 
     async function addFriend() {
         const receiver = user.id;
@@ -61,6 +83,16 @@
             body: JSON.stringify({ receiver }),
         });
         statusAddFriendRequest = await response.json();
+        console.log(statusAddFriendRequest);
+        parseNotifications(statusAddFriendRequest);
+        console.log(notifications);
+        const toastElList = document.querySelectorAll('.toast')
+        const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
+            animation: true,
+            autohide: true,
+            delay: 5000
+        }))
+        toastList.forEach(toast => toast.show());
     }
 </script>
 
@@ -106,6 +138,20 @@
             {/if}
         </div>
     </div>
+</div>
+
+<div id="toast" class="d-flex flex-column toast-container position-fixed bottom-0 end-0 p-3">
+    {#each notifications as notif}
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Notifications</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body text-truncate">
+                {notif?.content}
+            </div>
+        </div>
+    {/each}
 </div>
 
 <style>

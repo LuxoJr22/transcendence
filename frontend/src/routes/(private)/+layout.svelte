@@ -1,12 +1,11 @@
 <script lang='ts' >
-    import { afterNavigate , goto } from '$app/navigation';
+    import { afterNavigate } from '$app/navigation';
     import { onDestroy, onMount } from 'svelte';
     import {get} from 'svelte/store';
     import { auth, fetchUser, logout , refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
     import { fetchLatestDiscussion, messages } from '$lib/stores/chat';
-    import { profileData } from '$lib/stores/user';
 
     interface Notifications{
         type: String;
@@ -21,7 +20,7 @@
 
     function parseNotifications(data : any){
         notifications = notifications.filter(notif => Date.now() - notif.date < 5001);
-        
+        console.log(data);
         let tmp : Notifications = {
             type : data.type,
             message: data.message,
