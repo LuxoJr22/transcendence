@@ -205,6 +205,28 @@
 
                 <div class="mx-3 my-2 discussions-container">
                     {#each latestDiscussion as msg}
+                    {#if user?.id == msg.id}
+                        <div type="button" class="d-flex border opacity-50 rounded p-2 container my-2 user-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2);" on:click={loadRoom(msg.id)}>
+                            <div class="d-flex align-items-center" style="flex-shrink: 0; width: 20%; height: 15%;">
+                                <ImgOnline path={msg?.profile_picture_url} status={msg?.is_online} width=100% height=100%/>
+                            </div>
+                            <div class="ms-5">
+                                <div class="row">
+                                    <a title="profile page" href="/profile/{msg?.id}" class='text-light text-truncate h5 opacity' on:click={(event) => event.stopPropagation()}>{msg.username}</a>
+                                </div>
+                                <div class="row">
+                                    <p class='ms-2 m-0 p-0 text-truncate' style="color:grey;">
+                                        {#if msg.last_message.sender == state.user?.id}
+                                            Me:
+                                        {:else}
+                                            {msg.username}:  
+                                        {/if}
+                                            {msg.last_message.content}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    {:else}
                         <div type="button" class="d-flex border rounded p-2 container my-2 user-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2);" on:click={loadRoom(msg.id)}>
                             <div class="d-flex align-items-center" style="flex-shrink: 0; width: 20%; height: 15%;">
                                 <ImgOnline path={msg?.profile_picture_url} status={msg?.is_online} width=100% height=100%/>
@@ -225,6 +247,7 @@
                                 </div>
                             </div>
                         </div>
+                    {/if}
                     {/each}
                 </div>
             {:else}
