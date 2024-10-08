@@ -203,6 +203,11 @@
         }
     }
 
+    function handleGoto(e : Event, path : string) {
+        e.preventDefault();
+        window.location.href = path;
+    }
+
 </script>
 
 
@@ -249,7 +254,7 @@
                         <div class="border rounded d-flex align-items-center me-2 mb-2 my-bg-black">
                             <div class="d-flex ms-2 align-items-center">
                                 <ImgOnline path={friend?.profile_picture_url} status={friend?.is_online} width=20% height=20% />
-                                <p class="text-light ms-3 mt-3" style="font-size:100%;">{friend.username}</p>
+                                <p class="text-light ms-3 mt-3 link" style="font-size:100%;" role="button" on:click={(event) => {handleGoto(event, "/profile/" + friend.id)}}>{friend.username}</p>
                             </div>
                             <div class="d-flex">
                                 <a class="btn" href="/chat/{friend.id}"><i class="bi bi-chat" style="color:white;"></i></a>
@@ -353,7 +358,7 @@
                     <div class="row border border-primary rounded match my-1 bg-dark text-truncate">
                         <p class="col-4 text-center text-light h4">Me</p>
                         <p class="col-4 text-center text-light h4">{game.me.score} / {game.opponent.score}</p>
-                        <p class="col-4 text-center text-light h4">{game.opponent.username}</p>
+                        <p class="col-4 text-center text-light h4 link" role="button" on:click={(event) => {handleGoto(event, "/profile/" + game.opponent.id)}}>{game.opponent.username}</p>
                         <div class="d-flex">
                             <p class="col-4" style="color:grey;">{game.date}</p>
                             <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
@@ -364,7 +369,7 @@
                         <div class="row border border-danger rounded match my-1 bg-dark text-truncate">
                             <p class="col-4 text-center text-light h4">Me</p>
                             <p class="col-4 text-center text-light h4">{game.me.score} / {game.opponent.score}</p>
-                            <p class="col-4 text-center text-light h4">{game.opponent.username}</p>
+                            <p class="col-4 text-center text-light h4 link" role="button" on:click={(event) => {handleGoto(event, "/profile/" + game.opponent.id)}}>{game.opponent.username}</p>
                             <div class="d-flex">
                                 <p class="col-4" style="color:grey;">{game.date}</p>
                                 <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
@@ -453,4 +458,13 @@
     .my-bg-black {
         background-color: rgba(0, 0, 0, 0.4);
     }
+
+    .link{
+        text-decoration:none;
+    }
+
+    .link:hover {
+        text-decoration: underline;
+    }
+
 </style>

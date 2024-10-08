@@ -126,6 +126,11 @@
         statusAddFriendRequest = await response.json();
     }
     
+    function handleGoto(e : Event, path : string) {
+        e.preventDefault();
+        window.location.href = path;
+    }
+
 </script>
 
 
@@ -170,9 +175,9 @@
                     {#each gamesHistory as game}
                     {#if game.winner != game.opponent.id}
                     <div class="row border border-primary rounded match my-1 bg-dark text-truncate">
-                        <p class="col-4 text-center text-light h4">{user.username}</p>
+                        <p class="col-4 text-center text-light h4 link" role="button" on:click={(event) => {handleGoto(event, "/profile/" + user.id)}}>{user.username}</p>
                         <p class="col-4 text-center text-light h4">{game.me.score} / {game.opponent.score}</p>
-                        <p class="col-4 text-center text-light h4">{game.opponent.username}</p>
+                        <p class="col-4 text-center text-light h4 link" role="button" on:click={(event) => {handleGoto(event, "/profile/" + game.opponent.id)}}>{game.opponent.username}</p>
                         <div class="d-flex">
                             <p class="col-4" style="color:grey;">{game.date}</p>
                             <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
@@ -181,9 +186,9 @@
                     </div>
                     {:else}
                         <div class="row border border-danger rounded match my-1 bg-dark text-truncate">
-                            <p class="col-4 text-center text-light h4">{user.username}</p>
+                            <p class="col-4 text-center text-light h4 link" role="button" on:click={(event) => {handleGoto(event, "/profile/" + user.id)}}>{user.username}</p>
                             <p class="col-4 text-center text-light h4">{game.me.score} / {game.opponent.score}</p>
-                            <p class="col-4 text-center text-light h4">{game.opponent.username}</p>
+                            <p class="col-4 text-center text-light h4 link" role="button" on:click={(event) => {handleGoto(event, "/profile/" + game.opponent.id)}}>{game.opponent.username}</p>
                             <div class="d-flex">
                                 <p class="col-4" style="color:grey;">{game.date}</p>
                                 <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
@@ -259,4 +264,13 @@
     .my-bg-black {
         background-color: rgba(0, 0, 0, 0.4);
     }
+
+    .link{
+        text-decoration:none;
+    }
+
+    .link:hover {
+        text-decoration: underline;
+    }
+
 </style>

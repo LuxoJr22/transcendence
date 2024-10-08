@@ -233,7 +233,7 @@
                             </div>
                             <div class="ms-5">
                                 <div class="row">
-                                    <a title="profile page" href="/profile/{msg?.id}" class='text-light text-truncate h5 opacity' on:click={(event) => event.stopPropagation()}>{msg.username}</a>
+                                    <a title="profile page" href="/profile/{msg?.id}" class='text-light text-truncate h5 link' on:click={(event) => event.stopPropagation()}>{msg.username}</a>
                                 </div>
                                 <div class="row">
                                     <p class='ms-2 m-0 p-0 text-truncate' style="color:grey;">
@@ -352,12 +352,11 @@
         height:110%;
     }
 
-    .opacity{
+    .link{
         text-decoration:none;
     }
 
-    .opacity:hover {
-        opacity: 1;
+    .link:hover {
         text-decoration: underline;
     }
 </style>
