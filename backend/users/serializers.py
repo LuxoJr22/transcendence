@@ -64,6 +64,17 @@ class UserSerializer(ValidationMixin, serializers.ModelSerializer):
 		user = User.objects.create_user(**validated_data, password=password)
 		return user
 
+class UserDetailSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = User
+		fields = ['id', 'username', 'email', 'profile_picture']
+		extra_kwargs = {
+			'id': {'read_only': True},
+			'username': {'read_only': True},
+			'email': {'read_only': True},
+			'profile_picture': {'read_only': True},
+		}
+
 class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True, required=False)
 	current_password = serializers.CharField(write_only=True, required=False)

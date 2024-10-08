@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.views.generic import RedirectView
 from .models import User
-from .serializers import UserSerializer, UserUpdateSerializer, PublicUserSerializer, UserSkinSerializer
+from .serializers import UserSerializer, UserUpdateSerializer, UserDetailSerializer, PublicUserSerializer, UserSkinSerializer
 
 class RegisterView(generics.CreateAPIView):
 	queryset = User.objects.all()
@@ -38,7 +38,7 @@ class LoginView(TokenObtainPairView):
 		}, status=status.HTTP_200_OK)
 
 class UserDetailView(generics.RetrieveAPIView):
-	serializer_class = UserSerializer
+	serializer_class = UserDetailSerializer
 	permission_classes = [IsAuthenticated]
 
 	def get_object(self):
