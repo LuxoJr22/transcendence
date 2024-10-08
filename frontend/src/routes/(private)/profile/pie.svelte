@@ -4,14 +4,13 @@
 
     let chart;
 
-    
     export let victories = 0;
     export let defeats = 0;
 
     const data = {
-        labels: ['Victory', 'Defeat'],
+        labels: ['Victory (%)', 'Defeat (%)'],
         datasets: [{
-            data: [victories, defeats],
+            data: [(victories / (defeats + victories) * 100).toFixed(1), (defeats / (defeats + victories) * 100).toFixed(1)],
             backgroundColor: [
                 'rgba(13, 110, 253, 1)',
                 'rgba(220, 53, 69, 1)',

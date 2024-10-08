@@ -1,10 +1,16 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
 
+    interface Error {
+        username : "",
+        email : "",
+        password : ""
+    }
+
     let username = '';
     let email = '';
     let password = '';
-    let errors = '';
+    let errors : Error;
 
     async function register() {
         const response = await fetch('/api/register/', {
@@ -31,7 +37,7 @@
 
     let viewablePassword = false;
 
-    function buttonPassword(){
+    function viewPassword(){
         viewablePassword ? viewablePassword = false : viewablePassword = true;
     }
 </script>
@@ -39,56 +45,53 @@
 <div class="container-fluid" style="height:100vh;">
     <div class="d-flex justify-content-center align-items-center" style="height:100%;">
         <form on:submit|preventDefault="{register}" class="p-5 border rounded">
-            <div class="mb-3">
-                <label class="form-label text-light">
-                    <h5>Pseudo</h5>
-                    <input type="text" bind:value="{username}" required class="form-control" placeholder="Enter pseudo">
-                </label>
-            </div>
-            {#if errors.username} 
-                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">                      
-                    <div>
-                        {errors.username[0]}
+            <ul class="p-0">
+                <li>
+                    <h5 class="text-light">Username</h5>
+                    <input class="form-control" placeholder="Enter your username" bind:value={username}>
+                </li>
+                {#if errors?.username}
+                <li class="pb-5 pt-0">
+                    <div class="alert alert-danger p-2" role="alert">
+                        {errors.username}
                     </div>
-                </div>
-            {/if}
-            <div class="mb-3">
-                <label class="form-label text-light">
-                    <h5>Email</h5>
-                    <input type="text" bind:value="{email}" class="form-control" placeholder="Enter email">
-                    
-                </label>
-            </div>
-            {#if errors.email} 
-                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">                       
-                    <div>
-                        <p>{errors.email[0]}</p>
+                </li>
+                {/if}
+                <li>
+                    <h5 class="text-light">Email</h5>
+                    <input class="form-control"  placeholder="Enter your email" bind:value={email}>
+                </li>
+                {#if errors?.email}
+                <li class="pb-5 pt-0">
+                    <div class="alert alert-danger p-2" role="alert">
+                        {errors.email}
                     </div>
-                </div>
-            {/if}
-            <div class="mb-3">
-                <label class="form-label text-light">
-                    <h5>Password</h5>
-                        {#if !viewablePassword}
-                        <div class="d-flex row">
-                            <input type="password" bind:value="{password}" required class="form-control col ms-3" placeholder="Enter password">
-                            <a class="justify-content-end mt-1 hover-effect col-1" type="button" on:click={buttonPassword}><i class="bi bi-eye" style="color:grey;"></i></a>
+                </li>
+                {/if}
+                <li>
+                    <h5 class="text-light">Password</h5>
+                    {#if !viewablePassword}
+                        <div class="d-flex">
+                            <input type="password" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
+                            <a class="mt-1 ms-2 hover-effect" type="button" on:click={viewPassword}><i class="bi bi-eye" style="color:grey;"></i></a>
                         </div>
-                        {:else}
-                            <input type="text" bind:value="{password}" required class="form-control" placeholder="Enter password">
-                            <a class="d-flex justify-content-end m-0 mt-1 hover-effect p-1" type="button" on:click={buttonPassword} ><i class="bi bi-eye-slash" style="color:grey;"></i></a>
-                        {/if}
-                    </label>
-            </div>
-            {#if errors.password} 
-                <div class="alert alert-danger d-flex align-items-center mt-1 p-2" role="alert">                       
-                    <div>
-                        {errors.password[0]}
+                    {:else}
+                        <div class="d-flex">
+                            <input type="text" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
+                            <a class="mt-1 ms-2 hover-effect" type="button" on:click={viewPassword} ><i class="bi bi-eye-slash" style="color:grey;"></i></a>
+                        </div>
+                    {/if}
+                </li>
+                {#if errors?.password}
+                <li class="pb-5 pt-0">
+                    <div class="alert alert-danger p-2" role="alert">
+                        {errors.password}
                     </div>
-                </div>
-            {/if}
+                </li>
+                {/if}
+            </ul>
             <div class="btn-group-vertical col-12" role="group" aria-label="Vertical button group">
-                <button type="submit" class="m-1 btn btn-primary">Create my account</button>
+                <button type="submit" class="btn btn-primary">Create my account</button>
             </div>
         </form>
     </div>
@@ -96,7 +99,32 @@
 
 
 <style>
+
+    li {
+        padding-bottom: 10%;
+        position: relative;
+    }
+
+    @keyframes alertDisplay {
+        0% {
+            opacity:0%;
+            transform: translateY(-100%);
+        }
+        100% {
+            opacity: 100%;
+            transform: translateY(0%);
+        }
+    }
+
+    .alert {
+        position: absolute;
+        animation-name: alertDisplay;
+        animation-duration: 0.5s;
+        animation-fill-mode: forwards;
+
+    }
+
     .hover-effect:hover {
-        opacity: 0.5;
+        opacity: 1;
     }
 </style>

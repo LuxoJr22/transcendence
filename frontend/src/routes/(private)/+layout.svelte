@@ -1,12 +1,11 @@
 <script lang='ts' >
-    import { afterNavigate , goto } from '$app/navigation';
+    import { afterNavigate } from '$app/navigation';
     import { onDestroy, onMount } from 'svelte';
     import {get} from 'svelte/store';
     import { auth, fetchUser, logout , refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
     import { fetchLatestDiscussion, messages } from '$lib/stores/chat';
-    import { profileData } from '$lib/stores/user';
 
     interface Notifications{
         type: String;
@@ -21,7 +20,7 @@
 
     function parseNotifications(data : any){
         notifications = notifications.filter(notif => Date.now() - notif.date < 5001);
-        
+        console.log(data);
         let tmp : Notifications = {
             type : data.type,
             message: data.message,
@@ -91,12 +90,16 @@
         }
     }
 
+    function handleGoto(e : Event, path : string) {
+        e.preventDefault();
+        window.location.href = path;
+    }
+
 </script>
 
 <nav class="navbar">
     <div class="container-fluid container-size">
-        <a href="/" class="navbar-item navbar-brand fs-1 layout-title text-warning-subtle ms-4 opacity">t r i p l u m</a>
-        {#if state.isAuthenticated}
+        <a href="/" class="navbar-item navbar-brand fs-1 layout-title text-warning-subtle ms-4 opacity" on:click={(event) => {handleGoto(event, '/')}}>t r i p l u m</a>
         <div class="row">
             <div class="dropdown col-3">
                 <button class="btn" style="text-decoration:none; color:white;" type="button" data-bs-toggle="dropdown" aria-expanded="false" on:click={fetchFriendRequests}>
@@ -128,20 +131,16 @@
                     <img src={state.user?.profile_picture} alt="User profile" class="border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">{state.user?.username}
                 </a>
                 <ul class="dropdown-menu ms-2" style="min-width: 0;">
-                    <li class="border border-2 rounded m-2 button-dropdown"><a class="dropdown-item text-start py-1 px-4" href="/chat/home/"><i class="bi-chat pe-2" style="font-size: 1.3rem; color: grey;"></i>chat</a></li>
-                    <li class="border border-2 rounded m-2 button-dropdown"><a class="dropdown-item text-start py-1 px-4" href={"/profile/" + state.user?.id}><i class="bi-person-fill pe-2" style="font-size: 1.3rem; color: grey;"></i>profile</a></li>
-                    <li class="border border-2 rounded m-2 button-dropdown"><a class="dropdown-item text-danger text-start py-1 px-4" href="/" on:click={handleLogout}><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</a></li>
+                    <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-4" on:click={(event) => {handleGoto(event, '/chat/home')}}><i class="bi-chat pe-2" style="font-size: 1.3rem; color: grey;"></i>chat</button></li>
+                    <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-4" on:click={(event) => {handleGoto(event, '/profile/' + state.user?.id)}}><i class="bi-person-fill pe-2" style="font-size: 1.3rem; color: grey;"></i>profile</button></li>
+                    <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-danger text-start py-1 px-4" on:click={(event) => {handleGoto(event, '/login')}} on:click={handleLogout}><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</button></li>
                 </ul>
             </div>
         </div>
-        {:else}
-            <a href="/login" class="btn btn-light mb-4" >Login</a>
-        {/if}
     </div>
 </nav>
 
 <slot />
-
 
 <div id="toast" class="toast-container position-fixed bottom-0 end-0 p-3">
     {#each notifications as notif}
@@ -150,18 +149,12 @@
                 <strong class="me-auto">Notifications</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <div class="toast-body text-truncate">
+            <div class="toast-body text-truncate" role="button" on:click={(event) => {handleGoto(event, '/chat/home')}}>
                 {notif?.message}
             </div>
         </div>
     {/each}
 </div>
-
-
-<!-- <footer class="bg-secondary fixed-bottom text-center">
-    <p class="text-center">Final project of 42 school's common core, Transcendence, by <a href="https://github.com/LuxoJr22/transcendence" target="_blank" class="text-light">Triplum</a></p>
-</footer> -->
-
 
 <style>
 

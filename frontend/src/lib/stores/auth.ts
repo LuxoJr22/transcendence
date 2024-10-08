@@ -80,16 +80,31 @@ export async function login42(){
     }
 }
 
-export async function updateInformations(email: string, username: string): Promise<void> {
+export async function updateUsername(username: string): Promise<void> {
     const accessToken = localStorage.getItem('access_token');
-    if (!accessToken) {
-        throw new Error('Username update failed');
-        return;
-    }
+
     const response = await fetch('/api/user/update/', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json',  'Authorization': `Bearer ${accessToken}` },
-        body: JSON.stringify({ email, username }),
+        body: JSON.stringify({ username }),
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+        await fetchUser();
+        return ;
+    } else {
+        return (data);
+    }
+}
+
+export async function updateEmail(email: string): Promise<void> {
+    const accessToken = localStorage.getItem('access_token');
+
+    const response = await fetch('/api/user/update/', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json',  'Authorization': `Bearer ${accessToken}` },
+        body: JSON.stringify({ email }),
     });
     const data = await response.json();
 
