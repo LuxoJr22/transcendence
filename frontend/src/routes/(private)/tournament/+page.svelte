@@ -1,6 +1,47 @@
-<script>
+<script lang="ts">
+    import { onDestroy, onMount } from 'svelte';
     const img = new URL('$lib/assets/pong.png', import.meta.url).href
     const img1 = new URL('$lib/assets/game2.png', import.meta.url).href
+    import { auth, refresh_token } from '$lib/stores/auth';
+
+    //const create_tournament = document.getElementById("create_button");
+
+    var tournament_name : string
+
+    let allTournament = [];
+
+    async function create_tournament() {
+        const response = await fetch('api/tournament/create/', {
+		method: 'POST',
+		headers: {'Content-Type': 'application/json' ,'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+        body: JSON.stringify({ "name":`${tournament_name}`, 'nb_player':4, 'capacity': 4}),
+		});
+		const data = await response.json();
+        if (response.ok)
+		{
+			window.location.href = `/tournament/${data.name}`;
+		}
+    }
+
+    async function fetchAllTournaments(){
+        await refresh_token();
+            const accessToken = localStorage.getItem('access_token');
+            const response = await fetch('/api/tournament/list/', {
+                headers : { 'Authorization': `Bearer ${accessToken}`}
+            });
+
+            if (response.ok){
+                allTournament = await response.json();
+            }
+    }
+
+    async function go_to_tournament(id){
+        window.location.href = `/tournament/${id}`;
+    }
+
+    onMount(async () => {
+            await fetchAllTournaments()
+    });
     
 </script>
 
@@ -8,6 +49,21 @@
     <div class="row mt-5">
         <div class="d-flex justify-content-center border-bottom">
             <button class="btn btn-primary mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"><i class="bi-plus-square-fill" style="font-size: 1.6rem; color: cornflowerblue;"></i><p class="mb-1">New tournament</p></button>
+        </div>
+        <div class="modal-body d-flex justify-content-center row user-container m-0 me-2 mb-2">
+            {#each allTournament as tournament}
+                <div class="row p-0 m-2" role="button">
+                    <button on:click={go_to_tournament(tournament.name)} class="btn text-light border rounded" aria-label="Close">
+                        <!-- <div class="d-flex justify-content-center"></div> -->
+                        <p class="d-inline">{tournament.name}</p>
+                        <p class="d-inline">{tournament.participants.length}/{tournament.capacity}</p>
+                        <!-- <i class="bi bi-plus pt-2" style="font-size:1.8em"></i> -->
+                    </button>    
+                </div>
+            {/each}
+            {#if !allTournament[0]}
+                <p class="d-flex justify-content-center mt-3" style="color:grey;">Empty tournament list</p>
+            {/if}
         </div>
         <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
             <div class="offcanvas-header">
@@ -18,7 +74,7 @@
                 <div>
                     <div class="mb-3">
                         <label for="formGroupExampleInput" class="form-label"><h4>Tournament's name</h4></label>
-                        <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Enter name">
+                        <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Enter name" bind:value={tournament_name}>
                     </div>
                 </div>
                 <div class="">
@@ -60,9 +116,21 @@
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-center mb-4">
-                <button type="button" class="btn btn-dark btn-lg mb-5 p-3">Create Tournament</button>
+            <div class="d-flex justify-content-center mb-4" >
+                {#if tournament_name==undefined || tournament_name==""}
+                    <button class="btn btn-dark btn-lg mb-5 p-3 mybtn" style="opacity:0.7" title="Insert a Tournament name">Create Tournament</button>
+                {:else}
+                    <button type="button" class="btn btn-dark btn-lg mb-5 p-3" on:click={create_tournament}>Create Tournament</button>
+                {/if}
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .mybtn:hover {
+        opacity: 0.7 !important;
+        background-color: #212529 !important;
+        cursor:not-allowed;
+    }
+</style>

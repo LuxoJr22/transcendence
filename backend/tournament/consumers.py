@@ -27,13 +27,39 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 			self.channel_name
 		)
 
-		if self.user not in self.tournament_room.participants.all():
+		if self.user not in self.tournament_room.participants.all() and self.tournament_room.participants.count() < self.tournament_room.nb_player:
 			self.tournament_room.participants.add(self.user)
-		
-		self.accept()
 
-		values = []
+		self.accept()
+		# if self.tournament_room.last_round == None:
+		# 	nb_player = self.tournament_room.nb_player
+		# else:
+		# 	nb_player = self.tournament_room.participants.count()
+
+		capacity = self.tournament_room.capacity
+
+		async_to_sync(self.channel_layer.group_send)(
+				self.room_group_name,
+				{
+					'type': 'Connection',
+					'event': 'connection',
+					'players': list(self.tournament_room.participants.all().values("username", "id")),
+					'games': list(self.tournament_room.matchs.all().values("player1", "player2", "score1", "score2", "winner")),
+					'capacity': capacity,
+				} 
+			)
 		
+	def Connection(self, event):
+		self.send(text_data=json.dumps({
+			'type': 'Tournament',
+			'event': 'Connection',
+			'players': event['players'],
+			'games': event['games'],
+			'capacity': event['capacity']
+		}))
+		
+	def launch_match(self):
+		values = []
 		if self.tournament_room.participants.count() == self.tournament_room.nb_player and self.tournament_room.last_round == None:
 			qs = self.tournament_room.participants.all()
 			values = [item.id for item in qs]
@@ -70,7 +96,6 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 					'event': 'Match',
 				} 
 			)
-		
 
 
 	def disconnect(self, code):
@@ -78,11 +103,20 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-		if self.user in self.tournament_room.participants.all():
+		del self.tournament_room.last_round
+		if self.user in self.tournament_room.participants.all() and self.tournament_room.last_round == None:
 			self.tournament_room.participants.remove(self.user)
+	
+	def receive(self, text_data):
+		text_data_json = json.loads(text_data)
+		event = text_data_json['event']
+		if (event == 'Match_button'):
+			self.launch_match()
 
 	def Starting_matchs(self, event):
-		qs = self.tournament_room.matchs.all()
+		
+		del self.tournament_room.last_round
+		qs = self.tournament_room.matchs.filter(match_date__gte=self.tournament_room.last_round).all()
 		values = [{"id":item.id, "player1":item.player1, "player2":item.player2} for item in qs]
 
 		for game in values:

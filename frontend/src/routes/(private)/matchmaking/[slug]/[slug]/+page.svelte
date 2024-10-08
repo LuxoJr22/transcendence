@@ -46,9 +46,8 @@
 				if (data.event == 'Match' && state.user?.id == data.player1_id || state.user?.id == data.player2_id) {
 					let gamemode = data.gamemode;
 					let room_name = data.room_name;
-					ws.close();
 					localStorage.setItem('room_name', room_name);
-					localStorage.setItem('game_id', data.match_id);
+					ws.close();
 					window.location.href = '/' + gamemode + '/';
 				}
 			}

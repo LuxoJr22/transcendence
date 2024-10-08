@@ -66,7 +66,7 @@
           <div class="card-body">
             <h5 class="card-title">Character Customization</h5>
             <p class="card-text">Personalize your character's appearance and style.</p>
-            <a href="/matchmaking/pong_retro/public" class="btn btn-dark">Custom my character</a>
+            <a href="/selection" class="btn btn-dark">Custom my character</a>
           </div>
         </div>
       </div>

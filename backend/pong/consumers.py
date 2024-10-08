@@ -22,7 +22,7 @@ class PrivateMatchmakingConsumer(WebsocketConsumer):
 		self.game_id = self.scope['url_route']['kwargs']['game_id']
 		self.room_group_name = f'private_matchmaking_{self.game_id}'
 		self.user = self.scope['user']
-
+		
 		try:
 			self.matchmaking_room = get_object_or_404(PongMatchmaking, group_name=self.room_group_name)
 		except:
@@ -85,7 +85,7 @@ class PrivateMatchmakingConsumer(WebsocketConsumer):
 			'player1_id': event['player1_id'],
 			'player2_id': event['player2_id'],
 			'gamemode': self.gamemode,
-			'match_id': event["match_id"],
+			'match_id': self.game_id,
 			'room_name': f'{self.gamemode}_{self.game_id}'
 		}))
 
@@ -268,7 +268,7 @@ class PongConsumer(WebsocketConsumer):
 		if (self.id == text_data_json["id"] == 2):
 			self.game.player2.ready = 1
 		if (self.game.player1.ready == self.game.player2.ready == 1):
-			time.sleep(5)
+			#time.sleep(5)
 			self.game.game_state = LAUNCHED
 			async_to_sync(self.channel_layer.group_send)(
 				self.room_group_name,
