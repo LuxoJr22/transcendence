@@ -1,8 +1,11 @@
 import re
 from django.contrib.auth.password_validation import validate_password as django_validate_password
+from django.conf import settings
 from rest_framework import serializers
 from PIL import Image
 from .models import User
+import os
+import shutil, sys
 
 class ValidationMixin:
 	def _validate_username(self, value):
@@ -62,6 +65,7 @@ class UserSerializer(ValidationMixin, serializers.ModelSerializer):
 	def create(self, validated_data):
 		password = validated_data.pop('password', None)
 		user = User.objects.create_user(**validated_data, password=password)
+		user.save()
 		return user
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -96,7 +100,15 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 		return self._validate_password(value)
 
 	def validate_profile_picture(self, value):
-		return self._validate_profile_picture(value)
+		validated_value = self._validate_profile_picture(value)
+		print("Validating profile picture", file=sys.stderr)
+		username = self.instance.username
+		profile_pictures_path = os.path.join(settings.MEDIA_ROOT, f'profile_pictures/{username}')
+		print(f"Profile pictures path: {profile_pictures_path}", file=sys.stderr)  # Debug
+		if os.path.exists(profile_pictures_path):
+			print(f"Removing profile pictures for {username}", file=sys.stderr)
+			shutil.rmtree(profile_pictures_path)
+		return validated_value
 
 	def validate(self, attrs):
 		if 'password' in attrs:
@@ -109,12 +121,11 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 		return attrs
 
 	def update(self, instance, validated_data):
-		password = validated_data.pop('password', None)
 		validated_data.pop('current_password', None)
 		for attr, value in validated_data.items():
 			setattr(instance, attr, value)
-		if password:
-			instance.set_password(password)
+		if 'password' in validated_data:
+			instance.set_password(validated_data['password'])
 		instance.save()
 		return instance
 

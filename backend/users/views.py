@@ -105,14 +105,12 @@ class OAuth42CallbackView(generics.CreateAPIView):
 			username = f"{user_info['login']}{str(i)}"
 		if len(username) > 12:
 			return None
-		
+
 		user = User.objects.create(
 			username= username,
 			email=user_info['email'],
 			login42=user_info['login'],
 			password='42_OAuth',
-			profile_picture='profile_pictures/default.jpg',
-			skin='default.glb'
 		)
 		user.save()
 		return user

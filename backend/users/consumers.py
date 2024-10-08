@@ -31,7 +31,7 @@ class UserStatusConsumer(WebsocketConsumer):
 
 	def update_user_status(self, online):
 		self.user.is_online = online
-		self.user.save()
+		self.user.save(update_fields=['is_online'])
 
 	def notify_user(self, event):
 		message = event["message"]

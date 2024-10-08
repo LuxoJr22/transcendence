@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 
+
 class UserManager(BaseUserManager):
 	def create_user(self, username, email, password=None):
 		if not username:
@@ -11,8 +12,6 @@ class UserManager(BaseUserManager):
 			raise ValueError('The password must be set')
 		email = self.normalize_email(email)
 		user = self.model(username=username, email=email)
-		user.profile_picture = 'profile_pictures/default.jpg'
-		user.skin = 'default.glb'
 		user.set_password(password)
 		user.save(using=self._db)
 		return user
@@ -32,8 +31,8 @@ class User(AbstractBaseUser):
 	email = models.EmailField(max_length=254, unique=True)
 	login42 = models.CharField(max_length=8, unique=True, blank=True, null=True, default=None)
 
-	profile_picture = models.ImageField(upload_to=user_profile_picture_path, blank=True, null=True)
-	skin = models.CharField(max_length=254, blank=True, null=True)
+	profile_picture = models.ImageField(upload_to=user_profile_picture_path, default='profile_pictures/default.jpg')
+	skin = models.CharField(max_length=254, default='default.glb')
 	pong_elo = models.IntegerField(default=600)
 	shooter_elo = models.IntegerField(default=600)
 
@@ -52,12 +51,6 @@ class User(AbstractBaseUser):
 		return self.username
 
 	def save(self, *args, **kwargs):
-		if self.pk:
-			old_user = User.objects.get(pk=self.pk)
-
-			if old_user.profile_picture and old_user.profile_picture != 'profile_pictures/default.jpg' and old_user.profile_picture != self.profile_picture:
-				old_user.profile_picture.delete(save=False)
-
 		super().save(*args, **kwargs)
 
 	def has_perm(self, perm, obj=None):
