@@ -81,6 +81,8 @@
     async function createRoom(id : number){
         await profileData(id);
         const token = localStorage.getItem('access_token');
+        if (ws && ws.readyState == WebSocket.OPEN)
+            ws.close();
         if (id)
             ws = new WebSocket('/ws/chat/' + id + '/?token=' + token);
         
@@ -140,7 +142,7 @@
     }
 
     onDestroy(() => {
-        if (ws){
+        if (ws && ws.readyState == WebSocket.OPEN){
             ws.close();
         }
     });

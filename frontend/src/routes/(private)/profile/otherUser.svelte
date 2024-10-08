@@ -35,7 +35,7 @@
     }
 
     export async function fetchHistoryMatches(){
-        const response = await fetch("/api/pong/history/", {
+        const response = await fetch("/api/pong/history/" + user?.id, {
             method: 'GET',
             headers:{
                 'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
