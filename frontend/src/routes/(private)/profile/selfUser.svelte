@@ -11,6 +11,7 @@
     import ProfilePicture from '$lib/static/UpdateUserInformation/profilePicture.svelte';
     import Username from '$lib/static/UpdateUserInformation/username.svelte';
     import Email from '$lib/static/UpdateUserInformation/email.svelte';
+    import Password from '$lib/static/UpdateUserInformation/password.svelte';
 
     interface User {
         id: number,
@@ -123,28 +124,6 @@
             console.log(winRate);
         }
     }
-    
-    /********updatePassword********/
-
-    let newPassword : string;
-    let currentPassword : string;
-    let errorsPassword : string;
-
-    async function updateNewPassword() {
-       const response : any = await updatePassword(newPassword, currentPassword);
-        if (response.password)
-        {
-            errorsPassword = response.password;
-        }
-        else if (response.current_password)
-        {
-            errorsPassword = response.current_password;
-        }
-        else if (response == 'success')
-        {
-            errorsPassword = 'success';
-        }
-    }
 
     function handleGoto(e : Event, path : string) {
         e.preventDefault();
@@ -193,7 +172,7 @@
                     <div class="modal-body">
                         <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeUsername" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change username</button>
                         <div class="collapse" id="collapseChangeUsername">
-                            <Username state={state} />
+                            <Username />
                         </div>
                         <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeEmail" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change Email</button>
                         <div class="collapse" id="collapseChangeEmail">
@@ -201,24 +180,7 @@
                         </div>
                         <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangePassword" aria-expanded="false" aria-controls="collapseExample">Change password</button>
                         <div class="collapse" id="collapseChangePassword">
-                            <div class="card card-body">
-                                <form on:submit|preventDefault="{updateNewPassword}">
-                                    <h5 class="py-3">New password</h5>
-                                    <input type="text" class="form-control" bind:value={newPassword}>
-                                    <h5 class="py-3">Current password</h5>
-                                    <input type="text" class="form-control" bind:value={currentPassword}>
-                                    {#if errorsPassword == 'success'}
-                                    <div class="alert alert-success" role="alert">
-                                        Password changed with success
-                                    </div>
-                                    {:else if errorsPassword}
-                                    <div class="alert alert-danger" role="alert">
-                                        {errorsPassword}
-                                    </div>
-                                    {/if}
-                                    <button class="btn btn-success my-2" type="submit">Confirm</button>
-                                </form>
-                            </div>
+                            <Password />
                         </div>
                     </div>
                     <div class="modal-footer">
