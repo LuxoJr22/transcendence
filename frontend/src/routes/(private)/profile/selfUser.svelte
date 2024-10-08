@@ -8,6 +8,7 @@
     import type { friendInterface } from '$lib/stores/friendship';
     import { userData } from '$lib/stores/user';
     import ImgOnline from '$lib/static/imgOnline.svelte';
+    import ProfilePicture from '$lib/static/UpdateUserInformation/profilePicture.svelte';
 
     interface User {
         id: number,
@@ -120,27 +121,7 @@
             console.log(winRate);
         }
     }
-    /********updateProfilePicture********/
-
-    let newProfilePicture : File;
-    let errorPicture;
-    function handleFileChange(event: Event) {
-            newProfilePicture = event.target.files[0]; // Assigne le fichier sélectionné
-    }
-
-    function resetErrorsPicture() {
-        errorPicture = '';
-    }
-
-    async function updateNewProfilePicture(){
-        if (newProfilePicture)
-        {
-            errorPicture = await updateProfilePicture(newProfilePicture);
-        }
-        if (errorPicture && errorPicture != 'success')
-            errorPicture = errorPicture.profile_picture;
-    }
-
+    
     /********updateEmailAndUsername********/
 
     let newUsername : string;
@@ -215,33 +196,7 @@
     <div class="d-flex">
         <div class="flex-column col-3 border-end my-3">
             <div class="border-bottom mx-3 me-4 pb-3">
-                <div class="d-flex justify-content-center align-items-center">
-                    <button class="btn" type="button" data-bs-toggle="modal" data-bs-target="#pictureModal"><img alt="user profile" src={state.user?.profile_picture} class="img-circle rounded-circle hover-effect ms-2"></button>
-                </div>
-                <div class="modal fade" id="pictureModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                      <div class="modal-content">
-                        <form on:submit|preventDefault="{updateNewProfilePicture}">
-                            <div class="modal-body">
-                                <input type="file" on:change={handleFileChange}>
-                            </div>
-                            {#if errorPicture != 'success' && errorPicture}
-                            <div class="alert alert-danger mx-3" role="alert">
-                                {errorPicture}
-                            </div>
-                            {:else if errorPicture == 'success'}
-                            <div class="alert alert-success mx-3" role="alert">
-                                Image successfully changed.
-                            </div>
-                            {/if}
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" on:click={resetErrorsPicture}>Close</button>
-                                <button type="submit" class="btn btn-success" on:click={resetErrorsPicture}>Save changes</button>
-                            </div>
-                        </form>
-                      </div>
-                    </div>
-                </div>
+                <ProfilePicture state={state}/>
             </div>
             <div class="p-4 border-bottom mx-3 me-4 mb-4">
                 <h5 class="text-light"><i class="bi-person pe-3"></i>{state.user?.username}</h5>
