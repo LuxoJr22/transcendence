@@ -11,6 +11,8 @@ class UserManager(BaseUserManager):
 			raise ValueError('The password must be set')
 		email = self.normalize_email(email)
 		user = self.model(username=username, email=email)
+		user.profile_picture = 'profile_pictures/default.jpg'
+		user.skin = 'default.glb'
 		user.set_password(password)
 		user.save(using=self._db)
 		return user
@@ -30,14 +32,16 @@ class User(AbstractBaseUser):
 	email = models.EmailField(max_length=254, unique=True)
 	login42 = models.CharField(max_length=8, unique=True, blank=True, null=True, default=None)
 
-	profile_picture = models.ImageField(upload_to=user_profile_picture_path, default='profile_pictures/default.jpg')
-	skin = models.CharField(max_length=254, default='default.glb')
+	profile_picture = models.ImageField(upload_to=user_profile_picture_path, blank=True, null=True)
+	skin = models.CharField(max_length=254, blank=True, null=True)
 	pong_elo = models.IntegerField(default=600)
 	shooter_elo = models.IntegerField(default=600)
 
 	is_online = models.BooleanField(default=False)
+
 	is_active = models.BooleanField(default=True)
 	is_superuser = models.BooleanField(default=False)
+	is_staff = models.BooleanField(default=False)
 
 	objects = UserManager()
 
@@ -55,3 +59,9 @@ class User(AbstractBaseUser):
 				old_user.profile_picture.delete(save=False)
 
 		super().save(*args, **kwargs)
+
+	def has_perm(self, perm, obj=None):
+		return self.is_superuser
+
+	def has_module_perms(self, app_label):
+		return self.is_superuser
