@@ -5,9 +5,10 @@
 	var gamemode = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
 	var allUsers = []
 	var allGames = []
-	var nb_players = 0
+	var Users = []
+	var capacity = 0
 
-	let url = 'ws://localhost:8000/ws/tournament/pong/' + gamemode + '/?token=' + localStorage.getItem('access_token');
+	let url = '/ws/tournament/pong/' + gamemode + '/?token=' + localStorage.getItem('access_token');
 	const chatSocket = new WebSocket(url)
 
 
@@ -18,9 +19,11 @@
 		{
 			allUsers = data.players;
 			allGames = data.games;
-			nb_players = data.nb_players;
-			console.log(data)
-			document.getElementById("bracket").replaceChildren(create_bracket(nb_players))
+			capacity = data.capacity;
+			data.players.forEach(element => {
+				Users[element.id] = element.username
+			});
+			document.getElementById("bracket").replaceChildren(create_bracket(capacity, allGames, allUsers))
 		}
 		if (data.event == "Match")
 		{
@@ -39,68 +42,126 @@
 				'event':'Match_button',
 			}))
 	}
-	//onMount(async () => {
 
-		function create_match(position : string)
+	function create_match(position : string, name, score)
+	{
+		var match = document.createElement("div");
+		match.className = `match-${position} team`;
+		var name_span = document.createElement("span");
+		name_span.className = "name"
+		if (Users[name])
+			name_span.textContent = Users[name]
+		else
+			name_span.textContent = name
+		match.appendChild(name_span)
+		var score_span = document.createElement("span");
+		score_span.className = "score"
+		score_span.textContent = score
+		match.appendChild(score_span)
+		return (match)
+	}
+
+	function create_versus(game)
+	{
+		if (!game)
 		{
-			var match = document.createElement("div");
-			match.className = `match-${position} team`;
-			return (match)
+			var match1 = create_match("top", null)
+			var match2 = create_match("bottom", null)
 		}
-
-		function create_versus(winner : string)
+		else 
 		{
-			var match1 = create_match("top")
-			var match2 = create_match("bottom")
-			var versus = document.createElement("div");
-			versus.className = `match ${winner}`
-			versus.appendChild(match1)
-			versus.appendChild(match2)
-
-			var matchlines = document.createElement("div");
-			matchlines.className = 'match-lines'
-			var lineone =  document.createElement("div");
-			lineone.className = "line one"
-			var linetwo =  document.createElement("div");
-			linetwo.className = "line two"
-			matchlines.appendChild(lineone)
-			matchlines.appendChild(linetwo)
-			versus.appendChild(matchlines)
-
-			var matchlinesv = document.createElement("div");
-			matchlinesv.className = 'match-lines alt'
-			var linev = document.createElement("div");
-			linev.className = "line one"
-			matchlinesv.appendChild(linev)
-			versus.appendChild(matchlinesv)
-
-			return (versus)
+			var match1 = create_match("top", game.player1, game.score1)
+			var match2 = create_match("bottom", game.player2, game.score2)
 		}
+		var versus = document.createElement("div");
+		
+		var winner;
+		if (game && game.winner == game.player1)
+			winner = "winner-top"
+		else if (game && game.winner == game.player2)
+			winner = "winner-bottom"
+		else
+			winner = ""
+		versus.className = `match ${winner}`
+		versus.appendChild(match1)
+		versus.appendChild(match2)
 
-		function create_column(i : number)
+		var matchlines = document.createElement("div");
+		matchlines.className = 'match-lines'
+		var lineone =  document.createElement("div");
+		lineone.className = "line one"
+		var linetwo =  document.createElement("div");
+		linetwo.className = "line two"
+		matchlines.appendChild(lineone)
+		matchlines.appendChild(linetwo)
+		versus.appendChild(matchlines)
+
+		var matchlinesv = document.createElement("div");
+		matchlinesv.className = 'match-lines alt'
+		var linev = document.createElement("div");
+		linev.className = "line one"
+		matchlinesv.appendChild(linev)
+		versus.appendChild(matchlinesv)
+
+		return (versus)
+	}
+
+	function create_column(i : number, allgames, act_game)
+	{
+		var column = document.createElement("div");
+		column.className = "column";
+		var total = i
+		while (i > 0)
 		{
-			var column = document.createElement("div");
-			column.className = "column";
-			while (i > 0)
+			column.appendChild(create_versus(allgames[act_game + (total - i)]))
+			i --
+		}
+		return (column)
+	}
+
+	function create_bracket(capacity : number, allgames, allusers)
+	{
+		var bracket = document.createElement("div");
+		var act_game = 0
+		bracket.className = "bracket";
+		capacity /= 2
+		var i = 0
+		if (allgames.length == 0)
+		{
+			while (allusers[i])
 			{
-				column.appendChild(create_versus(""))
-				i --
+				if (i % 2 == 1)
+				{
+					allgames.push({player1:allusers[i - 1].username, player2:allusers[i].username, score1:null, score2:null})
+				}
+				i ++
 			}
-			return (column)
 		}
-
-		function create_bracket(nb_player : number)
+		else if (capacity >= 1)
 		{
-			var bracket = document.createElement("div");
-			bracket.className = "bracket";
-			nb_player /= 2
-			while (nb_player >= 1)
+			let start = allgames.length - capacity;
+			let winners = []
+			while (allgames[start])
 			{
-				bracket.appendChild(create_column(nb_player))
-				nb_player /= 2;
+				winners.push(allgames[start].winner)
+				start ++;
 			}
-			return( bracket)
+			let i = 0
+			while (winners[i])
+			{
+				if (i % 2 == 1)
+					allgames.push({player1:winners[i - 1], player2:winners[i], score1:null, score2:null})
+				i ++
+			}
 		}
+		while (capacity >= 1)
+		{
+			bracket.appendChild(create_column(capacity, allgames, act_game))
+			act_game += capacity;
+			capacity /= 2;
+		}
+		return( bracket)
+	}
 		
 
 </script>

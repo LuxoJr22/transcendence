@@ -14,7 +14,7 @@
         const response = await fetch('api/tournament/create/', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json' ,'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-        body: JSON.stringify({ "name":`${tournament_name}`, 'nb_player':4}),
+        body: JSON.stringify({ "name":`${tournament_name}`, 'nb_player':4, 'capacity': 4}),
 		});
 		const data = await response.json();
         if (response.ok)
@@ -32,7 +32,6 @@
 
             if (response.ok){
                 allTournament = await response.json();
-                console.log(allTournament)
             }
     }
 
@@ -57,7 +56,7 @@
                     <button on:click={go_to_tournament(tournament.name)} class="btn text-light border rounded" aria-label="Close">
                         <!-- <div class="d-flex justify-content-center"></div> -->
                         <p class="d-inline">{tournament.name}</p>
-                        <p class="d-inline">/{tournament.nb_player}</p>
+                        <p class="d-inline">{tournament.participants.length}/{tournament.capacity}</p>
                         <!-- <i class="bi bi-plus pt-2" style="font-size:1.8em"></i> -->
                     </button>    
                 </div>

@@ -18,7 +18,6 @@ dictio = {}
 
 class PrivateMatchmakingConsumer(WebsocketConsumer):
 	def connect(self):
-		print("ca menerve", file=sys.stderr)
 		self.gamemode = self.scope['url_route']['kwargs']['gamemode']
 		self.game_id = self.scope['url_route']['kwargs']['game_id']
 		self.room_group_name = f'private_matchmaking_{self.game_id}'
@@ -193,7 +192,6 @@ class PongConsumer(WebsocketConsumer):
 		self.user = self.scope['user']
 		self.id = 0
 		self.winner = 0
-		print("oui", file=sys.stderr)
 
 		try:
 			self.pongroom = get_object_or_404(PongGroup, group_name=self.room_group_name)
@@ -270,7 +268,7 @@ class PongConsumer(WebsocketConsumer):
 		if (self.id == text_data_json["id"] == 2):
 			self.game.player2.ready = 1
 		if (self.game.player1.ready == self.game.player2.ready == 1):
-			time.sleep(5)
+			#time.sleep(5)
 			self.game.game_state = LAUNCHED
 			async_to_sync(self.channel_layer.group_send)(
 				self.room_group_name,

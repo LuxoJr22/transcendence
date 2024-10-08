@@ -40,12 +40,9 @@
 		}
 		else if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "private") {
 			var game_id = localStorage.getItem('game_id')
-			console.log("bonbon")
-			ws = new WebSocket('ws/pong_private_matchmaking/' + gamemode + '/' + game_id + '/?token=' + state.accessToken);
-			console.log("alors")
+			ws = new WebSocket('/ws/pong_private_matchmaking/' + gamemode + '/' + game_id + '/?token=' + state.accessToken);
 			ws.onmessage = (event) => {
 				let data = JSON.parse(event.data);
-				console.log(event)
 				if (data.event == 'Match' && state.user?.id == data.player1_id || state.user?.id == data.player2_id) {
 					let gamemode = data.gamemode;
 					let room_name = data.room_name;
@@ -59,10 +56,10 @@
 			window.location.href = '/';
 	});
 
-	// onDestroy(() => {
-	// 	if (ws)
-	// 		ws.close();
-	// });
+	onDestroy(() => {
+		if (ws)
+			ws.close();
+	});
 
 </script>
 
