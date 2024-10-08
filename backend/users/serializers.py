@@ -1,8 +1,11 @@
 import re
 from django.contrib.auth.password_validation import validate_password as django_validate_password
+from django.conf import settings
 from rest_framework import serializers
 from PIL import Image
 from .models import User
+import os
+import shutil, sys
 
 class ValidationMixin:
 	def _validate_username(self, value):
@@ -97,7 +100,15 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 		return self._validate_password(value)
 
 	def validate_profile_picture(self, value):
-		return self._validate_profile_picture(value)
+		validated_value = self._validate_profile_picture(value)
+		print("Validating profile picture", file=sys.stderr)
+		username = self.instance.username
+		profile_pictures_path = os.path.join(settings.MEDIA_ROOT, f'profile_pictures/{username}')
+		print(f"Profile pictures path: {profile_pictures_path}", file=sys.stderr)  # Debug
+		if os.path.exists(profile_pictures_path):
+			print(f"Removing profile pictures for {username}", file=sys.stderr)
+			shutil.rmtree(profile_pictures_path)
+		return validated_value
 
 	def validate(self, attrs):
 		if 'password' in attrs:
