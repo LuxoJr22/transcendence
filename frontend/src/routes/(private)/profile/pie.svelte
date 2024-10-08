@@ -4,7 +4,6 @@
 
     let chart;
 
-    
     export let victories = 0;
     export let defeats = 0;
 
