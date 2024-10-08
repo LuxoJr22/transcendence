@@ -8,10 +8,10 @@
     import type { friendInterface } from '$lib/stores/friendship';
     import { userData } from '$lib/stores/user';
     import ImgOnline from '$lib/static/imgOnline.svelte';
-    import ProfilePicture from '$lib/static/UpdateUserInformation/profilePicture.svelte';
-    import Username from '$lib/static/UpdateUserInformation/username.svelte';
-    import Email from '$lib/static/UpdateUserInformation/email.svelte';
-    import Password from '$lib/static/UpdateUserInformation/password.svelte';
+    import ProfilePicture from '$lib/static/Profile/UpdateUserInformation/profilePicture.svelte';
+    import Username from '$lib/static/Profile/UpdateUserInformation/username.svelte';
+    import Email from '$lib/static/Profile/UpdateUserInformation/email.svelte';
+    import Password from '$lib/static/Profile/UpdateUserInformation/password.svelte';
 
     interface User {
         id: number,
@@ -170,11 +170,11 @@
             <div class="modal-dialog">
               <div class="modal-content">
                     <div class="modal-body">
-                        <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeUsername" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change username</button>
+                        <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeUsername" aria-expanded="false" aria-controls="collapseExample">Change username</button>
                         <div class="collapse" id="collapseChangeUsername">
                             <Username />
                         </div>
-                        <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeEmail" aria-expanded="false" aria-controls="collapseExample" on:click={resetValue}>Change Email</button>
+                        <button class="btn btn-dark my-2" data-bs-toggle="collapse" data-bs-target="#collapseChangeEmail" aria-expanded="false" aria-controls="collapseExample">Change Email</button>
                         <div class="collapse" id="collapseChangeEmail">
                             <Email />
                         </div>
