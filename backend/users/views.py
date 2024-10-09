@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.views.generic import RedirectView
+from django.core.exceptions import ValidationError
 from io import BytesIO
 from .models import User
 from .serializers import UserSerializer, UserUpdateSerializer, UserDetailSerializer, PublicUserSerializer, UserSkinSerializer
@@ -108,10 +109,10 @@ class OAuth42CallbackView(generics.CreateAPIView):
 			i += 1
 			username = f"{user_info['login']}{str(i)}"
 		if len(username) > 12:
-			return None
+			raise ValidationError("Triplum internal error, please create regular account.")
 
 		if User.objects.filter(email=user_info['email']).exists():
-			return Response({'error': 'Email is already taken'}, status=status.HTTP_400_BAD_REQUEST)
+			raise ValidationError("An account with this email already exists")
 
 		user = User.objects.create(
 			username=username,
@@ -156,7 +157,10 @@ class OAuth42CallbackView(generics.CreateAPIView):
 			return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
 		
 		user_info = user_info_response.json()
-		user = self.find_or_create_42user(user_info)
+		try:
+			user = self.find_or_create_42user(user_info)
+		except ValidationError as e:
+			return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 		if user is None:
 			return Response({'error': 'Triplum internal error, please create regular account'}, status=status.HTTP_400_BAD_REQUEST)
