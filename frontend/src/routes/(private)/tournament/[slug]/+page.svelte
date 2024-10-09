@@ -2,13 +2,13 @@
     import { onMount } from "svelte";
 
 	let currentUrl : string = window.location.href;
-	var gamemode = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
+	var tournament_name = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
 	var allUsers = []
 	var allGames = []
 	var Users = []
 	var capacity = 0
 
-	let url = '/ws/tournament/pong/' + gamemode + '/?token=' + localStorage.getItem('access_token');
+	let url = '/ws/tournament/pong/' + tournament_name + '/?token=' + localStorage.getItem('access_token');
 	const chatSocket = new WebSocket(url)
 
 
@@ -169,10 +169,12 @@
 
 <div class="container">
     <div class="row mt-5">
-		<div class="d-flex justify-content-center border-bottom">
+		
+		<h4 class="mt-2 d-flex justify-content-center"style="color:white;">{tournament_name}</h4>
+		<div class="theme theme-dark" id="bracket"></div>
+		<div class="d-flex justify-content-center">
             <button on:click={start_match} class="btn btn-primary mb-3" type="button"><p class="mb-1">Launch Tournament</p></button>
         </div>
-		<p class="mt-2"style="color:white;">{gamemode}</p>
 		<div class="modal-body d-flex justify-content-center row user-container m-0 me-2 mb-2">
             {#each allUsers as user}
                 <div class="row p-0 m-2">
@@ -187,73 +189,7 @@
         </div>
     </div>
 </div>
-<div class="theme theme-dark" id="bracket">
-	<!-- <div class="bracket disable-image"> -->
-	  <!-- <div class="column">
-		<div class="match winner-top">
-		  <div class="match-top team">
-			<span class="image"></span>
-			<span class="name">Orlando Jetsetters</span>
-			<span class="score">2</span>
-		  </div>
-		</div>
-	</div> -->
-		<!--  <div class="match-bottom team">
-			<span class="image"></span>
-			<span class="name">D.C. Senators</span>
-			<span class="score">1</span>
-		  </div>
-		  <div class="match-lines">
-			<div class="line one"></div>
-			<div class="line two"></div>
-		  </div>
-		  <div class="match-lines alt">
-			<div class="line one"></div>
-		  </div>
-		</div>
-		<div class="match winner-bottom">
-		  <div class="match-top team">
-			<span class="image"></span>
-			<span class="name">New Orleans Rockstars</span>
-			<span class="score">1</span>
-		  </div>
-		  <div class="match-bottom team">
-			<span class="image"></span>
-			<span class="name">West Virginia Runners</span>
-			<span class="score">2</span>
-		  </div>
-		  <div class="match-lines">
-			<div class="line one"></div>
-			<div class="line two"></div>
-		  </div>
-		  <div class="match-lines alt">
-			<div class="line one"></div>
-		  </div>
-		</div>
-	  </div>
-	  <div class="column">
-		<div class="match winner-bottom">
-		  <div class="match-top team">
-			<span class="image"></span>
-			<span class="name">Orlando Jetsetters</span>
-			<span class="score">1</span>
-		  </div>
-		  <div class="match-bottom team">
-			<span class="image"></span>
-			<span class="name">West Virginia Runners</span>
-			<span class="score">2</span>
-		  </div>
-		  <div class="match-lines">
-			<div class="line one"></div>
-			<div class="line two"></div>
-		  </div>
-		  <div class="match-lines alt">
-			<div class="line one"></div>
-		  </div>
-		</div>
-	  </div>  -->
-	<!-- </div> -->
-  </div>
+
 
 
 <style>

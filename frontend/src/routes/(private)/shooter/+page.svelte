@@ -54,7 +54,7 @@
 
         
         var bind2 = {up: 90, down: 83, left:81, right:68, jump:32}
-        var bind = {up: 40, down: 38, left:39, right:37, jump:96}
+        //var bind = {up: 40, down: 38, left:39, right:37, jump:96}
 
 
         var id = 0
@@ -363,11 +363,11 @@
                 let i = 0
                 while (players[i])
                 {
-                    if (players[i].id == id - 1)
-                        players.splice(i, i)
+                    if (players[i].id == data.id - 1)
+                        players.splice(i, 1)
                     i ++
                 }
-                createPlayer(id, data.players[id].skin)
+                createPlayer(data.id - 1, data.players[data.id - 1].skin)
 
                 var row = table_body.insertRow()
                 var usercell = row.insertCell(0)

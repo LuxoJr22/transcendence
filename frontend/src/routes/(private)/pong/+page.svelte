@@ -6,12 +6,20 @@
 	import { Bot } from "./bot.js";
 	import { shade } from "./watershader";
 	import { Firework } from './firework.js';
+	import { auth } from '$lib/stores/auth';
+	import type { AuthState } from '$lib/stores/auth';
+
+	let state: AuthState;
+	$: $auth, state = $auth;
 
 	var pongSocket: WebSocket;
 	let canvas;
 	var scoring = 0;
 
 	onMount(() => { (async () => {
+		auth.subscribe((value : AuthState) =>{
+            state = value;
+        });
 
 		var skins
 		const response = await fetch('api/pong/skins/' + localStorage.getItem('game_id'), {
@@ -23,6 +31,19 @@
 		{
 			skins = data
 		}
+
+		
+
+		const resp = await fetch('api/pong/settings/' + state.user?.id, {
+		method: 'GET',
+		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		});
+		const dat = await resp.json();
+		if (resp.ok)
+		{
+			console.log(dat)
+		}
+
 
 		var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 16 * 9}
 		var winner = 0
@@ -47,15 +68,10 @@
 		var id = 0;
 		var fireworks = [];
 		var ui = document.getElementById("ui");
-		var score = document.getElementById("score");
 		var versus = document.getElementById("versus")
 		var score1 = document.getElementById("player1")
 		var score2 = document.getElementById("player2")
-
-		score1.style.display = 'none'
-		score2.style.display = 'none'
 		
-		var endscoring = 0;
 
 		const views = [
 			{
@@ -207,6 +223,7 @@
         ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		score1.style.fontSize = canvasSize.height / 10 + "px"
 		score2.style.fontSize = canvasSize.height / 10 + "px"
+		ui.style.display = 'block'
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
 
@@ -378,8 +395,8 @@
 			}
 			else if (data.event == 'start_game')
 			{
-				score1.style.display = ''
-				score2.style.display = ''
+				score1.style.display = 'block'
+				score2.style.display = 'block'
 				versus.style.display = 'none'
 				renderer.setScissorTest( false );
 				renderer.setViewport(0, 0, window.innerWidth * 0.7, (window.innerWidth * 0.70) / 16 * 9)
@@ -481,10 +498,9 @@
     				{
     				    fireworks.push( new Firework( scene, [20 * Math.pow(-1, winner)] ) ); 
     				}
-    				// update fireworks 
     				for( var i = 0; i < fireworks.length; i++ )
     				{
-    				    if( fireworks[ i ].done ) // cleanup 
+    				    if( fireworks[ i ].done )  
     				    {
     				        fireworks.splice( i, 1 ); 
     				        continue; 
@@ -539,6 +555,7 @@
 	/*@import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');*/
 	@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
     #ui {
+		display: none;
         position: absolute;
 		width: 10px;
 		height: 10px;
@@ -579,6 +596,14 @@
 		left: 50%;
 	}
 
+	#player1 {
+		display: none;
+	}
+
+	#player2 {
+		display: none;
+	}
+	
 	#vs {
 		position: relative;
 	}

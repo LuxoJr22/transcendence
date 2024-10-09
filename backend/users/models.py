@@ -13,6 +13,7 @@ class UserManager(BaseUserManager):
 		user = self.model(username=username, email=email)
 		user.profile_picture = 'profile_pictures/default.jpg'
 		user.skin = 'default.glb'
+		user.settings = Settings.objects.create()
 		user.set_password(password)
 		user.save(using=self._db)
 		return user
@@ -27,6 +28,17 @@ class UserManager(BaseUserManager):
 def user_profile_picture_path(instance, filename):
 	return f'profile_pictures/{instance.username}/{filename}'
 
+def pong_dict():
+	return {"up": 90, "down": 83, "left":81, "right":68, "charge":32}
+
+def shooter_dict():
+	return {"up": 90, "down": 83, "left":81, "right":68, "jump":32}
+
+class Settings(models.Model):
+	pong = models.JSONField(default=pong_dict)
+	shooter = models.JSONField(default=shooter_dict)
+
+
 class User(AbstractBaseUser):
 	username = models.CharField(max_length=12, unique=True)
 	email = models.EmailField(max_length=254, unique=True)
@@ -36,6 +48,7 @@ class User(AbstractBaseUser):
 	skin = models.CharField(max_length=254, blank=True, null=True)
 	pong_elo = models.IntegerField(default=600)
 	shooter_elo = models.IntegerField(default=600)
+	settings = models.ForeignKey(Settings,  on_delete=models.CASCADE)
 
 	is_online = models.BooleanField(default=False)
 
