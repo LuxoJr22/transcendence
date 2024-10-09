@@ -5,9 +5,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.db import models
 from django.views.generic import RedirectView
 from django.core.exceptions import ValidationError
 from io import BytesIO
+from friendship.models import Block
 from .models import User
 from .serializers import UserSerializer, UserUpdateSerializer, UserDetailSerializer, PublicUserSerializer, UserSkinSerializer
 
@@ -81,7 +83,17 @@ class UserListView(generics.ListAPIView):
 	permission_classes = [IsAuthenticated]
 
 	def get_queryset(self):
-		return User.objects.exclude(id=self.request.user.id)
+		user = self.request.user
+
+		blocked_users = Block.objects.filter(models.Q(blocker=user) | models.Q(blocked=user)).values_list('blocker', 'blocked')
+		blocked_user_ids = set()
+		for blocker, blocked in blocked_users:
+			if blocker == user.id:
+				blocked_user_ids.add(blocked)
+			else:
+				blocked_user_ids.add(blocker)
+
+		return User.objects.exclude(id__in=blocked_user_ids).exclude(id=user.id)
 
 class UserSkinUpdateView(generics.UpdateAPIView):
 	serializer_class = UserSkinSerializer
