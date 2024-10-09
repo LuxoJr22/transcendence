@@ -125,3 +125,15 @@ class UnblockUserView(generics.DestroyAPIView):
 			return Response({"message": "User unblocked"}, status=status.HTTP_200_OK)
 		except Block.DoesNotExist:
 			return Response({"error": "Block not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class BlockedUsersListView(generics.ListAPIView):
+	serializer_class = PublicUserSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		blocks = Block.objects.filter(blocker=self.request.user)
+
+		blocked_users = []
+		for block in blocks:
+			blocked_users.append(block.blocked)
+		return blocked_users
