@@ -1,4 +1,4 @@
-import os, requests
+import os, requests, pyotp, qrcode, base64
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.views.generic import RedirectView
+from io import BytesIO
 from .models import User
 from .serializers import UserSerializer, UserUpdateSerializer, UserDetailSerializer, PublicUserSerializer, UserSkinSerializer
 
@@ -20,10 +21,12 @@ class LoginView(TokenObtainPairView):
 
 	def post(self, request):
 		serializer = self.get_serializer(data=request.data)
-
 		serializer.is_valid(raise_exception=True)
 
 		user = User.objects.get(username=request.data['username'])
+
+		if user.is_2fa_enabled:
+			return Response({'2FA': True}, status=status.HTTP_200_OK)
 
 		refresh = RefreshToken.for_user(user)
 		return Response({
@@ -51,6 +54,7 @@ class UserDetailView(generics.RetrieveAPIView):
 			"username": user.username,
 			"email": user.email,
 			"profile_picture": user.profile_picture.url,
+			"is_2fa_enabled": user.is_2fa_enabled,
 		}, status=status.HTTP_200_OK)
 
 class UserUpdateView(generics.UpdateAPIView):
@@ -106,8 +110,11 @@ class OAuth42CallbackView(generics.CreateAPIView):
 		if len(username) > 12:
 			return None
 
+		if User.objects.filter(email=user_info['email']).exists():
+			return Response({'error': 'Email is already taken'}, status=status.HTTP_400_BAD_REQUEST)
+
 		user = User.objects.create(
-			username= username,
+			username=username,
 			email=user_info['email'],
 			login42=user_info['login'],
 			password='42_OAuth',
@@ -154,6 +161,88 @@ class OAuth42CallbackView(generics.CreateAPIView):
 		if user is None:
 			return Response({'error': 'Triplum internal error, please create regular account'}, status=status.HTTP_400_BAD_REQUEST)
 		
+		refresh = RefreshToken.for_user(user)
+		return Response({
+			"refresh": str(refresh),
+			"access": str(refresh.access_token),
+			"user": {
+				"id": user.id,
+				"username": user.username,
+				"email": user.email,
+				"profile_picture_url": user.profile_picture.url,
+			}
+		}, status=status.HTTP_200_OK)
+
+class Enable2FAView(generics.GenericAPIView):
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request):
+		user = request.user
+		
+		if user.is_2fa_enabled:
+			return Response({'error': '2FA is already enabled'}, status=status.HTTP_400_BAD_REQUEST)
+		
+		user.is_2fa_enabled = True
+		user.otp_secret = pyotp.random_base32()
+		user.save()
+
+		otp_uri = pyotp.totp.TOTP(user.otp_secret).provisioning_uri(user.username, issuer_name='Triplum')
+
+		img = qrcode.make(otp_uri)
+		buf = BytesIO()
+		img.save(buf, format='PNG')
+		buf.seek(0)
+
+		qr_code_base64 = base64.b64encode(buf.read()).decode('utf-8')
+
+		return Response({
+			'otp_secret': user.otp_secret,
+			'qr_code': qr_code_base64
+		}, status=status.HTTP_200_OK)
+
+class Disable2FAView(generics.GenericAPIView):
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request):
+		user = request.user
+		
+		if not user.is_2fa_enabled:
+			return Response({'error': '2FA is not enabled'}, status=status.HTTP_400_BAD_REQUEST)
+		
+		otp_code = request.data.get('otp_code')
+		if not otp_code:
+			return Response({'error': 'No 2FA code provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+		totp = pyotp.TOTP(user.otp_secret)
+		if not totp.verify(otp_code):
+			return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_400_BAD_REQUEST)
+		
+		user.is_2fa_enabled = False
+		user.otp_secret = None
+		user.save()
+
+		return Response({'success': '2FA is disabled'}, status=status.HTTP_200_OK)
+
+class Verify2FAView(TokenObtainPairView):
+	serializer_class = TokenObtainPairSerializer
+
+	def post(self, request):
+		serializer = self.get_serializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
+
+		try:
+			user = User.objects.get(username=request.data['username'])
+		except User.DoesNotExist:
+			return Response({'error': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+		otp_code = request.data.get('otp_code')
+		if not otp_code:
+			return Response({'error': 'No 2FA code provided'}, status=status.HTTP_400_BAD_REQUEST)
+		
+		totp = pyotp.TOTP(user.otp_secret)
+		if not totp.verify(otp_code):
+			return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_400_BAD_REQUEST)
+
 		refresh = RefreshToken.for_user(user)
 		return Response({
 			"refresh": str(refresh),

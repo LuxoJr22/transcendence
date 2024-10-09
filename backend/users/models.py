@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 
-
 class UserManager(BaseUserManager):
 	def create_user(self, username, email, password=None):
 		if not username:
@@ -41,6 +40,9 @@ class User(AbstractBaseUser):
 	is_active = models.BooleanField(default=True)
 	is_superuser = models.BooleanField(default=False)
 	is_staff = models.BooleanField(default=False)
+
+	is_2fa_enabled = models.BooleanField(default=False)
+	otp_secret = models.CharField(max_length=32, blank=True, null=True, default=None)
 
 	objects = UserManager()
 

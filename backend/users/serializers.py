@@ -71,7 +71,7 @@ class UserSerializer(ValidationMixin, serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ['id', 'username', 'email', 'profile_picture']
+		fields = ['id', 'username', 'email', 'profile_picture', 'is_2fa_enabled']
 		extra_kwargs = {
 			'id': {'read_only': True},
 			'username': {'read_only': True},
