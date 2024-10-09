@@ -106,8 +106,11 @@ class OAuth42CallbackView(generics.CreateAPIView):
 		if len(username) > 12:
 			return None
 
+		if User.objects.filter(email=user_info['email']).exists():
+			return Response({'error': 'Email is already taken'}, status=status.HTTP_400_BAD_REQUEST)
+
 		user = User.objects.create(
-			username= username,
+			username=username,
 			email=user_info['email'],
 			login42=user_info['login'],
 			password='42_OAuth',
