@@ -27,6 +27,11 @@
         }
     })
 
+    let viewablePassword = false;
+
+    function viewPassword(){
+        viewablePassword ? viewablePassword = false : viewablePassword = true;
+    }
 
     const logo42 = new URL('$lib/assets/42_Logo.svg', import.meta.url).href
 </script>
@@ -43,7 +48,17 @@
             <div class="mb-3">
                 <label for="Password" class="form-label text-light container-fluid">
                     <h5>Password</h5>
-                    <input type="password" bind:value="{password}" class="form-control" id="Password" placeholder="Enter password">
+                    {#if !viewablePassword}
+                        <div class="d-flex">
+                            <input type="password" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
+                            <a class="mt-1 ms-2 hover-effect" type="button" on:click={viewPassword}><i class="bi bi-eye" style="color:grey;"></i></a>
+                        </div>
+                    {:else}
+                        <div class="d-flex">
+                            <input type="text" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
+                            <a class="mt-1 ms-2 hover-effect" type="button" on:click={viewPassword} ><i class="bi bi-eye-slash" style="color:grey;"></i></a>
+                        </div>
+                    {/if}
                 </label>
             </div>
             {#if errorsLogin == true}

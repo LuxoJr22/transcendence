@@ -11,8 +11,6 @@ class UserManager(BaseUserManager):
 			raise ValueError('The password must be set')
 		email = self.normalize_email(email)
 		user = self.model(username=username, email=email)
-		user.profile_picture = 'profile_pictures/default.jpg'
-		user.skin = 'default.glb'
 		user.settings = Settings.objects.create()
 		user.set_password(password)
 		user.save(using=self._db)
@@ -44,8 +42,8 @@ class User(AbstractBaseUser):
 	email = models.EmailField(max_length=254, unique=True)
 	login42 = models.CharField(max_length=8, unique=True, blank=True, null=True, default=None)
 
-	profile_picture = models.ImageField(upload_to=user_profile_picture_path, blank=True, null=True)
-	skin = models.CharField(max_length=254, blank=True, null=True)
+	profile_picture = models.ImageField(upload_to=user_profile_picture_path, default='profile_pictures/default.jpg')
+	skin = models.CharField(max_length=254, default='default.glb')
 	pong_elo = models.IntegerField(default=600)
 	shooter_elo = models.IntegerField(default=600)
 	settings = models.ForeignKey(Settings,  on_delete=models.CASCADE)
@@ -56,6 +54,9 @@ class User(AbstractBaseUser):
 	is_superuser = models.BooleanField(default=False)
 	is_staff = models.BooleanField(default=False)
 
+	is_2fa_enabled = models.BooleanField(default=False)
+	otp_secret = models.CharField(max_length=32, blank=True, null=True, default=None)
+
 	objects = UserManager()
 
 	USERNAME_FIELD = 'username'
@@ -65,12 +66,6 @@ class User(AbstractBaseUser):
 		return self.username
 
 	def save(self, *args, **kwargs):
-		if self.pk:
-			old_user = User.objects.get(pk=self.pk)
-
-			if old_user.profile_picture and old_user.profile_picture != 'profile_pictures/default.jpg' and old_user.profile_picture != self.profile_picture:
-				old_user.profile_picture.delete(save=False)
-
 		super().save(*args, **kwargs)
 
 	def has_perm(self, perm, obj=None):

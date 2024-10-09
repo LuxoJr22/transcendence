@@ -1,5 +1,4 @@
 <script>
-  import CustomCanva from "$lib/static/customGameCanva.svelte"
   const img = new URL('$lib/assets/pong.png', import.meta.url).href
   const img1 = new URL('$lib/assets/game2.png', import.meta.url).href
 
@@ -57,9 +56,34 @@
       <div class="row mx-auto">
         <div class="card mycard bg-warning-subtle me-3 ms-sm-5 ms-3">
           <div class="card-body">
-            <h5 class="card-title">Custom Matches</h5>
-            <p class="card-text">Create your own custom matches.</p>
-            <CustomCanva/>
+            <h5 class="card-title">Settings</h5>
+            <p class="card-text">Change your key binds, or active 2FA</p>
+            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
+              Open
+            </button>
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Settings</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <ul>
+                      <li class="h4">Forward: <button class="kbc-button">W</button></li>
+                      <li class="h4">Back: <button class="kbc-button">S</button></li>
+                      <li class="h4">Left: <button class="kbc-button">A</button></li>
+                      <li class="h4">Right: <button class="kbc-button">D</button></li>
+                      <li class="h4">Dash: <button class="kbc-button">SPACE</button></li>
+                    </ul>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="card mycard bg-warning-subtle">
@@ -76,18 +100,22 @@
 </div>
 
 <style>
-.container-game {
-  width: 100%;
-  display: flex;
-}
+  .container-game {
+    width: 100%;
+    display: flex;
+  }
 
-.container-game img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+  .container-game img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-.mycard {
-  width: 42%;
-}
+  .mycard {
+    width: 42%;
+  }
+
+  li {
+    list-style: none;
+  }
 </style>
