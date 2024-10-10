@@ -85,7 +85,6 @@ export async function login42(){
 }
 
 export async function loginWithTwoFA(username: string, password: string, otp_code : string){
-    console.log(username, password, otp_code);
     const response = await fetch('/api/2fa/verify/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

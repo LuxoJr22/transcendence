@@ -2,25 +2,33 @@
     import { goto } from '$app/navigation';
     import { login , login42, loginWithTwoFA} from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth'
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
 
     let username = '';
     let password = '';
     let errorsLogin = false;
-    let twoFA = false;
     let otp_code = '';
+    let myModal = null;
+    let errorTwoFA = ''
 
     function resetLoginErrors(){
         errorsLogin = false;
     }
 
+    function displayModal(){
+        var modalElement = document.getElementById('myModal');
+        myModal = new bootstrap.Modal(modalElement);
+        myModal.show()
+    }
+
     async function handleLogin() {
         const response = await login(username, password);
-        if (response == '2fa')
-            twoFA = true;
+        if (response == '2fa'){
+            displayModal();
+        }
         if (localStorage.getItem('access_token'))
             goto('/');
-        else if (!twoFA)
+        else if (response != '2fa')
             errorsLogin = true;
     }
 
@@ -30,6 +38,17 @@
             window.location.href= '/';
         }
     })
+
+    onDestroy(() => {
+        if (myModal)
+            myModal.hide();
+    })
+
+    async function handleTwoFA(){
+        errorTwoFA = await loginWithTwoFA(username, password, otp_code);
+        if (localStorage.getItem('access_token'))
+            goto('/');
+    }
 
     let viewablePassword = false;
 
@@ -69,11 +88,6 @@
             <div class="alert alert-danger mx-3" role="alert">
                 Username or password incorrect.
             </div>
-            {:else if twoFA}
-                <form>
-                    <input type="text" bind:value="{otp_code}" required class="form-control col-12" placeholder="Enter password">
-                    <button on:click={() => {loginWithTwoFA(username, password, otp_code)}}>Login</button>
-                </form>
             {/if}
             <div>
                 <p class="text-light">Don't have an account? <a href="/register">Register now</a></p>
@@ -83,5 +97,33 @@
                 <a href="api/oauth42/" type="button" class="m-1 btn btn-light">Login with <img src={logo42} alt="42 school logo" class="ms-1" style="height:1.5rem;"/></a>
             </div>
         </form>
+          <div class="modal" id="myModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Authentication with 2FA</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form on:submit|preventDefault={handleTwoFA}>
+                    <div class="modal-body">
+                        <input type="text" bind:value="{otp_code}" required class="form-control col-12" placeholder="Enter code">
+                    </div>
+                    {#if errorTwoFA.error}
+                        <div class="alert alert-danger mx-3" role="alert">
+                            {errorTwoFA.error}
+                        </div>
+                    {:else if errorTwoFA == 'success'}
+                        <div class="alert alert-success mx-3" role="alert">
+                            success
+                        </div>
+                    {/if}
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" on:click={() => {errorTwoFA.error = ''}}>Login</button>
+                    </div>
+                </form>
+              </div>
+            </div>
+          </div>
     </div>
 </div>
