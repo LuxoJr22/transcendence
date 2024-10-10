@@ -10,6 +10,7 @@ from .views import (
 	UserSkinUpdateView,
 	OAuth42RedirectView,
 	OAuth42CallbackView,
+	QRCode2FAView,
 	Enable2FAView,
 	Disable2FAView,
 	Verify2FAView,
@@ -20,6 +21,7 @@ urlpatterns = [
 	path('login/', LoginView.as_view(), name='login'),
 	path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
+	path('2fa/qrcode/', QRCode2FAView.as_view(), name='2fa_qrcode'),
 	path('2fa/enable/', Enable2FAView.as_view(), name='2fa_enable'),
 	path('2fa/disable/', Disable2FAView.as_view(), name='2fa_disable'),
 	path('2fa/verify/', Verify2FAView.as_view(), name='2fa_verify'),
