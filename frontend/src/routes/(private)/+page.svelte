@@ -67,7 +67,11 @@
 				</div>
 				<div class="row">
 					<div class="card mycard bg-warning-subtle mx-3">
-						<Settings state={state} />
+						<div class="card-body">
+							<h5 class="card-title">Chat</h5>
+							<p class="card-text">Chatting with other people.</p>
+							<a href="/chat/home" class="btn btn-dark">Here we go</a>
+						</div>
 					</div>
 					<div class="card mycard bg-warning-subtle">
 						<div class="card-body">

@@ -32,7 +32,7 @@ export async function login(username: string, password: string): Promise<void> {
     });
 
     const data = await response.json();
-    if (data.twoFA){
+    if (data.is_2fa_enabled){
         return ('2fa');
     }
     if (response.ok) {

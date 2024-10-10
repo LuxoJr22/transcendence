@@ -6,6 +6,7 @@
     import type { AuthState } from '$lib/stores/auth';
     import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
     import { fetchLatestDiscussion, messages } from '$lib/stores/chat';
+    import Settings from '$lib/static/Profile/Settings.svelte';
 
     interface Notifications{
         type: String;
@@ -133,8 +134,10 @@
                 <ul class="dropdown-menu ms-2" style="min-width: 0;">
                     <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-4" on:click={(event) => {handleGoto(event, '/chat/home')}}><i class="bi-chat pe-2" style="font-size: 1.3rem; color: grey;"></i>chat</button></li>
                     <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-4" on:click={(event) => {handleGoto(event, '/profile/' + state.user?.id)}}><i class="bi-person-fill pe-2" style="font-size: 1.3rem; color: grey;"></i>profile</button></li>
+                    <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-4" data-bs-toggle="modal" data-bs-target="#settingsModal"><i class="bi bi-gear pe-2" style="font-size: 1.3rem; color: grey;"></i>settings</button></li>
                     <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-danger text-start py-1 px-4" on:click={(event) => {handleGoto(event, '/login')}} on:click={handleLogout}><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</button></li>
                 </ul>
+                <Settings state={state} twoFA_data={0} />
             </div>
         </div>
     </div>
