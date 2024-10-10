@@ -56,7 +56,7 @@ export async function login(username: string, password: string): Promise<void> {
 
 export async function login42(){
     let code = new URLSearchParams(window.location.search).get('code');
-        
+    let data = null;
     let response;
     if (code && code != ''){
         response = await fetch('/api/oauth42/callback/', {
@@ -65,8 +65,10 @@ export async function login42(){
             body: JSON.stringify({ code }),
         });
     }
+
+    data = await response.json();
+
     if (response && response.ok){
-        const data = await response.json();
         auth.set({
             isAuthenticated: true,
             user: {
@@ -81,6 +83,9 @@ export async function login42(){
         localStorage.setItem('access_token', data.access);
         localStorage.setItem('refresh_token', data.refresh);
         return ('success');
+    }
+    else {
+        return (data);
     }
 }
 

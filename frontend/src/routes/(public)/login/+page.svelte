@@ -1,7 +1,6 @@
 <script lang="ts">;
     import { goto } from '$app/navigation';
     import { login , login42, loginWithTwoFA} from '$lib/stores/auth';
-    import type { AuthState } from '$lib/stores/auth'
     import { onDestroy, onMount } from 'svelte';
 
     let username = '';
@@ -10,6 +9,7 @@
     let otp_code = '';
     let myModal = null;
     let errorTwoFA = ''
+    let error42Login : any;
 
     function resetLoginErrors(){
         errorsLogin = false;
@@ -36,6 +36,11 @@
         const status = await login42();
         if (status == 'success'){
             window.location.href= '/';
+        }
+        else{
+            goto('/login');
+            error42Login = status.error.replaceAll('[', '').replaceAll('\'', '').replaceAll(']', '');
+           // window.location.href = '/login'
         }
     })
 
@@ -85,9 +90,13 @@
                 </label>
             </div>
             {#if errorsLogin == true}
-            <div class="alert alert-danger mx-3" role="alert">
-                Username or password incorrect.
-            </div>
+                <div class="alert alert-danger mx-3" role="alert">
+                    Username or password incorrect.
+                </div>
+            {:else if error42Login}
+                <div class="alert alert-danger mx-3" role="alert">
+                    {error42Login}
+                </div>
             {/if}
             <div>
                 <p class="text-light">Don't have an account? <a href="/register">Register now</a></p>
