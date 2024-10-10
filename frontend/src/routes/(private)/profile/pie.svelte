@@ -54,5 +54,5 @@
 {#if victories != 0 || defeats != 0}
     <canvas id="myChart"></canvas>
 {:else}
-    <h4 class="text-center" style="color:grey;">No matchs played</h4>
+    <h5 class="text-center" style="color:grey;">No matchs played</h5>
 {/if}

@@ -61,11 +61,17 @@
 <div>
     {#if blocked}
         <div class="position-absolute bottom-0">
-            <button class="btn btn-danger align-self-end" on:click={UnblockUser}><i class="bi bi-ban pe-2"></i>Unblock</button>
+            <button class="btn bg-black text-light align-self-end opacity" on:click={UnblockUser}><i class="bi bi-ban pe-2"></i>Unblock</button>
         </div>
     {:else}
         <div class="position-absolute bottom-0">
-            <button class="btn btn-danger align-self-end" on:click={blockUser}><i class="bi bi-ban pe-2"></i>Block</button>
+            <button class="btn bg-black text-light align-self-end opacity" on:click={blockUser}><i class="bi bi-ban pe-2"></i>Block</button>
         </div>
     {/if}
 </div>
+
+<style>
+    .opacity:hover {
+        opacity: 0.5;
+    }
+</style> 

@@ -72,14 +72,14 @@
                 <label for="Password" class="form-label text-light container-fluid">
                     <h5>Password</h5>
                     {#if !viewablePassword}
-                        <div class="d-flex">
+                        <div class="d-flex input-group">
                             <input type="password" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
-                            <a class="mt-1 ms-2 hover-effect" type="button" on:click={viewPassword}><i class="bi bi-eye" style="color:grey;"></i></a>
+                            <a class="input-group-text hover-effect" type="button" on:click={viewPassword}><i class="bi bi-eye" style="color:grey;"></i></a>
                         </div>
                     {:else}
-                        <div class="d-flex">
+                        <div class="d-flex input-group">
                             <input type="text" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
-                            <a class="mt-1 ms-2 hover-effect" type="button" on:click={viewPassword} ><i class="bi bi-eye-slash" style="color:grey;"></i></a>
+                            <a class="input-group-text hover-effect" type="button" on:click={viewPassword} ><i class="bi bi-eye-slash" style="color:grey;"></i></a>
                         </div>
                     {/if}
                 </label>

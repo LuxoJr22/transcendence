@@ -103,7 +103,7 @@
         {/if}
         {/each}
     {:else}
-        <div class="d-flex m-auto">
+        <div class="d-flex history-container justify-content-center align-items-center">
             <h5 class="" style="color:grey;">No match to Display</h5>
         </div>
     {/if}
