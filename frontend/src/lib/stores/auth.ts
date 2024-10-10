@@ -5,6 +5,7 @@ export interface User {
     username: string;
     email: string;
     profile_picture: string;
+    is_2fa_enabled : boolean;
 }
 
 export interface AuthState {
@@ -29,9 +30,11 @@ export async function login(username: string, password: string): Promise<void> {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
     });
- 
-    const data = await response.json();
 
+    const data = await response.json();
+    if (data.twoFA){
+        return ('2fa');
+    }
     if (response.ok) {
         auth.set({
             isAuthenticated: true,
@@ -40,7 +43,7 @@ export async function login(username: string, password: string): Promise<void> {
                 username: data.user.username,
                 email: data.user.email,
                 profile_picture: data.user.profile_picture_url,
-
+                is_2fa_enabled : data.is_2fa_enabled
             }
         });
         localStorage.setItem('access_token', data.access);
@@ -71,12 +74,41 @@ export async function login42(){
                 username: data.user.username,
                 email: data.user.email,
                 profile_picture: data.user.profile_picture_url,
+                is_2fa_enabled : data.is_2fa_enabled
 
             }
         });
         localStorage.setItem('access_token', data.access);
         localStorage.setItem('refresh_token', data.refresh);
         return ('success');
+    }
+}
+
+export async function loginWithTwoFA(username: string, password: string, otp_code : string){
+    console.log(username, password, otp_code);
+    const response = await fetch('/api/2fa/verify/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, otp_code }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+        auth.set({
+            isAuthenticated: true,
+            user: {
+                id: data.user.id,
+                username: data.user.username,
+                email: data.user.email,
+                profile_picture: data.user.profile_picture_url,
+                is_2fa_enabled : data.is_2fa_enabled
+            }
+        });
+        localStorage.setItem('access_token', data.access);
+        localStorage.setItem('refresh_token', data.refresh);
+        return ('success');
+    } else {
+        return (data);
     }
 }
 
@@ -118,16 +150,13 @@ export async function updateEmail(email: string): Promise<void> {
 
 export async function updatePassword(password: string, current_password: string): Promise<void> {
     const accessToken = localStorage.getItem('access_token');
-    if (!accessToken) {
+    if (!accessToken)
         throw new Error('Username update failed');
-        return;
-    }
     const response = await fetch('/api/user/update/', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json',  'Authorization': `Bearer ${accessToken}` },
         body: JSON.stringify({ password, current_password }),
     });
-    
    
     const data = await response.json();
 
@@ -191,6 +220,7 @@ export async function fetchUser(): Promise<void> {
                 username: user.username,
                 email: user.email,
                 profile_picture: user.profile_picture,
+                is_2fa_enabled: user.is_2fa_enabled
             },
             accessToken : localStorage.getItem('access_token'),
             refreshToken: localStorage.getItem('refresh_token')

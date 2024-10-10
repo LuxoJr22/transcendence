@@ -1,8 +1,19 @@
-<script>
+<script lang="ts">
+  import { auth, type AuthState } from "$lib/stores/auth";
+    import { onMount } from "svelte";
   const img = new URL('$lib/assets/pong.png', import.meta.url).href
   const img1 = new URL('$lib/assets/game2.png', import.meta.url).href
 
   let linkGame = "/matchmaking/pong/public";
+
+  let state: AuthState;
+    state = $auth;
+
+  onMount(() => {
+    auth.subscribe((value : AuthState) =>{
+      state = value;
+    });
+  })
 
   function changeLink() {
     if (linkGame == "/matchmaking/pong/public")
@@ -10,6 +21,22 @@
     else
       linkGame = "/matchmaking/pong/public"
   }
+
+  let twoFA_data : any;
+
+  async function active_2FA(){
+    let accessToken = localStorage.getItem('access_token');
+    const response = await fetch('/api/2fa/enable/', {
+      method: 'POST',
+      headers: {'Authorization': `Bearer ${accessToken}`}
+    });
+
+    if (response.ok){
+      twoFA_data = await response.json();
+      console.log(twoFA_data);
+    }
+  }
+
 </script>
 
 <div class="container-fluid">
@@ -69,12 +96,31 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body">
+                    
+                    <h3>2FA</h3>
+                      {#if state.user?.is_2fa_enabled}
+                        <button class="btn btn-primary">Disabled 2FA</button>
+                      {:else}
+                        <button class="btn btn-primary" on:click={active_2FA}>Active 2FA</button>
+                        {#if twoFA_data}
+                          <img src="data:image/png;base64,{twoFA_data.qr_code}">
+                        {/if}
+                      {/if}
+                    <h3>Pong Key Binds</h3>
                     <ul>
-                      <li class="h4">Forward: <button class="kbc-button">W</button></li>
-                      <li class="h4">Back: <button class="kbc-button">S</button></li>
-                      <li class="h4">Left: <button class="kbc-button">A</button></li>
-                      <li class="h4">Right: <button class="kbc-button">D</button></li>
-                      <li class="h4">Dash: <button class="kbc-button">SPACE</button></li>
+                      <li class="h5">Forward: <button class="kbc-button">W</button></li>
+                      <li class="h5">Back: <button class="kbc-button">S</button></li>
+                      <li class="h5">Left: <button class="kbc-button">A</button></li>
+                      <li class="h5">Right: <button class="kbc-button">D</button></li>
+                      <li class="h5">Dash: <button class="kbc-button">SPACE</button></li>
+                    </ul>
+                    <h3>Shooter Key Binds</h3>
+                    <ul>
+                      <li class="h5">Forward: <button class="kbc-button">W</button></li>
+                      <li class="h5">Back: <button class="kbc-button">S</button></li>
+                      <li class="h5">Left: <button class="kbc-button">A</button></li>
+                      <li class="h5">Right: <button class="kbc-button">D</button></li>
+                      <li class="h5">Dash: <button class="kbc-button">SPACE</button></li>
                     </ul>
                   </div>
                   <div class="modal-footer">
@@ -117,5 +163,10 @@
 
   li {
     list-style: none;
+  }
+
+  .modal-body{
+    height: 50vh !important;
+    overflow-y: auto;
   }
 </style>

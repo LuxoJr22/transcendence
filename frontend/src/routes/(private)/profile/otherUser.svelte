@@ -5,6 +5,7 @@
     import { profileData, userData, profile } from '$lib/stores/user';
     import History from '$lib/static/Profile/History/otherHistory.svelte';
     import { login } from '$lib/stores/auth';
+    import Block from '$lib/static/Profile/Block.svelte';
 
     export let userId;
     let data : any;
@@ -99,7 +100,7 @@
 
 <div class="container border rounded my-3">
     <div class="d-flex">
-            <div class="flex-column col-3 border-end my-3">
+            <div class="flex-column col-3 border-end my-3 position-relative">
                 <div class="border-bottom mx-3 me-4 pb-3">
                     {#if user?.is_online}
                     <div class="d-flex justify-content-center align-items-end">
@@ -116,6 +117,7 @@
                 <div class="p-4">
                     <h5 class="text-light"><i class="bi-person pe-3"></i>{user?.username}</h5>
                 </div>
+                <Block />
             </div>
             <div class="align-self-end align-img-end mb-3">
                 <button type="button" class="p-0 btn" on:click={addFriend}><i class="bi bi-person-add hover-effect" style="color: grey; font-size: 1.3em"></i></button>

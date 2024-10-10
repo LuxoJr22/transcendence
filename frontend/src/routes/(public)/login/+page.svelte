@@ -1,12 +1,14 @@
 <script lang="ts">;
     import { goto } from '$app/navigation';
-    import { login , login42, auth} from '$lib/stores/auth';
+    import { login , login42, loginWithTwoFA} from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth'
     import { onMount } from 'svelte';
 
     let username = '';
     let password = '';
     let errorsLogin = false;
+    let twoFA = false;
+    let otp_code = '';
 
     function resetLoginErrors(){
         errorsLogin = false;
@@ -14,9 +16,11 @@
 
     async function handleLogin() {
         const response = await login(username, password);
+        if (response == '2fa')
+            twoFA = true;
         if (localStorage.getItem('access_token'))
             goto('/');
-        else
+        else if (!twoFA)
             errorsLogin = true;
     }
 
@@ -65,6 +69,11 @@
             <div class="alert alert-danger mx-3" role="alert">
                 Username or password incorrect.
             </div>
+            {:else if twoFA}
+                <form>
+                    <input type="text" bind:value="{otp_code}" required class="form-control col-12" placeholder="Enter password">
+                    <button on:click={() => {loginWithTwoFA(username, password, otp_code)}}>Login</button>
+                </form>
             {/if}
             <div>
                 <p class="text-light">Don't have an account? <a href="/register">Register now</a></p>
