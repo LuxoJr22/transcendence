@@ -29,7 +29,7 @@ class LoginView(TokenObtainPairView):
 		user = User.objects.get(username=request.data['username'])
 
 		if user.is_2fa_enabled:
-			return Response({'2FA': True}, status=status.HTTP_200_OK)
+			return Response({'is_2fa_enabled': True}, status=status.HTTP_200_OK)
 
 		refresh = RefreshToken.for_user(user)
 		return Response({
@@ -60,13 +60,6 @@ class UserDetailView(generics.RetrieveAPIView):
 			"is_2fa_enabled": user.is_2fa_enabled,
 		}, status=status.HTTP_200_OK)
 
-class UserUpdateView(generics.UpdateAPIView):
-	serializer_class = UserUpdateSerializer
-	permission_classes = [IsAuthenticated]
-
-	def get_object(self):
-		return self.request.user
-
 class UserProfileView(generics.RetrieveAPIView):
 	queryset = User.objects.all()
 	serializer_class = PublicUserSerializer
@@ -94,6 +87,13 @@ class UserListView(generics.ListAPIView):
 				blocked_user_ids.add(blocker)
 
 		return User.objects.exclude(id__in=blocked_user_ids).exclude(id=user.id)
+
+class UserUpdateView(generics.UpdateAPIView):
+	serializer_class = UserUpdateSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_object(self):
+		return self.request.user
 
 class UserSkinUpdateView(generics.UpdateAPIView):
 	serializer_class = UserSkinSerializer
@@ -189,7 +189,7 @@ class OAuth42CallbackView(generics.CreateAPIView):
 			}
 		}, status=status.HTTP_200_OK)
 
-class Enable2FAView(generics.GenericAPIView):
+class QRCode2FAView(generics.GenericAPIView):
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request):
@@ -197,8 +197,7 @@ class Enable2FAView(generics.GenericAPIView):
 		
 		if user.is_2fa_enabled:
 			return Response({'error': '2FA is already enabled'}, status=status.HTTP_400_BAD_REQUEST)
-		
-		user.is_2fa_enabled = True
+
 		user.otp_secret = pyotp.random_base32()
 		user.save()
 
@@ -216,23 +215,40 @@ class Enable2FAView(generics.GenericAPIView):
 			'qr_code': qr_code_base64
 		}, status=status.HTTP_200_OK)
 
+class Enable2FAView(generics.GenericAPIView):
+	permission_classes = [IsAuthenticated]
+
+	def post(self, request):
+		user = request.user
+
+		if not 'otp_code' in request.data:
+			return Response({'error': 'No 2FA code provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+		totp = pyotp.TOTP(user.otp_secret)
+		if not totp.verify(request.data['otp_code']):
+			return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_400_BAD_REQUEST)
+
+		user.is_2fa_enabled = True
+		user.save()
+
+		return Response({'success': '2FA is enabled'}, status=status.HTTP_200_OK)
+
 class Disable2FAView(generics.GenericAPIView):
 	permission_classes = [IsAuthenticated]
 
 	def post(self, request):
 		user = request.user
-		
+
 		if not user.is_2fa_enabled:
 			return Response({'error': '2FA is not enabled'}, status=status.HTTP_400_BAD_REQUEST)
-		
-		otp_code = request.data.get('otp_code')
-		if not otp_code:
+
+		if not 'otp_code' in request.data:
 			return Response({'error': 'No 2FA code provided'}, status=status.HTTP_400_BAD_REQUEST)
 
 		totp = pyotp.TOTP(user.otp_secret)
-		if not totp.verify(otp_code):
+		if not totp.verify(request.data['otp_code']):
 			return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_400_BAD_REQUEST)
-		
+
 		user.is_2fa_enabled = False
 		user.otp_secret = None
 		user.save()
@@ -246,17 +262,13 @@ class Verify2FAView(TokenObtainPairView):
 		serializer = self.get_serializer(data=request.data)
 		serializer.is_valid(raise_exception=True)
 
-		try:
-			user = User.objects.get(username=request.data['username'])
-		except User.DoesNotExist:
-			return Response({'error': 'User does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+		user = User.objects.get(username=request.data['username'])
 
-		otp_code = request.data.get('otp_code')
-		if not otp_code:
+		if not 'otp_code' in request.data:
 			return Response({'error': 'No 2FA code provided'}, status=status.HTTP_400_BAD_REQUEST)
-		
+
 		totp = pyotp.TOTP(user.otp_secret)
-		if not totp.verify(otp_code):
+		if not totp.verify(request.data['otp_code']):
 			return Response({'error': 'Invalid 2FA code'}, status=status.HTTP_400_BAD_REQUEST)
 
 		refresh = RefreshToken.for_user(user)
