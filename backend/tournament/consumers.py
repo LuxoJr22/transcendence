@@ -30,6 +30,9 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 		if self.user not in self.tournament_room.participants.all() and self.tournament_room.participants.count() < self.tournament_room.nb_player:
 			self.tournament_room.participants.add(self.user)
 
+		if self.user not in self.tournament_room.users_online.all():
+			self.tournament_room.users_online.add(self.user)
+
 		self.accept()
 		# if self.tournament_room.last_round == None:
 		# 	nb_player = self.tournament_room.nb_player
@@ -43,7 +46,8 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 				{
 					'type': 'Connection',
 					'event': 'connection',
-					'players': list(self.tournament_room.participants.all().values("username", "id")),
+					'players': list(self.tournament_room.participants.all().values("username", "id", "profile_picture")),
+					'online': list(self.tournament_room.users_online.all().values("username", "id",  "profile_picture")),
 					'games': list(self.tournament_room.matchs.all().values("player1", "player2", "score1", "score2", "winner")),
 					'capacity': capacity,
 				} 
@@ -54,6 +58,7 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 			'type': 'Tournament',
 			'event': 'Connection',
 			'players': event['players'],
+			'online': event['online'],
 			'games': event['games'],
 			'capacity': event['capacity']
 		}))
@@ -67,7 +72,7 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 		if self.tournament_room.last_round != None :
 			elem = list(self.tournament_room.matchs.filter(match_date__gte=self.tournament_room.last_round).exclude(winner=None).values())
 			values = [item["winner"] for item in elem]
-			if (len(values) < self.tournament_room.nb_player or self.tournament_room.participants.filter(Q(id=values[0]) | Q(id=values[1])).count() != self.tournament_room.nb_player):
+			if (len(values) < self.tournament_room.nb_player or self.tournament_room.users_online.filter(Q(id=values[0]) | Q(id=values[1])).count() != self.tournament_room.nb_player):
 				values = []
 
 		if len(values) == self.tournament_room.nb_player:
@@ -105,6 +110,8 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 		)
 		if not self.tournament_room:
 			return
+		if self.user in self.tournament_room.users_online.all():
+			self.tournament_room.users_online.remove(self.user)
 		del self.tournament_room.last_round
 		if self.user in self.tournament_room.participants.all() and self.tournament_room.last_round == None:
 			self.tournament_room.participants.remove(self.user)

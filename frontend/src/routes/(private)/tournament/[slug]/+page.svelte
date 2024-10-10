@@ -1,10 +1,12 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import ImgOnline from "$lib/static/imgOnline.svelte";
+import { onDestroy } from "svelte";
 
 	let currentUrl : string = window.location.href;
 	var tournament_name = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
 	var allUsers = []
 	var allGames = []
+	var allOnline = []
 	var Users = []
 	var capacity = 0
 
@@ -17,13 +19,15 @@
 		let data = JSON.parse(e.data)
 		if (data.event == "Connection")
 		{
+			console.log(data)
 			allUsers = data.players;
 			allGames = data.games;
+			allOnline = data.online;
 			capacity = data.capacity;
 			data.players.forEach(element => {
 				Users[element.id] = element.username
 			});
-			document.getElementById("bracket").replaceChildren(create_bracket(capacity, allGames, allUsers))
+			document.getElementById("bracket")?.replaceChildren(create_bracket(capacity, allGames, allUsers))
 		}
 		if (data.event == "Match")
 		{
@@ -65,8 +69,8 @@
 	{
 		if (!game)
 		{
-			var match1 = create_match("top", null)
-			var match2 = create_match("bottom", null)
+			var match1 = create_match("top", null, null)
+			var match2 = create_match("bottom", null, null)
 		}
 		else 
 		{
@@ -162,6 +166,11 @@
 		}
 		return( bracket)
 	}
+
+	onDestroy(() => {
+		if (chatSocket)
+			chatSocket.close()
+	})
 		
 
 </script>
@@ -175,12 +184,21 @@
 		<div class="d-flex justify-content-center">
             <button on:click={start_match} class="btn btn-primary mb-3" type="button"><p class="mb-1">Launch Tournament</p></button>
         </div>
-		<div class="modal-body d-flex justify-content-center row user-container m-0 me-2 mb-2">
+		<div class="d-flex justify-content-center row position-relative">
+			<p class="text-light text-center text-decoration-underline h5">Players:</p>
             {#each allUsers as user}
-                <div class="row p-0 m-2">
-                    <div class="btn text-light border rounded" aria-label="Close">
-                        <p class="d-inline">{user.username}</p>
-                    </div>
+                <div class="">
+					{#if allOnline.some(actuser => actuser.id == user.id)}
+						<div class="d-flex text-light rounded position-relative" style="left:45%;">
+							<img src={"/media/" + user.profile_picture} width=3% height=auto class="rounded-circle" style="object-fit:cover; aspect-ratio:1">
+							<p class="m-0 p-0 mt-1 ms-2">{user.username}</p>
+						</div>
+					{:else}
+						<div class="d-flex rounded position-relative " style="color:grey; left:45%;">
+							<img src={"/media/" + user.profile_picture} width=3% height=auto class="rounded-circle" style="object-fit:cover; aspect-ratio:1">
+							<p class="m-0 p-0 mt-1 ms-2">{user.username}</p>
+						</div>
+					{/if}
                 </div>
             {/each}
             {#if !allUsers[0]}
@@ -197,6 +215,9 @@
 		height: 100%;
 		width: 100%;
 		position: absolute;
+	} */
+	/* .text-decoration-underline {
+		color: white !important ;
 	} */
 	:global(.bracket) {
 		padding: 40px;

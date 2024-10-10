@@ -52,7 +52,7 @@ class SkinsView(generics.RetrieveAPIView):
 		except User.DoesNotExist:
 			return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 		
-class SettingsView(generics.RetrieveAPIView):
+class PongSettingsView(generics.RetrieveAPIView):
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request, *args, **kwargs):

@@ -32,7 +32,7 @@
 			skins = data
 		}
 
-		
+		var bind = {up: 90, down: 83, left:81, right:68, charge:32}
 
 		const resp = await fetch('api/pong/settings/' + state.user?.id, {
 		method: 'GET',
@@ -41,8 +41,11 @@
 		const dat = await resp.json();
 		if (resp.ok)
 		{
-			console.log(dat)
+			bind = dat.settings
 		}
+		
+
+
 
 
 		var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 16 * 9}
@@ -59,7 +62,7 @@
 		var startend = 0
 
 
-		var bind = {up: 90, down: 83, left:81, right:68, charge:32}
+
 		//var bind2 = {up: 38, down: 40, left:37, right:39, charge:96}
 		var limit = {px: 0, py:8, nx:-18, ny:-8}
 		var limit2 = {px: 18, py:8, nx: 0, ny:-8}
