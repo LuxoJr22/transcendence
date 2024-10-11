@@ -106,6 +106,7 @@ class ShooterConsumer(WebsocketConsumer):
 
 		if (self.game.game_state == FINISHED):
 			newlist = sorted(self.game.players, key=operator.itemgetter('score', 'kill', 'death'), reverse=True)
+			self.shootermatch.winner = newlist[0]
 			
 
 			player = list(self.shootermatch.players.all())

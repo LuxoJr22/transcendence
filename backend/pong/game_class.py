@@ -49,16 +49,20 @@ class Game:
 		if (self.ballx <= self.player2.x + 0.7 and self.ballx >= self.player2.x - 0.7 and self.balldir > 0 and self.bally >= self.player2.y - 2 and self.bally <= self.player2.y + 2
 	  			and self.player2.controller["charge"] == 0):
 			self.balldiry = (self.bally - self.player2.y) * 0.2
-			if (self.balldir > 1.5):
+			if (self.balldir > 1.5 and self.gamemode == "pong"):
 				self.player2.knockback = 0.4
 			self.balldir = -1 * self.player2.charging
+			self.ballspeed *= 1.05
 
 		if (self.ballx <= self.player1.x + 0.7 and self.ballx >= self.player1.x - 0.7 and self.balldir < 0 and self.bally >= self.player1.y - 2 and self.bally <= self.player1.y + 2
 	  			and self.player1.controller["charge"] == 0):
 			self.balldiry = (self.bally - self.player1.y) * 0.2
-			if (self.balldir < -1.5):
+			if (self.balldir < -1.5 and self.gamemode == "pong"):
 				self.player1.knockback = -0.4
 			self.balldir = 1 * self.player1.charging
+			self.ballspeed *= 1.05
+		if self.ballspeed >= 2.5:
+			self.ballspeed = 2.5
 
 		if (self.balldir < 0):
 			self.balldir = lerp(self.balldir, -self.ballspeed, 0.05, dt)
@@ -70,12 +74,14 @@ class Game:
 			if (self.ballx >= 18):
 				self.player1.score += 1
 				self.lastscore = 1
-				if self.player1.score >= 11 and self.winner == 0:
+				self.ballspeed = 1
+				if self.player1.score >= 1 and self.winner == 0:
 					self.winner = self.player1.id
 			if (self.ballx <= -18):
 				self.player2.score += 1
 				self.lastscore = -1
-				if self.player2.score >= 11 and self.winner == 0:
+				self.ballspeed = 1
+				if self.player2.score >= 1 and self.winner == 0:
 					self.winner = self.player2.id
 			self.scoring = 1
 			self.ballx = 0
