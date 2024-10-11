@@ -48,7 +48,7 @@
         {/each}
     </div>
 {:else}
-    <h4 class="d-flex justify-content-center align-items-center" style="color:grey;">You haven't discussions</h4>
+    <h4 class="d-flex justify-content-center align-items-center" style="color:grey;">Not any discussion</h4>
 {/if}
 
 <style>

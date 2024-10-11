@@ -38,13 +38,11 @@
     })
 
 </script>
-
-<div class="d-flex m-4">
-    {#if roomId == ''}
-        <h4 style="color:grey">No discussion selectionned</h4>
-    {/if}
-</div>
-{#if roomId != ''}
+{#if roomId == 'home'}
+    <div class="d-flex position-absolute top-50" style="left:35%;">
+            <h4 style="color:grey" class="">No discussion selectionned</h4>
+    </div>
+{:else}
     <div class="m-5 chat-box border rounded" bind:this={div}>
         {#each chatMessages as msg}
             <div class="d-flex justify-content-{msg.sender == state.user?.id ? 'end' : 'start'} text-center">

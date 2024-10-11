@@ -83,7 +83,7 @@
             <ModalUser roomId={roomId}/>
             <LatestDiscussion state={state} roomId={roomId}/>
         </div>
-        <div class="col-9 container">
+        <div class="col-9 container position-relative">
             <ChatBox state={state} roomId={roomId} />
             <div>
                 {#if roomId != 'home'}
