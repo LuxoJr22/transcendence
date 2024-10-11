@@ -169,7 +169,7 @@
         <div class="col-3 border-end">
             <div class="d-flex m-4 row">
                 <h4 class="text-light col-10 mt-2 text-truncate">Discussions</h4>
-                <button type="button" class="btn col-2 p-0" data-bs-toggle="modal" data-bs-target="#userListModal"><i class="bi bi-plus" style="color:white; font-size:2em"></i></button>
+                <button type="button" class="btn col-2 p-0" data-bs-toggle="modal" data-bs-target="#userListModal"><i class="bi bi-plus" style="color:white; font-size:2em" on:click={async () => {await fetchAllUser()}}></i></button>
                 <div class="modal fade" id="userListModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="userListModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content text-light bg-dark">

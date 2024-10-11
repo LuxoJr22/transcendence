@@ -40,7 +40,6 @@
         else{
             goto('/login');
             error42Login = status.error.replaceAll('[', '').replaceAll('\'', '').replaceAll(']', '');
-           // window.location.href = '/login'
         }
     })
 
