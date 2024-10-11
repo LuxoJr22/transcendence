@@ -5,7 +5,7 @@
     import type { Profile } from "$lib/stores/user";
     import { beforeUpdate, afterUpdate, onMount } from 'svelte';
 
-    export let user : Profile;
+    export let roomId : string;
     export let state : AuthState;
 
     let chatMessages : Messages[];
@@ -40,11 +40,11 @@
 </script>
 
 <div class="d-flex m-4">
-    {#if user == null}
+    {#if roomId == ''}
         <h4 style="color:grey">No discussion selectionned</h4>
     {/if}
 </div>
-{#if user != null}
+{#if roomId != ''}
     <div class="m-5 chat-box border rounded" bind:this={div}>
         {#each chatMessages as msg}
             <div class="d-flex justify-content-{msg.sender == state.user?.id ? 'end' : 'start'} text-center">

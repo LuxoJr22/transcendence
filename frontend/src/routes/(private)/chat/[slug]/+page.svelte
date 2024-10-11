@@ -1,9 +1,8 @@
 <script lang='ts'>
     import { onDestroy, onMount } from 'svelte';
-    import { auth, refresh_token } from '$lib/stores/auth';
+    import { auth} from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
-    import { fetchChatMessages, messages, updateMessages, fetchLatestDiscussion , history} from '$lib/stores/chat';
-    import type { Messages, History } from '$lib/stores/chat';
+    import { fetchChatMessages, fetchLatestDiscussion } from '$lib/stores/chat';
     import { profileData, profile } from '$lib/stores/user';
     import type { Profile } from '$lib/stores/user';
     import ModalUser from '$lib/static/Chat/ModalUser.svelte';
@@ -11,32 +10,19 @@
     import PlayButton from '$lib/static/Chat/PlayButton.svelte';
     import ChatBox from '$lib/static/Chat/ChatBox.svelte';
 
+    let roomId : string;
+    let ws : WebSocket;
     let state: AuthState;
+    
     state = $auth;
-
-    let user : Profile;
-    user = $profile;
-
-
     let newMessage = '';
 
-    let roomId;
-    
     onMount(async () => {
         await fetchLatestDiscussion();
         roomId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
-        if (roomId != 'home'){
-            await profileData(parseInt(roomId));
-        }
         auth.subscribe((value : AuthState) =>{
             state = value;
         });
-
-        profile.subscribe((value : Profile) =>{
-            user = value;
-        });
-        if (roomId == 'home')
-            user = null;
         if (parseInt(roomId) == state.user?.id || window.location.href == '/chat')
             window.location.href = '/chat/home/';
         else if (roomId != 'home'){
@@ -44,10 +30,8 @@
         }
     });
 
-    let ws : WebSocket;
-
     async function createRoom(id : number){
-        await profileData(id);
+        await fetchChatMessages(id);
         const token = localStorage.getItem('access_token');
         if (ws && ws.readyState == WebSocket.OPEN)
             ws.close();
@@ -68,7 +52,6 @@
                 joinPrivateGame(data.gamemode, data.match_id);
             }           
         };
-        await fetchChatMessages(id);
     }
 
     async function sendMessage(){
@@ -98,12 +81,12 @@
     <div class="d-flex border rounded chat-container">
         <div class="col-3 border-end">
             <ModalUser roomId={roomId}/>
-            <LatestDiscussion state={state} userSelected={user} roomId={roomId}/>
+            <LatestDiscussion state={state} roomId={roomId}/>
         </div>
         <div class="col-9 container">
-            <ChatBox state={state} user={user} />
+            <ChatBox state={state} roomId={roomId} />
             <div>
-                {#if user != null}
+                {#if roomId != 'home'}
                 <div class="d-flex justify-content-bottom justify-content-end me-2">
                     <form class="sendBox mb-2">
                         <input type="text" bind:value={newMessage} class="">
