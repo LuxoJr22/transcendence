@@ -1,0 +1,77 @@
+<script lang='ts'>
+    import type { AuthState } from "$lib/stores/auth";
+    import type { Messages } from "$lib/stores/chat";
+    import { messages } from "$lib/stores/chat";
+    import type { Profile } from "$lib/stores/user";
+    import { beforeUpdate, afterUpdate, onMount } from 'svelte';
+
+    export let user : Profile;
+    export let state : AuthState;
+
+    let chatMessages : Messages[];
+    chatMessages = $messages;
+
+    function joinPrivateGame(gamemode: string, match_id: string) {
+        localStorage.setItem('game_id', match_id);
+        window.location.href = `/matchmaking/${gamemode}/private/`;
+    }
+
+    let div;
+    let autoscroll = false;
+    beforeUpdate(() => {
+        if (div){
+            const scrollableDistance = div.scrollHeight - div.offsetHeight;
+            autoscroll = div.scrollTop > scrollableDistance - 20;
+        }
+    });
+    
+    afterUpdate(() => {
+		if (autoscroll) {
+			div.scrollTo(0, div.scrollHeight);
+		}
+	});
+
+    onMount(async () => {
+        messages.subscribe((value : Messages[]) => {
+            chatMessages = value;
+        });
+    })
+
+</script>
+
+<div class="d-flex m-4">
+    {#if user == null}
+        <h4 style="color:grey">No discussion selectionned</h4>
+    {/if}
+</div>
+{#if user != null}
+    <div class="m-5 chat-box border rounded" bind:this={div}>
+        {#each chatMessages as msg}
+            <div class="d-flex justify-content-{msg.sender == state.user?.id ? 'end' : 'start'} text-center">
+                <p class="col-auto border rounded bg-light p-2 m-2 msgBox">
+                    {msg.content}
+                    {#if msg.is_invitation}
+                        <button class="ms-2 btn btn-success btn-sm" on:click={() => joinPrivateGame(msg.gamemode, msg.match_id)}>Play</button>
+                    {/if}
+                </p>
+            </div>
+        {/each}
+    </div>
+{/if}
+
+<style>
+    .chat-box {
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: black grey;
+        height: 75%;
+        background-color: rgba(0, 0, 0, 0.2)
+    }
+
+    .msgBox{
+        white-space: normal;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 40%;
+    }
+</style>

@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import { refresh_token } from './auth';
 
-interface Messages {
+export interface Messages {
     sender: string;
     receiver: string;
     content: string;
@@ -10,7 +10,7 @@ interface Messages {
     match_id: number | null;
 }
 
-interface History{
+export interface History{
     id: number;
     is_online: boolean;
     content: string;
