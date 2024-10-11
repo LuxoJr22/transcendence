@@ -62,7 +62,6 @@
         };
         ws.onmessage = async function (event){
             const data = JSON.parse(event.data);
-            updateMessages(data);
             await fetchLatestDiscussion();
             await fetchChatMessages(id);
             if (data.match_id && data.sender == state.user?.username) {

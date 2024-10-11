@@ -26,11 +26,11 @@ export let messages = writable<Messages[]>([]);
 export let history = writable<History[]>([]);
 
 export async function fetchChatMessages(id: number){
-    const accessToken = localStorage.getItem('access_token');;
+    const accessToken = localStorage.getItem('access_token');
     const response = await fetch('/api/chat/messages/' + id + '/', {
-    headers: {
-        'Authorization': `Bearer ${accessToken}`,
-    }
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+        }
     });
     const data = await response.json();
     messages.set(data);
