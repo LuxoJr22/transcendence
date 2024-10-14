@@ -7,6 +7,7 @@
     import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
     import { fetchLatestDiscussion, messages } from '$lib/stores/chat';
     import Settings from '$lib/static/Profile/Settings.svelte';
+    import { page } from '$app/stores'
 
     interface Notifications{
         type: String;
@@ -98,66 +99,70 @@
 
 </script>
 
-<nav class="navbar">
-    <div class="container-fluid container-size">
-        <a href="/" class="navbar-item navbar-brand fs-1 layout-title text-warning-subtle ms-4 opacity" on:click={(event) => {handleGoto(event, '/')}}>t r i p l u m</a>
-        <div class="row">
-            <div class="dropdown col-3">
-                <button class="btn" style="text-decoration:none; color:white;" type="button" data-bs-toggle="dropdown" aria-expanded="false" on:click={fetchFriendRequests}>
-                <i class="bi bi-bell"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                {#each requestsList as request, i}
-                    {#if request.receiver.id == state.user?.id}
-                    <div class="d-flex align-items-center p-2 m-2 mt-1 border rounded">
-                        <p class="dropdown-item mb-0" style="">{request.requester.username} sent you a friend request</p>
-                        <button class="btn p-0 m-0" style="" on:click={() => acceptFriendRequest(request.id)}>
-                            <i class="bi bi-person-check-fill p-2" style="color:green; font-size:1.3rem;"></i>
-                        </button>
-                        <button class="btn p-0 m-0" on:click={() => declineFriendRequest(request.id)}>
-                            <i class="bi bi-person-fill-x p-2" style="color:red; font-size:1.3rem;"></i>
-                        </button>
+<!-- {#if $page.url.pathname != "/shooter" && $page.url.pathname != "/pong" && $page.url.pathname != "/pong_retro"} -->
+ {#if $page.url.pathname != "/shooter"}
+    <nav class="navbar">
+        <div class="container-fluid container-size">
+            <a href="/" class="navbar-item navbar-brand fs-1 layout-title text-warning-subtle ms-4 opacity" on:click={(event) => {handleGoto(event, '/')}}>t r i p l u m</a>
+            <div class="row">
+                <div class="dropdown col-3">
+                    <button class="btn" style="text-decoration:none; color:white;" type="button" data-bs-toggle="dropdown" aria-expanded="false" on:click={fetchFriendRequests}>
+                    <i class="bi bi-bell"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                    {#each requestsList as request, i}
+                        {#if request.receiver.id == state.user?.id}
+                        <div class="d-flex align-items-center p-2 m-2 mt-1 border rounded">
+                            <p class="dropdown-item mb-0" style="">{request.requester.username} sent you a friend request</p>
+                            <button class="btn p-0 m-0" style="" on:click={() => acceptFriendRequest(request.id)}>
+                                <i class="bi bi-person-check-fill p-2" style="color:green; font-size:1.3rem;"></i>
+                            </button>
+                            <button class="btn p-0 m-0" on:click={() => declineFriendRequest(request.id)}>
+                                <i class="bi bi-person-fill-x p-2" style="color:red; font-size:1.3rem;"></i>
+                            </button>
+                        </div>
+                        {/if}
+                    {/each}
+                    {#if !requestsList[0]}
+                    <div class="d-flex justify-content-center">
+                        <p class="mt-2"style="color:grey;">No notifications</p>              
                     </div>
                     {/if}
-                {/each}
-                {#if !requestsList[0]}
-                <div class="d-flex justify-content-center">
-                    <p class="mt-2"style="color:grey;">No notifications</p>              
+                    </ul>
                 </div>
-                {/if}
-                </ul>
-            </div>
-            <div class="dropdown col-4">
-                <a href="/" class="navbar-item navbar-brand text-primary-subtle opacity dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src={state.user?.profile_picture} alt="User profile" class="border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">{state.user?.username}
-                </a>
-                <ul class="dropdown-menu ms-2" style="min-width: 0;">
-                    <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-3" on:click={(event) => {handleGoto(event, '/chat/home')}}><i class="bi-chat pe-2" style="font-size: 1.3rem; color: grey;"></i>chat</button></li>
-                    <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-3" on:click={(event) => {handleGoto(event, '/profile/' + state.user?.id)}}><i class="bi-person-fill pe-2" style="font-size: 1.3rem; color: grey;"></i>profile</button></li>
-                    <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-3" data-bs-toggle="modal" data-bs-target="#settingsModal"><i class="bi bi-gear pe-2" style="font-size: 1.3rem; color: grey;"></i>settings</button></li>
-                    <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-danger text-start py-1 px-3" on:click={(event) => {handleGoto(event, '/login')}} on:click={handleLogout}><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</button></li>
-                </ul>
-                <Settings state={state} twoFA_data={0} otp_code={''} />
+                <div class="dropdown col-4">
+                    <a href="/" class="navbar-item navbar-brand text-primary-subtle opacity dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src={state.user?.profile_picture} alt="User profile" class="border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">{state.user?.username}
+                    </a>
+                    <ul class="dropdown-menu ms-2" style="min-width: 0;">
+                        <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-3" on:click={(event) => {handleGoto(event, '/chat/home')}}><i class="bi-chat pe-2" style="font-size: 1.3rem; color: grey;"></i>chat</button></li>
+                        <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-3" on:click={(event) => {handleGoto(event, '/profile/' + state.user?.id)}}><i class="bi-person-fill pe-2" style="font-size: 1.3rem; color: grey;"></i>profile</button></li>
+                        <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-3" data-bs-toggle="modal" data-bs-target="#settingsModal"><i class="bi bi-gear pe-2" style="font-size: 1.3rem; color: grey;"></i>settings</button></li>
+                        <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-danger text-start py-1 px-3" on:click={(event) => {handleGoto(event, '/login')}} on:click={handleLogout}><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</button></li>
+                    </ul>
+                    <Settings state={state} twoFA_data={0} otp_code={''} />
             </div>
         </div>
+    </nav>
+
+    <slot />
+
+    <div id="toast" class="toast-container position-fixed bottom-0 end-0 p-3">
+        {#each notifications as notif}
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto">Notifications</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body text-truncate" role="button" on:click={(event) => {handleGoto(event, '/chat/home')}}>
+                    {notif?.message}
+                </div>
+            </div>
+        {/each}
     </div>
-</nav>
-
-<slot />
-
-<div id="toast" class="toast-container position-fixed bottom-0 end-0 p-3">
-    {#each notifications as notif}
-        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header">
-                <strong class="me-auto">Notifications</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body text-truncate" role="button" on:click={(event) => {handleGoto(event, '/chat/home')}}>
-                {notif?.message}
-            </div>
-        </div>
-    {/each}
-</div>
+{:else}
+    <slot />
+{/if}
 
 <style>
 

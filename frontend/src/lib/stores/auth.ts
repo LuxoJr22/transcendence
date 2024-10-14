@@ -6,6 +6,7 @@ export interface User {
     email: string;
     profile_picture: string;
     is_2fa_enabled : boolean;
+    skin: string;
 }
 
 export interface AuthState {

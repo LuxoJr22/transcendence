@@ -107,8 +107,6 @@ class ShooterConsumer(WebsocketConsumer):
 		if (self.game.game_state == FINISHED):
 			newlist = sorted(self.game.players, key=operator.itemgetter('score', 'kill', 'death'), reverse=True)
 			self.shootermatch.winner = newlist[0]
-			
-
 			player = list(self.shootermatch.players.all())
 			for play in player:
 				score = list(filter(lambda p: p['id'] == play.id, self.game.players))
@@ -132,24 +130,19 @@ class ShooterConsumer(WebsocketConsumer):
 
 		event = text_data_json['event']
 		id = text_data_json['id'] - 1
+
+		if (self.game.players[id]["position"]['y'] <= -30):
+			self.game.players[id]["hit"] = 1
+			self.game.players[id]["position"] = self.game.players[id]["spawn"]
+			self.game.players[id]["death"] += 1
 		if (event == "hit"):
 			target = text_data_json['target']
-			if self.game.flag.player_id == target + 1:
-				self.game.flag.player_id = 0
-				async_to_sync(self.channel_layer.group_send)(
-					self.room_group_name,
-					{
-						'type':'Flag',
-						'event':'dropped',
-						'id':target + 1,
-					}
-				)
 			self.game.players[target]["hit"] = 1
 			self.game.players[target]["position"] = self.game.players[target]["spawn"]
 			self.game.players[target]["death"] += 1
 			self.game.players[id]["score"] += 100
 			self.game.players[id]["kill"] += 1
-			return 
+			return
 		
 		if (self.game.players[id]["hit"] != 1):
 			self.game.players[id]["position"] = text_data_json['player'][0]
@@ -160,6 +153,16 @@ class ShooterConsumer(WebsocketConsumer):
 				'position': self.game.players[id]["position"],
 				'rotation': self.game.players[id]["rotaspawn"]
 			}))
+			if self.game.flag.player_id == id + 1:
+				self.game.flag.player_id = 0
+				async_to_sync(self.channel_layer.group_send)(
+					self.room_group_name,
+					{
+						'type':'Flag',
+						'event':'dropped',
+						'id':id + 1,
+					}
+				)
 			self.game.players[id]["hit"] = 0
 
 		if (self.game.flag.player_id == 0):

@@ -44,6 +44,7 @@
         var reload = 0;
         var boostreload = 0
 
+        // var canvas = document.getElementById("canvas")
         var el = document.getElementById("blocker");
         var ui = document.getElementById("ui");
         var circle = document.getElementById("circular");
@@ -155,8 +156,12 @@
         dl.shadow.camera.right = -size;
 
         const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
-        var canvasSize = {width: (window.innerHeight - renderer.domElement.getBoundingClientRect().top) * 16 / 9,  height: (window.innerHeight - renderer.domElement.getBoundingClientRect().top) }
-
+        var canvasSize = {width: (window.innerHeight) * 16 / 9,  height: (window.innerHeight)}
+        if (canvasSize.width > window.innerWidth)
+        {
+            canvasSize.width =  (window.innerWidth)
+		    canvasSize.height =  (window.innerWidth) * 9 / 16
+        }
         renderer.setSize( canvasSize.width, canvasSize.height);
         ui.style.width = canvasSize.width + "px";
         ui.style.height = canvasSize.height + "px";
@@ -257,8 +262,14 @@
         );
 
         window.onresize = function(event){
-			canvasSize.width =  (window.innerHeight - renderer.domElement.getBoundingClientRect().top) * 16 / 9
-			canvasSize.height =  (window.innerHeight - renderer.domElement.getBoundingClientRect().top)
+			canvasSize.width =  (window.innerHeight) * 16 / 9
+			canvasSize.height =  (window.innerHeight)
+            if (canvasSize.width > window.innerWidth)
+            {
+                canvasSize.width =  (window.innerWidth)
+			    canvasSize.height =  (window.innerWidth) * 9 / 16
+            }
+
             renderer.setSize( canvasSize.width, canvasSize.height);
             ui.style.width = canvasSize.width + "px";
             ui.style.height = canvasSize.height + "px";
@@ -382,6 +393,10 @@
                 let i = 0
                 while (players[i])
                 {
+                    players[i].target.forEach(el => {scene.remove(el)})
+                    players[i].mesh.geometry = undefined
+                    players[i].mesh.material = undefined
+                    scene.remove(players[i].mesh)
                     if (players[i].id == data.id - 1)
                         players.splice(i, 1)
                     i ++
@@ -558,10 +573,11 @@
     }
     #blocker {
         /*border-radius: 3% !important;*/
+        z-index: 2;
 		position: absolute;
 		width: 100%;
 		height: 100%;
-		background-color: rgba(0,0,0,0.1);
+		background-color: rgba(0,0,0,0.3);
 	}
     #crosshair {
         position: absolute;
@@ -673,4 +689,5 @@
     </div>
 </div>
 
+<!-- <canvas id="canvas" class="d-flex flex-column game"></canvas> -->
 <canvas bind:this={canvas} class="d-flex flex-column game"></canvas>

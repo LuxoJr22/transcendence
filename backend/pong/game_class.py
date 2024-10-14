@@ -12,6 +12,7 @@ class Game:
 		self.scoring = 0
 		self.lastscore = 1
 		self.game_state = 0
+		self.launch_game = 0
 		self.gamemode = gamemode
 		self.limit = {'yp':7, 'yn':-7}
 		self.ballx = 0
@@ -52,7 +53,7 @@ class Game:
 			if (self.balldir > 1.5 and self.gamemode == "pong"):
 				self.player2.knockback = 0.4
 			self.balldir = -1 * self.player2.charging
-			self.ballspeed *= 1.05
+			self.ballspeed *= 1.02
 
 		if (self.ballx <= self.player1.x + 0.7 and self.ballx >= self.player1.x - 0.7 and self.balldir < 0 and self.bally >= self.player1.y - 2 and self.bally <= self.player1.y + 2
 	  			and self.player1.controller["charge"] == 0):
@@ -60,7 +61,7 @@ class Game:
 			if (self.balldir < -1.5 and self.gamemode == "pong"):
 				self.player1.knockback = -0.4
 			self.balldir = 1 * self.player1.charging
-			self.ballspeed *= 1.05
+			self.ballspeed *= 1.02
 		if self.ballspeed >= 2.5:
 			self.ballspeed = 2.5
 
