@@ -1,13 +1,23 @@
-<script lang= "ts">
+<script lang="ts">
     import { Bot } from "./bot";
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+	import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 	import { SkeletonCollider } from "./skeletoncollider.js"
+	import { auth } from '$lib/stores/auth';
+	import type { AuthState } from '$lib/stores/auth';
+
+	let state: AuthState;
+	$: $auth, state = $auth;
+
 	let canvas;
 
 	onMount(() => { (async () => {
+		auth.subscribe((value : AuthState) =>{
+            state = value;
+        });
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
 		scene.background = new THREE.Color(0xCCCCCC);
@@ -45,10 +55,23 @@
 		def.scene.scale.set(0.5, 0.5, 0.5);
 		def.scene.position.set(-10, 0, 8)
 		bots.push(new Bot(def, scene, 'default.glb'))
+		var rotating_skin : THREE.Object3D;
+
+		bots.forEach(el => {
+			if (el.name == state.user.skin)
+			{
+				rotating_skin = SkeletonUtils.clone(el.mesh);
+				rotating_skin.getObjectByName("Bone003L").rotation.set(0, 0, 0);
+				rotating_skin.getObjectByName("Bone003R").rotation.set(0, 0, 0);
+				rotating_skin.getObjectByName("Bone").rotation.set(0, 0, 0);
+				rotating_skin.position.set(-8, 5, 20)
+				rotating_skin.rotation.set( -Math.PI / 3, 0, 0)
+				rotating_skin.scale.set(0.3, 0.3, 0.3);
+				scene.add(rotating_skin)
+			}
+		})
 		
-
-
-
+		
 
 		var texture = new THREE.TextureLoader().load( 'src/routes/(private)/selection/public/floor.png' );
 		texture.wrapS = THREE.RepeatWrapping;
@@ -178,6 +201,7 @@
 			while (bots[i])
 			{
 				bots[i].moving = 0;
+				bots[i].throwed = 0;
 				bots[i].iscalled = 1;
 				bots[i].mesh.rotation.y = 0
 				let destx = i * 5 - ((bots.length - 1) * 5 / 2)
@@ -250,6 +274,15 @@
 								"skin": bots[i].name
 							})
 						});
+						scene.remove(rotating_skin)
+						rotating_skin = SkeletonUtils.clone(bots[i].mesh);
+						rotating_skin.getObjectByName("Bone003L").rotation.set(0, 0, 0);
+						rotating_skin.getObjectByName("Bone003R").rotation.set(0, 0, 0);
+						rotating_skin.getObjectByName("Bone").rotation.set(0, 0, 0);
+						rotating_skin.position.set(-8, 5, 20)
+						rotating_skin.rotation.set( -Math.PI / 3, 0, 0)
+						rotating_skin.scale.set(0.3, 0.3, 0.3);
+						scene.add(rotating_skin)
 					}
 					i++
 				}
@@ -287,7 +320,8 @@
 			bots.forEach(element => {
 				element.update(dt, t);
 			});
-
+			if (rotating_skin)
+				rotating_skin.rotation.y += 0.2 * dt
 			if (gamepads[0])
 			{
 				gamepads[0] = navigator.getGamepads()[0]

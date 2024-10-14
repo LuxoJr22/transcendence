@@ -5,6 +5,7 @@ export interface User {
     username: string;
     email: string;
     profile_picture: string;
+    skin: string;
 }
 
 export interface AuthState {
@@ -40,7 +41,6 @@ export async function login(username: string, password: string): Promise<void> {
                 username: data.user.username,
                 email: data.user.email,
                 profile_picture: data.user.profile_picture_url,
-
             }
         });
         localStorage.setItem('access_token', data.access);
@@ -191,6 +191,7 @@ export async function fetchUser(): Promise<void> {
                 username: user.username,
                 email: user.email,
                 profile_picture: user.profile_picture,
+                skin: user.skin
             },
             accessToken : localStorage.getItem('access_token'),
             refreshToken: localStorage.getItem('refresh_token')

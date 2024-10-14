@@ -269,8 +269,9 @@ class PongConsumer(WebsocketConsumer):
 			self.game.player1.ready = 1
 		if (self.id == text_data_json["id"] == 2):
 			self.game.player2.ready = 1
-		if (self.game.player1.ready == self.game.player2.ready == 1):
+		if (self.game.player1.ready == self.game.player2.ready == 1 and self.game.launch_game > 5):
 			#time.sleep(5)
+			self.game.last = 0
 			self.game.game_state = LAUNCHED
 			async_to_sync(self.channel_layer.group_send)(
 				self.room_group_name,
@@ -286,7 +287,18 @@ class PongConsumer(WebsocketConsumer):
 					'event': 'frame',
 				} 
 			)
-			
+		elif self.game.player1.ready == self.game.player2.ready == 1:
+			t = self.game.last
+			self.game.last = time.perf_counter()
+			dt = self.game.last - t
+			if (t == 0):
+				dt = 0
+			self.game.launch_game += dt
+			self.send(text_data=json.dumps({
+				'type':'Pong',
+				'event':'ready',
+			}))
+
 	def start_game(self, event):
 		self.send(text_data=json.dumps({
 			'type':'Pong',

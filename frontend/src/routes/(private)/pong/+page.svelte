@@ -74,6 +74,8 @@
 		var versus = document.getElementById("versus")
 		var score1 = document.getElementById("player1")
 		var score2 = document.getElementById("player2")
+		var name1 = document.getElementById("player1_name")
+		var name2 = document.getElementById("player2_name")
 		
 
 		const views = [
@@ -165,6 +167,8 @@
 		var er = new Player(gl, bind, limit2, 0.15, -1);
 		scene.add(er.mesh);
 
+		name1.textContent = skins["player1"]["username"]
+		name2.textContent = skins["player2"]["username"]
 
 
 		const lig = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -226,6 +230,8 @@
         ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		score1.style.fontSize = canvasSize.height / 10 + "px"
 		score2.style.fontSize = canvasSize.height / 10 + "px"
+		name1.style.fontSize = canvasSize.height / 15 + "px"
+		name2.style.fontSize = canvasSize.height / 15 + "px"
 		ui.style.display = 'block'
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
@@ -348,6 +354,8 @@
 			ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 			score1.style.fontSize = canvasSize.height / 10 + "px"
 			score2.style.fontSize = canvasSize.height / 10 + "px"
+			name1.style.fontSize = canvasSize.height / 15 + "px"
+			name2.style.fontSize = canvasSize.height / 15 + "px"
 		}
 
 		function onDocumentKeyDown(event) {
@@ -396,10 +404,19 @@
 				er.controllanims.xp = 0.15
 				play.controllanims.xp = -0.15
 			}
+			else if (data.event == 'ready')
+			{
+				pongSocket.send(JSON.stringify({
+						'event':'ready',
+						'id':id,
+					}))
+			}
 			else if (data.event == 'start_game')
 			{
 				score1.style.display = 'block'
 				score2.style.display = 'block'
+				name1.style.display = 'block'
+				name2.style.display = 'block'
 				versus.style.display = 'none'
 				renderer.setScissorTest( false );
 				renderer.setViewport(0, 0, window.innerWidth * 0.7, (window.innerWidth * 0.70) / 16 * 9)
@@ -599,11 +616,7 @@
 		left: 50%;
 	}
 
-	#player1 {
-		display: none;
-	}
-
-	#player2 {
+	#player1, #player2, #player1_name, #player2_name {
 		display: none;
 	}
 	
@@ -625,8 +638,10 @@
 
 <div id="ui">
 	<div id="score">
+		<span class="text" id="player1_name"></span>
 		<span class="text" id="player1">0</span>
 		<span class="text" id="player2">0</span>
+		<span class="text" id="player2_name"></span>
 	</div>
 	<div id="versus">
 		<div id="vs">
