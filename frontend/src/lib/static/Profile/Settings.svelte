@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { fetchUser, type AuthState } from "$lib/stores/auth";
-    import { tick } from "svelte";
+    import { auth, fetchUser, type AuthState } from "$lib/stores/auth";
+    import { onMount, tick } from "svelte";
 
     interface twoFA {
 		success: '',
@@ -9,11 +9,33 @@
 		qr_code: ''
 	}
 
+    interface binds {
+        up : number;
+        down : number;
+        left : number;
+        right: number;
+        jump: number;
+        charge: number; 
+    }
+
     export let state : AuthState;
+
+    state = $auth;
 
     export let twoFA_data : twoFA;
     export let otp_code : string;
+    let waitingForKey = false;
+    let keySelected = [];
 	let displayInput = false;
+    let keyBinds = [{up: 90, down: 83, left:81, right:68, charge:32}, {up: 90, down: 83, left:81, right:68, jump:32}]
+
+    onMount(async () => {
+        await fetchUser();
+        auth.subscribe((value : AuthState) =>{
+            state = value;
+        });
+        await getKeyBinds();
+    })
 
     async function getQrcode(){
 		let accessToken = localStorage.getItem('access_token');
@@ -66,6 +88,59 @@
 	function displayInputOtp(){
 		displayInput ? displayInput = false : displayInput = true;
 	}
+
+    async function getKeyBinds(){
+        const resp = await fetch('/api/pong/settings/' + state.user?.id + '/', {
+		    method: 'GET',
+		    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		});
+		const dat = await resp.json();
+		if (resp.ok)
+		{
+			keyBinds[0] = dat.settings;
+            console.log(keyBinds[0]);
+		}
+        const resp1 = await fetch('/api/shooter/settings/' + state.user?.id + '/', {
+		    method: 'GET',
+		    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		});
+		const dat1 = await resp1.json();
+		if (resp.ok)
+		{
+			keyBinds[1] = dat1.settings;
+		}
+    }
+    
+    document.addEventListener("keydown", onDocumentKeyDown, false);
+
+    function onDocumentKeyDown(event){
+        var keycode = event.which;
+        if (waitingForKey){
+            keyBinds[keySelected[0]][keySelected[1]] = keycode;
+            waitingForKey = false;
+        }
+    }
+
+    function updateBinds(i : number, name : string){
+        keySelected = [i, name];
+        waitingForKey = true;
+    }
+
+    async function saveBinds(){
+
+        const response = await fetch('/api/user/settings/update/', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json',  'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+            body: JSON.stringify({ 'pong' : keyBinds[0],  'shooter' : keyBinds[1] })
+        })
+
+        const data = await response.json();
+
+        if (response.ok){
+            console.log('a');
+        }
+    }
+
 </script>
 
 
@@ -82,21 +157,21 @@
                     <div class="col-6 mb-1 border-end">
                         <h5 class="text-center mb-3">Pong</h5>
                         <ul>
-                            <li class="h5">Forward: <button class="kbc-button"><input style="width: 20px; border:none; outline:none"></button></li>
-                            <li class="h5">Back: <button class="kbc-button">S</button></li>
-                            <li class="h5">Left: <button class="kbc-button">A</button></li>
-                            <li class="h5">Right: <button class="kbc-button">D</button></li>
-                            <li class="h5">Dash: <button class="kbc-button">SPACE</button></li>
+                            <li class="h5">Forward: <button class="kbc-button" on:click={() => updateBinds(0, 'up')}>{String.fromCharCode(keyBinds[0].up)}</button></li>
+                            <li class="h5">Back: <button class="kbc-button" on:click={() => updateBinds(0, 'down')}>{String.fromCharCode(keyBinds[0].down)}</button></li>
+                            <li class="h5">Left: <button class="kbc-button" on:click={() => updateBinds(0, 'left')}>{String.fromCharCode(keyBinds[0].left)}</button></li>
+                            <li class="h5">Right: <button class="kbc-button" on:click={() => updateBinds(0, 'right')}>{String.fromCharCode(keyBinds[0].right)}</button></li>
+                            <li class="h5">Dash: <button class="kbc-button" on:click={() => updateBinds(0, 'charge')}>{String.fromCharCode(keyBinds[0].charge)}</button></li>
                         </ul>
                     </div>
                     <div class="col-6 mb-1">
                         <h5 class="text-center mb-3">Shooter</h5>
                         <ul>
-                            <li class="h5">Forward: <button class="kbc-button">W</button></li>
-                            <li class="h5">Back: <button class="kbc-button">S</button></li>
-                            <li class="h5">Left: <button class="kbc-button">A</button></li>
-                            <li class="h5">Right: <button class="kbc-button">D</button></li>
-                            <li class="h5">Dash: <button class="kbc-button">SPACE</button></li>
+                            <li class="h5">Forward: <button class="kbc-button" on:click={() => updateBinds(1, 'up')}>{String.fromCharCode(keyBinds[1].up)}</button></li>
+                            <li class="h5">Back: <button class="kbc-button" on:click={() => updateBinds(1, 'down')}>{String.fromCharCode(keyBinds[1].down)}</button></li>
+                            <li class="h5">Left: <button class="kbc-button" on:click={() => updateBinds(1, 'left')}>{String.fromCharCode(keyBinds[1].left)}</button></li>
+                            <li class="h5">Right: <button class="kbc-button" on:click={() => updateBinds(1, 'right')}>{String.fromCharCode(keyBinds[1].right)}</button></li>
+                            <li class="h5">Dash: <button class="kbc-button" on:click={() => updateBinds(1, 'jump')}>{String.fromCharCode(keyBinds[1].jump)}</button></li>
                         </ul>
                     </div>
                 </div>
@@ -160,7 +235,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-primary" on:click={saveBinds}>Save changes</button>
             </div>
         </div>
     </div>

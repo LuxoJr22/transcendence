@@ -22,7 +22,7 @@
         });
 
 		var skins
-		const response = await fetch('api/pong/skins/' + localStorage.getItem('game_id'), {
+		const response = await fetch('/api/pong/skins/' + localStorage.getItem('game_id'), {
 		method: 'GET',
 		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
 		});
@@ -34,7 +34,7 @@
 
 		var bind = {up: 90, down: 83, left:81, right:68, charge:32}
 
-		const resp = await fetch('api/pong/settings/' + state.user?.id + '/', {
+		const resp = await fetch('/api/pong/settings/' + state.user?.id + '/', {
 		method: 'GET',
 		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
 		});
