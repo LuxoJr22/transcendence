@@ -20,7 +20,7 @@
 		let tmp = null;
 		for (let game of games){
 			if (game.checked){
-				linkGame = "/matchmaking/public/" + game.id + "/";
+				window.location.href = (game.id == "shooter" ? '/shooter' : "/matchmaking/" + game.id + "/public/");
 				break ;
 			}
 		}
@@ -56,9 +56,9 @@
 		</div>
 	</div>
 	<div class="d-flex m-auto align-items-center btn-group-vertical py-5" style="width:15%;">
-		<a href={linkGame} class="btn btn-success btn-lg border mb-1 px-5 py-3 title" on:click={gameHref}>PLAY</a>
-		<a href={linkGame} class="btn btn-light btn-lg border  mb-1 px-5 py-3 subtitle">Tournament</a>
-		<a href={linkGame} class="btn btn-light btn-lg border mb-1 px-5 py-3 subtitle">Character</a>
+		<button  class="btn btn-success btn-lg border mb-1 px-5 py-3 title" on:click={gameHref}>PLAY</button>
+		<a href="/tournament" class="btn btn-light btn-lg border  mb-1 px-5 py-3 subtitle">Tournament</a>
+		<a href="/selection" class="btn btn-light btn-lg border mb-1 px-5 py-3 subtitle">Character</a>
 	</div>
 </div>
 
