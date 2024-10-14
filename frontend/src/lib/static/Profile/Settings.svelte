@@ -12,7 +12,7 @@
     export let state : AuthState;
 
     export let twoFA_data : twoFA;
-    let otp_code = ''
+    export let otp_code : string;
 	let displayInput = false;
 
     async function getQrcode(){
@@ -39,7 +39,6 @@
         if (response.ok){
 			twoFA_data = await response.json();
 			await fetchUser();
-			console.log(twoFA_data);
 		}
 		else{
 			let data = await response.json();
@@ -125,7 +124,7 @@
                         <div class="d-flex justify-content-center">
                             <button class="btn btn-primary" on:click={async () => {await getQrcode();}}>Active 2FA</button>
                         </div>
-                    {:else if twoFA_data && !twoFA_data.success}
+                    {:else if twoFA_data}
                         <div class="d-flex justify-content-center">
                             <img class="" src="data:image/png;base64,{twoFA_data.qr_code}" style="width:50%; height:50%">
                         </div>

@@ -125,6 +125,7 @@
         <div class="flex-column col-4 border-end my-3 ">
             <div>
                 <h2 class="text-light text-center p-3 title-profile">Win Rate</h2>
+                <p class="text-light text-center" style="font-weight:800; font-size:20px;">{(victories / (defeats + victories) * 100).toFixed(1)}%</p>
             </div>
             <div class="d-flex justify-content-center align-items-center" style="height:40%;">
                 {#if finish}
@@ -134,7 +135,7 @@
             <h2 class="text-center p-3 title-profile">Skin</h2>
         </div>
         <div class="justify-content-center flex-column col-5">
-            <h2 class="text-light text-center p-3 title-profile">History</h2>
+            <h2 class="text-light text-center p-4 m-1 title-profile">History</h2>
             {#if finish}
                 <History data={data} user={user}/>
             {/if}

@@ -27,7 +27,7 @@
         responsive: true,
         plugins: {
             legend: {
-                position: 'bottom',
+                display: false
             }
         },
     };

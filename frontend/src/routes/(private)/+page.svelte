@@ -2,10 +2,10 @@
 	import Settings from "$lib/static/Profile/Settings.svelte";
 	import { auth, fetchUser, type AuthState } from "$lib/stores/auth";
 	import { onMount } from "svelte";
-	const img = new URL('$lib/assets/pong.png', import.meta.url).href
-	const img1 = new URL('$lib/assets/game2.png', import.meta.url).href
+	const img = new URL('$lib/assets/Super-Pong.png', import.meta.url).href
+	const img1 = new URL('$lib/assets/Pong-Retro.png', import.meta.url).href
 
-	let linkGame = "/matchmaking/pong/public";
+	let linkGame = '';
 	let state: AuthState;
 		state = $auth;
 
@@ -15,74 +15,50 @@
 		});
 	})
 
-	function changeLink() {
-		if (linkGame == "/matchmaking/pong/public")
-			linkGame = "/shooter"
-		else
-			linkGame = "/matchmaking/pong/public"
+	function gameHref() {
+		let games : NodeListOf<HTMLInputElement> = document.getElementsByName('gameRadio');
+		let tmp = null;
+		for (let game of games){
+			if (game.checked){
+				linkGame = "/matchmaking/public/" + game.id + "/";
+				break ;
+			}
+		}
 	}
 
 </script>
 
-<div class="container-fluid my-5" style="width:95vw; height:85vh;">
-	<div class="row">
-		<div class="d-flex justify-content-start align-items-start col-xl-6 col-12">
-			<div id="carouselExample" class="carousel slide container-game">
-				<div class="carousel-inner">
-					<div class="carousel-item active">
-						<img src={img} class="d-block" alt="">
-					</div>
-					<div class="carousel-item">
-						<img src={img1} class="d-block" alt="">
-					</div>
+<div class="container-fluid py-5" style="width:95vw; height:85vh;">
+	<div class="row mt-5">
+		<div class="col-4">
+			<label class="form-check-label" for="pong">
+			<input class="form-check-input d-none" type="radio" name="gameRadio" id="pong" checked>
+				<div class="card m-4 bg-light" style="width: 90%;">
+					<img src={img} class="card-img-top p-3" alt="pong">
 				</div>
-				<button on:click={changeLink} class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-					<span class="carousel-control-prev-icon" aria-hidden="true"></span>
-					<span class="visually-hidden">Previous</span>
-				</button>
-				<button on:click={changeLink} 
-				class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-					<span class="carousel-control-next-icon" aria-hidden="true"></span>
-					<span class="visually-hidden">Next</span>
-				</button>
-			</div>
+			</label>
 		</div>
-		<div class="container d-flex align-items-center justify-content-center col-xl-6 col-12">
-			<div class="ms-5 ps-2">
-				<div class="row mb-3">
-					<div class="card mycard mx-3 bg-warning-subtle">
-						<div class="card-body">
-							<h5 class="card-title">Online Mode</h5>
-							<p class="card-text">Play online against other players.</p>
-							<a href={linkGame} class="btn btn-dark">Play</a>
-						</div>
-					</div>
-					<div class="card mycard bg-warning-subtle">
-						<div class="card-body">
-							<h5 class="card-title">Tournament</h5>
-							<p class="card-text">Compete in tournaments and prove your skills.</p>
-							<a href="/tournament" class="btn btn-dark">Create or Join</a>
-						</div>
-					</div>
+		<div class="col-4">
+			<label class="form-check-label" for="pong_retro">
+			<input class="form-check-input d-none" type="radio" name="gameRadio" id="pong_retro">
+				<div class="card m-4 bg-black" style="width: 90%;">
+					<img src={img1} class="card-img-top p-3" alt="pong">
 				</div>
-				<div class="row">
-					<div class="card mycard bg-warning-subtle mx-3">
-						<div class="card-body">
-							<h5 class="card-title">Chat</h5>
-							<p class="card-text">Chatting with other people.</p>
-							<a href="/chat/home" class="btn btn-dark">Here we go</a>
-						</div>
-					</div>
-					<div class="card mycard bg-warning-subtle">
-						<div class="card-body">
-							<h5 class="card-title">Character Customization</h5>
-							<p class="card-text">Choose you character !</p>
-							<a href="/selection" class="btn btn-dark">Go</a>
-						</div>
-					</div>
-				</div>
-			</div>
+			</label>
 		</div>
+		<div class="col-4">
+			<label class="form-check-label" for="shooter">
+			<input class="form-check-input d-none" type="radio" name="gameRadio" id="shooter">
+				<div class="card m-4 bg-light" style="width: 90%;">
+					<img src={img} class="card-img-top p-3" alt="pong">
+				</div>
+			</label>
+		</div>
+	</div>
+	<div class="d-flex m-auto align-items-center btn-group-vertical py-5" style="width:15%;">
+		<a href={linkGame} class="btn btn-success btn-lg border mb-1 px-5 py-3 title" on:click={gameHref}>PLAY</a>
+		<a href={linkGame} class="btn btn-light btn-lg border  mb-1 px-5 py-3 subtitle">Tournament</a>
+		<a href={linkGame} class="btn btn-light btn-lg border mb-1 px-5 py-3 subtitle">Character</a>
 	</div>
 </div>
 
@@ -101,4 +77,29 @@
 	.mycard {
 		width: 42%;
 	}
+
+	.play-button {
+		font-weight: 800;
+		font-size: 200%;
+	}
+
+	.title {
+		font-weight: 800;
+		font-size: 30px;
+	}
+
+	.subtitle {
+		font-weight: 700;
+		font-size: 20px;
+	}
+
+	.form-check-input:checked+.card {
+		border: solid 5px var(--bs-primary);
+		transform: scale(1.1);
+	}
+
+	.card:hover {
+		cursor: pointer;
+	}
+
 </style>

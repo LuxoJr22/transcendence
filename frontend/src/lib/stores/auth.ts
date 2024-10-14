@@ -67,6 +67,7 @@ export async function login42(){
     }
 
     data = await response.json();
+    console.log(data);
 
     if (response && response.ok){
         auth.set({
