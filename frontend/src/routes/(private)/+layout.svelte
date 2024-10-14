@@ -22,7 +22,6 @@
 
     function parseNotifications(data : any){
         notifications = notifications.filter(notif => Date.now() - notif.date < 5001);
-        console.log(data);
         let tmp : Notifications = {
             type : data.type,
             message: data.message,

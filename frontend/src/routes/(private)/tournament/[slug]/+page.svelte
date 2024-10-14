@@ -19,7 +19,6 @@ import { onDestroy } from "svelte";
 		let data = JSON.parse(e.data)
 		if (data.event == "Connection")
 		{
-			console.log(data)
 			allUsers = data.players;
 			allGames = data.games;
 			allOnline = data.online;

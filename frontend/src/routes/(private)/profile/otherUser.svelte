@@ -4,20 +4,28 @@
     import type { Profile } from '$lib/stores/user';
     import { profileData, userData, profile } from '$lib/stores/user';
     import History from '$lib/static/Profile/History/otherHistory.svelte';
-    import { login } from '$lib/stores/auth';
     import Block from '$lib/static/Profile/Block.svelte';
+    import { friendList, fetchFriendList, deleteFriend } from '$lib/stores/friendship';
+    import type { friendInterface } from '$lib/stores/friendship';
 
-    export let userId;
+    export let userId : string;
     let data : any;
 
     let user : Profile;
     $: user = $profile;
 
+    let friends : friendInterface[];
+    friends = $friendList;
+
     onMount(async () => {
         await fetchHistoryMatches();
-        await profileData(userId);
+        await profileData(parseInt(userId));
+        await fetchFriendList();
         profile.subscribe((value : Profile) =>{
             user = value;
+        })
+        friendList.subscribe((value : friendInterface[]) => {
+            friends = value;
         })
     });
     
@@ -84,9 +92,7 @@
             body: JSON.stringify({ receiver }),
         });
         statusAddFriendRequest = await response.json();
-        console.log(statusAddFriendRequest);
         parseNotifications(statusAddFriendRequest);
-        console.log(notifications);
         const toastElList = document.querySelectorAll('.toast')
         const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
             animation: true,
@@ -94,6 +100,21 @@
             delay: 5000
         }))
         toastList.forEach(toast => toast.show());
+    }
+
+    async function delFriend() {
+        await deleteFriend(parseInt(userId));
+        await fetchFriendList();
+    }
+
+    function isFriend(){
+        for (let friend of friends){
+            
+            if (friend.id == parseInt(userId)){
+                return (true);
+            }
+        }
+        return (false);
     }
 </script>
 
@@ -120,14 +141,18 @@
                 <Block />
             </div>
             <div class="align-self-end align-img-end mb-3">
-                <button type="button" class="p-0 btn" on:click={addFriend}><i class="bi bi-person-add hover-effect" style="color: grey; font-size: 1.3em"></i></button>
-            </div>
+                {#if !isFriend()}
+                    <button type="button" class="p-0 btn" on:click={delFriend}><i class="bi bi-person-dash hover-effect" style="color: grey; font-size: 1.3em"></i></button>
+                {:else}
+                    <button type="button" class="p-0 btn" on:click={addFriend}><i class="bi bi-person-add hover-effect" style="color: grey; font-size: 1.3em"></i></button>
+                {/if}
+                </div>
         <div class="flex-column col-4 border-end my-3 ">
             <div>
                 <h2 class="text-light text-center p-3 title-profile">Win Rate</h2>
                 <p class="text-light text-center" style="font-weight:800; font-size:20px;">{(victories / (defeats + victories) * 100).toFixed(1)}%</p>
             </div>
-            <div class="d-flex justify-content-center align-items-center" style="height:40%;">
+            <div class="d-flex justify-content-center align-items-center" style="height:30%;">
                 {#if finish}
                     <Pie victories={victories} defeats={defeats}></Pie>
                 {/if}

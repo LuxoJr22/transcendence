@@ -20,7 +20,6 @@ export async function profileData(id: number): Promise<void> {
    
    if (response.ok) {
       const profileData = await response.json();
-      console.log(profileData);
       profile.set({
          id: profileData.id,
          username: profileData.username,

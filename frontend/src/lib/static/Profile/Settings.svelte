@@ -24,7 +24,6 @@
 
 		if (response.ok){
 			twoFA_data = await response.json();
-			console.log(twoFA_data);
 		}
 	}
 
@@ -65,7 +64,6 @@
 	}
 
 	function displayInputOtp(){
-		console.log('a');
 		displayInput ? displayInput = false : displayInput = true;
 	}
 </script>

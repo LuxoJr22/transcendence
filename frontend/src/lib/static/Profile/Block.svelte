@@ -13,7 +13,6 @@
                 break;
             }
         }
-        console.log(blocked);
     })
 
     async function blockedUser(){
