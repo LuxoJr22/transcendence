@@ -80,7 +80,7 @@
                 <h5 class="text-light"><i class="bi-person pe-3"></i>{state.user?.username}</h5>
             </div>
             <div class="mb-3">
-                <h5 class="text-light friend-title d-flex justify-content-center">Friends</h5>
+                <h5 class="friend-title d-flex justify-content-center">Friends</h5>
             </div>
                 <div class="mx-3 me-4 mb-5 friend-container">
                     {#each listOfFriend as friend}
@@ -129,8 +129,9 @@
         <div class="flex-column col-4 border-end my-3 ">
             <div>
                 <h2 class="text-center p-3 title-profile">Win Rate</h2>
+                <p class="text-light text-center" style="font-weight:800; font-size:20px;">{(victories / (defeats + victories) * 100).toFixed(1)}%</p>
             </div>
-            <div class="d-flex justify-content-center align-items-center" style="height:40%;">
+            <div class="d-flex justify-content-center align-items-center" style="height:30%;">
                 {#if fetchStatus}
                     <Pie victories={victories} defeats={defeats}></Pie>
                 {/if}
@@ -138,7 +139,7 @@
             <h2 class="text-center p-3 title-profile">Skin</h2>
         </div>
         <div class="justify-content-center flex-column col-5">
-            <h2 class="text-light text-center p-3 title-profile">History</h2>
+            <h2 class="text-center p-4 m-1 title-profile">History</h2>
             {#if fetchStatus}
                 <History state={state} data={historyData}/>
             {/if}
@@ -155,8 +156,9 @@
     }
 
     .title-profile {
-        font-family: Nabla;
+        font-family: "Nabla", sans-serif;
         font-size: 250%;
+        color: var(--bs-warning-bg-subtle);
     }
 
     .align-img-end {
@@ -178,7 +180,8 @@
     }
 
     .friend-title{
-        font-family: Nabla;
+        color: var(--bs-warning-bg-subtle);
+        font-family: "Nabla", sans-serif;
         font-size: 175%;
     }
     .container {
