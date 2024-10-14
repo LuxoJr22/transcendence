@@ -10,7 +10,7 @@ from django.views.generic import RedirectView
 from django.core.exceptions import ValidationError
 from io import BytesIO
 from friendship.models import Block
-from .models import User
+from .models import User, Settings
 from .serializers import UserSerializer, UserUpdateSerializer, UserDetailSerializer, PublicUserSerializer, UserSkinSerializer
 
 class RegisterView(generics.CreateAPIView):
@@ -57,6 +57,7 @@ class UserDetailView(generics.RetrieveAPIView):
 			"username": user.username,
 			"email": user.email,
 			"profile_picture": user.profile_picture.url,
+			"skin": user.skin,
 			"is_2fa_enabled": user.is_2fa_enabled,
 		}, status=status.HTTP_200_OK)
 
@@ -131,6 +132,7 @@ class OAuth42CallbackView(generics.CreateAPIView):
 			email=user_info['email'],
 			login42=user_info['login'],
 			password='42_OAuth',
+			settings = Settings.objects.create(),
 		)
 		user.save()
 		return user

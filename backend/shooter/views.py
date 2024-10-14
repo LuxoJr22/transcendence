@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .models import Shooter, ShooterMatchmaking, ShooterMatch
 from .serializers import ShooterMatchSerializer
 from django.db import models
+from users.models import User
 
 import sys
 
@@ -37,3 +38,16 @@ class ShooterMatchMakingView(generics.CreateAPIView):
 		return (Response({
 			'match':self.shootermatch.id
 		}))
+	
+class ShooterSettingsView(generics.RetrieveAPIView):
+	permission_classes = [IsAuthenticated]
+
+	def get(self, request, *args, **kwargs):
+		user_id = kwargs.get('user_id')
+		try:
+			user = User.objects.get(id=user_id)
+			return Response({
+				'settings': user.settings.shooter
+			}, status=status.HTTP_200_OK)
+		except User.DoesNotExist:
+			return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)

@@ -6,12 +6,20 @@
 	import { Bot } from "./bot.js";
 	import { shade } from "./watershader";
 	import { Firework } from './firework.js';
+	import { auth } from '$lib/stores/auth';
+	import type { AuthState } from '$lib/stores/auth';
+
+	let state: AuthState;
+	$: $auth, state = $auth;
 
 	var pongSocket: WebSocket;
 	let canvas;
 	var scoring = 0;
 
 	onMount(() => { (async () => {
+		auth.subscribe((value : AuthState) =>{
+            state = value;
+        });
 
 		var skins
 		const response = await fetch('api/pong/skins/' + localStorage.getItem('game_id'), {
@@ -23,6 +31,22 @@
 		{
 			skins = data
 		}
+
+		var bind = {up: 90, down: 83, left:81, right:68, charge:32}
+
+		const resp = await fetch('api/pong/settings/' + state.user?.id, {
+		method: 'GET',
+		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		});
+		const dat = await resp.json();
+		if (resp.ok)
+		{
+			bind = dat.settings
+		}
+		
+
+
+
 
 		var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 16 * 9}
 		var winner = 0
@@ -38,7 +62,7 @@
 		var startend = 0
 
 
-		var bind = {up: 90, down: 83, left:81, right:68, charge:32}
+
 		//var bind2 = {up: 38, down: 40, left:37, right:39, charge:96}
 		var limit = {px: 0, py:8, nx:-18, ny:-8}
 		var limit2 = {px: 18, py:8, nx: 0, ny:-8}
@@ -47,15 +71,12 @@
 		var id = 0;
 		var fireworks = [];
 		var ui = document.getElementById("ui");
-		var score = document.getElementById("score");
 		var versus = document.getElementById("versus")
 		var score1 = document.getElementById("player1")
 		var score2 = document.getElementById("player2")
-
-		score1.style.display = 'none'
-		score2.style.display = 'none'
+		var name1 = document.getElementById("player1_name")
+		var name2 = document.getElementById("player2_name")
 		
-		var endscoring = 0;
 
 		const views = [
 			{
@@ -146,6 +167,8 @@
 		var er = new Player(gl, bind, limit2, 0.15, -1);
 		scene.add(er.mesh);
 
+		name1.textContent = skins["player1"]["username"]
+		name2.textContent = skins["player2"]["username"]
 
 
 		const lig = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -207,6 +230,9 @@
         ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		score1.style.fontSize = canvasSize.height / 10 + "px"
 		score2.style.fontSize = canvasSize.height / 10 + "px"
+		name1.style.fontSize = canvasSize.height / 15 + "px"
+		name2.style.fontSize = canvasSize.height / 15 + "px"
+		ui.style.display = 'block'
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
 
@@ -328,6 +354,8 @@
 			ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 			score1.style.fontSize = canvasSize.height / 10 + "px"
 			score2.style.fontSize = canvasSize.height / 10 + "px"
+			name1.style.fontSize = canvasSize.height / 15 + "px"
+			name2.style.fontSize = canvasSize.height / 15 + "px"
 		}
 
 		function onDocumentKeyDown(event) {
@@ -376,10 +404,19 @@
 				er.controllanims.xp = 0.15
 				play.controllanims.xp = -0.15
 			}
+			else if (data.event == 'ready')
+			{
+				pongSocket.send(JSON.stringify({
+						'event':'ready',
+						'id':id,
+					}))
+			}
 			else if (data.event == 'start_game')
 			{
-				score1.style.display = ''
-				score2.style.display = ''
+				score1.style.display = 'block'
+				score2.style.display = 'block'
+				name1.style.display = 'block'
+				name2.style.display = 'block'
 				versus.style.display = 'none'
 				renderer.setScissorTest( false );
 				renderer.setViewport(0, 0, window.innerWidth * 0.7, (window.innerWidth * 0.70) / 16 * 9)
@@ -481,10 +518,9 @@
     				{
     				    fireworks.push( new Firework( scene, [20 * Math.pow(-1, winner)] ) ); 
     				}
-    				// update fireworks 
     				for( var i = 0; i < fireworks.length; i++ )
     				{
-    				    if( fireworks[ i ].done ) // cleanup 
+    				    if( fireworks[ i ].done )  
     				    {
     				        fireworks.splice( i, 1 ); 
     				        continue; 
@@ -539,6 +575,7 @@
 	/*@import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');*/
 	@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
     #ui {
+		display: none;
         position: absolute;
 		width: 10px;
 		height: 10px;
@@ -579,6 +616,10 @@
 		left: 50%;
 	}
 
+	#player1, #player2, #player1_name, #player2_name {
+		display: none;
+	}
+	
 	#vs {
 		position: relative;
 	}
@@ -597,8 +638,10 @@
 
 <div id="ui">
 	<div id="score">
+		<span class="text" id="player1_name"></span>
 		<span class="text" id="player1">0</span>
 		<span class="text" id="player2">0</span>
+		<span class="text" id="player2_name"></span>
 	</div>
 	<div id="versus">
 		<div id="vs">

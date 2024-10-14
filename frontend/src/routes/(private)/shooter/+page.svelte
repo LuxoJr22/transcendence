@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -9,10 +9,19 @@
     import { createmap } from "./map.js"
     import { SkeletonCollider } from "./skeletoncollider.js"
     import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
+    import { auth } from '$lib/stores/auth';
+	import type { AuthState } from '$lib/stores/auth';
+
+	let state: AuthState;
+	$: $auth, state = $auth;
+    var chatSocket: WebSocket;
 
     let canvas;
 
     onMount(() => { (async () => {
+        auth.subscribe((value : AuthState) =>{
+            state = value;
+        });
         var match_id
 
         const response = await fetch('api/shooter/create/', {
@@ -25,7 +34,6 @@
 			match_id = data.match
 		}
 
-        var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 16 * 9}
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
         
@@ -36,6 +44,7 @@
         var reload = 0;
         var boostreload = 0
 
+        // var canvas = document.getElementById("canvas")
         var el = document.getElementById("blocker");
         var ui = document.getElementById("ui");
         var circle = document.getElementById("circular");
@@ -53,8 +62,17 @@
 
 
         
-        var bind2 = {up: 90, down: 83, left:81, right:68, jump:32}
-        var bind = {up: 40, down: 38, left:39, right:37, jump:96}
+        var bind = {up: 90, down: 83, left:81, right:68, jump:32}
+
+        const resp = await fetch('api/shooter/settings/' + state.user?.id, {
+		method: 'GET',
+		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		});
+		const dat = await resp.json();
+		if (resp.ok)
+		{
+			bind = dat.settings
+		}
 
 
         var id = 0
@@ -93,7 +111,7 @@
         //mount.scene.children[0].children[1].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
 
 
-        var play = new Shooter(bind2, 0.15, camera, scene);
+        var play = new Shooter(bind, 0.15, camera, scene);
         
             //scene.add(play.mesh);
 
@@ -138,6 +156,12 @@
         dl.shadow.camera.right = -size;
 
         const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
+        var canvasSize = {width: (window.innerHeight) * 16 / 9,  height: (window.innerHeight)}
+        if (canvasSize.width > window.innerWidth)
+        {
+            canvasSize.width =  (window.innerWidth)
+		    canvasSize.height =  (window.innerWidth) * 9 / 16
+        }
         renderer.setSize( canvasSize.width, canvasSize.height);
         ui.style.width = canvasSize.width + "px";
         ui.style.height = canvasSize.height + "px";
@@ -238,8 +262,14 @@
         );
 
         window.onresize = function(event){
-			canvasSize.width = window.innerWidth * 0.7
-			canvasSize.height = window.innerWidth * 0.7 / 16 * 9
+			canvasSize.width =  (window.innerHeight) * 16 / 9
+			canvasSize.height =  (window.innerHeight)
+            if (canvasSize.width > window.innerWidth)
+            {
+                canvasSize.width =  (window.innerWidth)
+			    canvasSize.height =  (window.innerWidth) * 9 / 16
+            }
+
             renderer.setSize( canvasSize.width, canvasSize.height);
             ui.style.width = canvasSize.width + "px";
             ui.style.height = canvasSize.height + "px";
@@ -320,7 +350,7 @@
         }
 
         let url = '/ws/shooter/shooter_' + match_id + '/?token=' + localStorage.getItem('access_token');
-		const chatSocket = new WebSocket(url)
+		chatSocket = new WebSocket(url)
         
 		chatSocket.onmessage = function(e) {
 	
@@ -363,11 +393,15 @@
                 let i = 0
                 while (players[i])
                 {
-                    if (players[i].id == id - 1)
-                        players.splice(i, i)
+                    players[i].target.forEach(el => {scene.remove(el)})
+                    players[i].mesh.geometry = undefined
+                    players[i].mesh.material = undefined
+                    scene.remove(players[i].mesh)
+                    if (players[i].id == data.id - 1)
+                        players.splice(i, 1)
                     i ++
                 }
-                createPlayer(id, data.players[id].skin)
+                createPlayer(data.id - 1, data.players[data.id - 1].skin)
 
                 var row = table_body.insertRow()
                 var usercell = row.insertCell(0)
@@ -523,6 +557,11 @@
         animate(); 
     })();
     });
+
+    onDestroy(() => {
+		if (chatSocket)
+            chatSocket.close()
+	})
 </script>
 
 <style>
@@ -534,10 +573,11 @@
     }
     #blocker {
         /*border-radius: 3% !important;*/
+        z-index: 2;
 		position: absolute;
 		width: 100%;
 		height: 100%;
-		background-color: rgba(0,0,0,0.1);
+		background-color: rgba(0,0,0,0.3);
 	}
     #crosshair {
         position: absolute;
@@ -649,4 +689,5 @@
     </div>
 </div>
 
+<!-- <canvas id="canvas" class="d-flex flex-column game"></canvas> -->
 <canvas bind:this={canvas} class="d-flex flex-column game"></canvas>
