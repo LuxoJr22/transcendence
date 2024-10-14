@@ -4,6 +4,7 @@ from asgiref.sync import async_to_sync
 from django.db import models
 from django.shortcuts import get_object_or_404
 from users.models import User
+from tournament.models import Tournament
 from .models import PongGroup, PongMatchmaking, PongMatch
 from datetime import timedelta
 from django.utils import timezone
@@ -322,10 +323,6 @@ class PongConsumer(WebsocketConsumer):
 			self.pong_match.score1 = self.game.player1.score
 			self.pong_match.score2 = self.game.player2.score
 			self.pong_match.save()
-			if self.game.player1.id != self.pong_match.player1 or self.game.player2.id != self.pong_match.player2:
-				print("bah alors", file=sys.stderr)
-			else:
-				print("nickel", file=sys.stderr)
 
 			if self.pong_match.type == 'normal':
 				player1 = User.objects.get(id=self.game.player1.id)
@@ -339,6 +336,23 @@ class PongConsumer(WebsocketConsumer):
 					player1.pong_elo -= (10 + int(elo_diff))
 				player1.save()
 				player2.save()
+			elif self.pong_match.type == 'tournament':
+				for tournament in Tournament.objects.all():
+					if self.pong_match in tournament.matchs.all():
+						tour = tournament
+				if (len(list(tour.matchs.filter(winner=None))) == 0):
+					elem = list(tour.matchs.filter(match_date__gte=tour.last_round).values("winner"))
+					if len(elem) == 1:
+						return
+					for el in elem:
+						async_to_sync(self.channel_layer.group_send)(
+							f'user_{el["winner"]}',
+							{
+								'type': 'notify_user',
+								'message': f"{tour.name}: new round ready to start",
+								# 'tournament': tour.name,
+							})
+					
 		if (self.pong_match.winner != None and self.winner == 0):
 			if (self.pong_match.winner == self.game.player1.id):
 				self.winner = 1

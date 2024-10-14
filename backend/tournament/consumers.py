@@ -72,8 +72,20 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 		if self.tournament_room.last_round != None :
 			elem = list(self.tournament_room.matchs.filter(match_date__gte=self.tournament_room.last_round).exclude(winner=None).values())
 			values = [item["winner"] for item in elem]
-			if (len(values) < self.tournament_room.nb_player or self.tournament_room.users_online.filter(Q(id=values[0]) | Q(id=values[1])).count() != self.tournament_room.nb_player):
+			if (len(values) < self.tournament_room.nb_player or self.tournament_room.users_online.filter(Q(id__in=values)).count() != self.tournament_room.nb_player):
+				usrs = list(self.tournament_room.users_online.filter(Q(id__in=values)).values())
+				ids = [item["id"] for item in usrs]
+				for usr in values:
+					if usr not in ids:
+						async_to_sync(self.channel_layer.group_send)(
+							f'user_{usr}',
+							{
+								'type': 'notify_user',
+								'message': f"{self.tournament_room.name}: new round ready to start",
+								# 'tournament': tour.name,
+							})
 				values = []
+
 
 		if len(values) == self.tournament_room.nb_player:
 			self.tournament_room.last_round = timezone.now()
