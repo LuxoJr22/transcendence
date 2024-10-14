@@ -78,7 +78,6 @@ export async function login42(){
                 email: data.user.email,
                 profile_picture: data.user.profile_picture_url,
                 is_2fa_enabled : data.is_2fa_enabled
-
             }
         });
         localStorage.setItem('access_token', data.access);

@@ -9,7 +9,7 @@
     import { createmap } from "./map.js"
     import { SkeletonCollider } from "./skeletoncollider.js"
     import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
-    import { auth } from '$lib/stores/auth';
+    import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 
 	let state: AuthState;
@@ -19,12 +19,13 @@
     // let canvas;
 
     onMount(() => { (async () => {
+        await fetchUser();
         auth.subscribe((value : AuthState) =>{
             state = value;
         });
         var match_id
 
-        const response = await fetch('api/shooter/create/', {
+        const response = await fetch('/api/shooter/create/', {
 		method: 'POST',
 		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
 		});
@@ -64,7 +65,7 @@
         
         var bind = {up: 90, down: 83, left:81, right:68, jump:32}
 
-        const resp = await fetch('api/shooter/settings/' + state.user?.id, {
+        const resp = await fetch('/api/shooter/settings/' + state.user?.id, {
 		method: 'GET',
 		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
 		});
