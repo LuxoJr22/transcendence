@@ -8,6 +8,7 @@ from .views import (
 	UserProfileView,
 	UserListView,
 	UserSkinUpdateView,
+	SettingsUpdateView,
 	OAuth42RedirectView,
 	OAuth42CallbackView,
 	QRCode2FAView,
@@ -34,4 +35,5 @@ urlpatterns = [
 	path('user/list/', UserListView.as_view(), name='user_list'),
 	path('user/update/', UserUpdateView.as_view(), name='user_update'),
 	path('user/skin/update/', UserSkinUpdateView.as_view(), name='user_skin_update'),
+	path('user/settings/update/', SettingsUpdateView.as_view(), name='settings_update'),
 ]
