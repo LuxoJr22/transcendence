@@ -78,8 +78,7 @@
 <div class="flex-column history-container justify-content-top">
     {#if gamesHistory[0] != null}
         {#each gamesHistory as game}
-        {#if game.winner != game.opponent.id}
-        <div class="row border border-primary rounded match my-1 bg-dark text-truncate">
+        <div class="row border {game.winner != game.opponent.id ? 'border-primary' : 'border-danger'} rounded match my-1 bg-dark text-truncate">
             <p class="col-4 text-center text-light h4">Me</p>
             <p class="col-4 text-center text-light h4">{game.me.score} / {game.opponent.score}</p>
             <p class="col-4 text-center text-light h4 link" role="button" on:click={(event) => {handleGoto(event, "/profile/" + game.opponent.id)}}>{game.opponent.username}</p>
@@ -89,21 +88,9 @@
                 <p class="col-4 text-end" style="color:grey;">{game.hours}</p>
             </div>
         </div>
-        {:else}
-            <div class="row border border-danger rounded match my-1 bg-dark text-truncate">
-                <p class="col-4 text-center text-light h4">Me</p>
-                <p class="col-4 text-center text-light h4">{game.me.score} / {game.opponent.score}</p>
-                <p class="col-4 text-center text-light h4 link" role="button" on:click={(event) => {handleGoto(event, "/profile/" + game.opponent.id)}}>{game.opponent.username}</p>
-                <div class="d-flex">
-                    <p class="col-4" style="color:grey;">{game.date}</p>
-                    <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
-                    <p class="col-4 text-end" style="color:grey;">{game.hours}</p>
-                </div>
-            </div>
-        {/if}
         {/each}
     {:else}
-        <div class="d-flex m-auto">
+        <div class="d-flex history-container justify-content-center align-items-center">
             <h5 class="" style="color:grey;">No match to Display</h5>
         </div>
     {/if}
@@ -128,7 +115,7 @@
     }
 
     .h4 {
-        font-size: 1.15vw;
+        font-size: 0.90vw;
     }
     
     .h3 {
@@ -137,6 +124,14 @@
 
     .game-title {
         font-weight: 800;
+    }
+
+    .link{
+        text-decoration:none;
+    }
+
+    .link:hover {
+        text-decoration: underline;
     }
 
 </style>

@@ -9,22 +9,23 @@
     import { createmap } from "./map.js"
     import { SkeletonCollider } from "./skeletoncollider.js"
     import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
-    import { auth } from '$lib/stores/auth';
+    import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 
 	let state: AuthState;
 	$: $auth, state = $auth;
     var chatSocket: WebSocket;
 
-    let canvas;
+    // let canvas;
 
     onMount(() => { (async () => {
+        await fetchUser();
         auth.subscribe((value : AuthState) =>{
             state = value;
         });
         var match_id
 
-        const response = await fetch('api/shooter/create/', {
+        const response = await fetch('/api/shooter/create/', {
 		method: 'POST',
 		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
 		});
@@ -44,7 +45,7 @@
         var reload = 0;
         var boostreload = 0
 
-        // var canvas = document.getElementById("canvas")
+        var canvas = document.getElementById("canvas")
         var el = document.getElementById("blocker");
         var ui = document.getElementById("ui");
         var circle = document.getElementById("circular");
@@ -64,7 +65,7 @@
         
         var bind = {up: 90, down: 83, left:81, right:68, jump:32}
 
-        const resp = await fetch('api/shooter/settings/' + state.user?.id, {
+        const resp = await fetch('/api/shooter/settings/' + state.user?.id, {
 		method: 'GET',
 		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
 		});
@@ -119,7 +120,8 @@
             let now = performance.now()
             if (pointerLockActivated && now - pointerLockActivated < 1100)
                 return
-            el.style.display = "none";
+            el.style.opacity = "0";
+            el.style.display = 'none';
             play.cam.lock();
             
             
@@ -128,6 +130,7 @@
 
         play.cam.addEventListener( 'unlock', function () {
             pointerLockActivated = performance.now()
+            el.style.opacity = "0.5";
             el.style.display = '';
         } );
 
@@ -160,7 +163,7 @@
         if (canvasSize.width > window.innerWidth)
         {
             canvasSize.width =  (window.innerWidth)
-		    canvasSize.height =  (window.innerWidth) * 9 / 16
+            canvasSize.height =  (window.innerWidth) * 9 / 16
         }
         renderer.setSize( canvasSize.width, canvasSize.height);
         ui.style.width = canvasSize.width + "px";
@@ -168,9 +171,8 @@
         ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
         ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
         timer.style.fontSize = canvasSize.height / 10 + "px"
-		renderer.shadowMap.enabled = true;
+        renderer.shadowMap.enabled = true;
         document.body.appendChild( renderer.domElement );
-
 
         var xSpeed = 0.15;
         var ySpeed = 0.15;
@@ -388,7 +390,7 @@
                     'id':id
 				}))
 			}
-            else if (data.event == 'Connected')
+            else if (data.event == 'Connected' && id != data.id)
             {
                 let i = 0
                 while (players[i])
@@ -625,7 +627,6 @@
 
 
     .game {
-        /*border-radius: 3% !important;*/
         margin: auto !important;
     }
 
@@ -689,5 +690,5 @@
     </div>
 </div>
 
-<!-- <canvas id="canvas" class="d-flex flex-column game"></canvas> -->
-<canvas bind:this={canvas} class="d-flex flex-column game"></canvas>
+<canvas id="canvas" class="d-flex game"></canvas>
+<!-- <canvas bind:this={canvas} class="d-flex flex-column game"></canvas> -->

@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import { refresh_token } from './auth';
 
-interface Messages {
+export interface Messages {
     sender: string;
     receiver: string;
     content: string;
@@ -10,7 +10,7 @@ interface Messages {
     match_id: number | null;
 }
 
-interface History{
+export interface History{
     id: number;
     is_online: boolean;
     content: string;
@@ -26,11 +26,11 @@ export let messages = writable<Messages[]>([]);
 export let history = writable<History[]>([]);
 
 export async function fetchChatMessages(id: number){
-    const accessToken = localStorage.getItem('access_token');;
+    const accessToken = localStorage.getItem('access_token');
     const response = await fetch('/api/chat/messages/' + id + '/', {
-    headers: {
-        'Authorization': `Bearer ${accessToken}`,
-    }
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+        }
     });
     const data = await response.json();
     messages.set(data);

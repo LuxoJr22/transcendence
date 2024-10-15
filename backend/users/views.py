@@ -102,6 +102,35 @@ class UserSkinUpdateView(generics.UpdateAPIView):
 
 	def get_object(self):
 		return self.request.user
+	
+class SettingsUpdateView(generics.UpdateAPIView):
+	permission_classes = [IsAuthenticated]
+
+	def get_object(self):
+		return self.request.user.settings
+	
+	def patch(self, request):
+		pong_keys = ["up", "down", "left", "right", "charge"]
+		shooter_keys = ["up", "down", "left", "right", "jump"]
+		settings = self.get_object()
+		shooter_dict = request.data['shooter']
+		pong_dict = request.data['pong']
+		for key in shooter_keys:
+			try:
+				value = shooter_dict[key]
+			except:
+				raise ValidationError("keys are not valid")
+		for key in pong_keys:
+			try:
+				value = pong_dict[key]
+			except:
+				raise ValidationError("keys are not valid")
+		settings.shooter = request.data['shooter']
+		settings.pong = request.data['pong']
+		settings.save()
+
+		return Response({'success': 'Key changed'}, status=status.HTTP_200_OK)
+
 
 class OAuth42RedirectView(RedirectView):
 	def get_redirect_url(self, *args, **kwargs):

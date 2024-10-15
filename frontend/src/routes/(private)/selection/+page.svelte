@@ -267,7 +267,7 @@
 						ui.style.cursor = "url('src/routes/(private)/selection/public/closedHand.png'), auto";
 						draggable.throwed = 0 
 						bots[i].ispicked = 1
-						const response = await fetch('api/user/skin/update/', {
+						const response = await fetch('/api/user/skin/update/', {
 							method: 'PATCH',
 							headers: { 'Content-Type':'application/json','Authorization': `Bearer ${localStorage.getItem('access_token')}` },
 							body: JSON.stringify({
