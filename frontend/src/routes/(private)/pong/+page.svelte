@@ -631,9 +631,6 @@
 		transform: translate(-50%, -50%);
 	}
 
-
-
-
 </style>
 
 <div id="ui">

@@ -165,7 +165,10 @@
                     <Pie victories={victories} defeats={defeats}></Pie>
                 {/if}
             </div>
-            <h2 class="text-center p-3 title-profile">Skin</h2>
+            <h2 class="text-center text-light p-3 title-profile">Skin</h2>
+            <!-- <div class="d-flex justify-content-center">
+                <Skin skinName={state.user?.skin}/>
+            </div> -->
         </div>
         <div class="justify-content-center flex-column col-5">
             <h2 class="text-light text-center p-4 m-1 title-profile">History</h2>
@@ -192,6 +195,8 @@
 
 <style>
 
+    @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+
     .img-circle{
         width: 80%;
         height: 80%;
@@ -200,7 +205,7 @@
     }
 
     .title-profile {
-        font-family: Nabla;
+        font-family: 'Luckiest Guy';
         font-size: 250%;
     }
 

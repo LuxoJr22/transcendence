@@ -100,6 +100,23 @@
 
 	.card:hover {
 		cursor: pointer;
+		transform: scale(1.1);
+		/* animation-name: rotate;
+		animation-duration: 1s;
+		animation-iteration-count: infinite;
+		animation-delay: 0s; */
 	}
+
+	/* @keyframes rotate {
+
+		0% {
+			transform: rotateZ(0deg);
+		}
+
+		100%
+		 {
+			transform: rotateZ(360deg);
+		}
+	} */
 
 </style>

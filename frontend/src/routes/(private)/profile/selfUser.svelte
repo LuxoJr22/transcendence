@@ -13,6 +13,7 @@
     import Email from '$lib/static/Profile/UpdateUserInformation/email.svelte';
     import Password from '$lib/static/Profile/UpdateUserInformation/password.svelte';
     import History from '$lib/static/Profile/History/selfHistory.svelte';
+    import Skin from '$lib/static/Profile/Skin.svelte';
 
     let historyData : any;
     let fetchStatus = false;
@@ -139,6 +140,9 @@
                 {/if}
             </div>
             <h2 class="text-center p-3 title-profile">Skin</h2>
+            <div class="d-flex justify-content-center">
+                <Skin skinName={state.user?.skin}/>
+            </div>
         </div>
         <div class="justify-content-center flex-column col-5">
             <h2 class="text-center p-4 m-1 title-profile">History</h2>
