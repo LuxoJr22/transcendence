@@ -65,65 +65,67 @@
                 <p class="d-flex justify-content-center mt-3" style="color:grey;">Empty tournament list</p>
             {/if}
         </div>
-        <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
-            <div class="offcanvas-header">
-                <h3 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Tournament Creation</h3>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <div>
-                    <div class="mb-3">
-                        <label for="formGroupExampleInput" class="form-label"><h4>Tournament's name</h4></label>
-                        <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Enter name" bind:value={tournament_name}>
-                    </div>
+        <form>
+            <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+                <div class="offcanvas-header">
+                    <h3 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Tournament Creation</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
-                <div class="">
-                    <h4>Size of tournament</h4>
-                    <div class="row mt-3">
-                        <div class="col-4">
-                            <input type="radio" class="btn-check" name="options" id="option1" autocomplete="off" checked>
-                            <label class="btn btn-secondary" for="option1">4 players</label>
-                        </div>
-                        <div class="col-4">    
-                            <input type="radio" class="btn-check" name="options" id="option2" autocomplete="off">
-                            <label class="btn btn-secondary" for="option2">8 players</label>
+                <div class="offcanvas-body">
+                    <div>
+                        <div class="mb-3">
+                            <label for="formGroupExampleInput" class="form-label"><h4>Tournament's name</h4></label>
+                            <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Enter name" bind:value={tournament_name}>
                         </div>
                     </div>
-                </div>
-                <div class="mt-4">
-                    <h4>Choose your game</h4>
-                    <div id="carouselExampleIndicators" class="carousel slide">
-                        <div class="carousel-indicators">
-                            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                            <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                        </div>
-                        <div class="carousel-inner">
-                            <div class="carousel-item active">
-                                <img src={img} class="d-block w-100 mt-2" alt="...">
+                    <div class="">
+                        <h4>Size of tournament</h4>
+                        <div class="row mt-3">
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="options" id="option1" autocomplete="off" checked>
+                                <label class="btn btn-secondary" for="option1">4 players</label>
                             </div>
-                            <div class="carousel-item">
-                                <img src={img1} class="d-block w-100 mt-2" alt="...">
+                            <div class="col-4">    
+                                <input type="radio" class="btn-check" name="options" id="option2" autocomplete="off">
+                                <label class="btn btn-secondary" for="option2">8 players</label>
                             </div>
                         </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
+                    </div>
+                    <div class="mt-4">
+                        <h4>Choose your game</h4>
+                        <div id="carouselExampleIndicators" class="carousel slide">
+                            <div class="carousel-indicators">
+                                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                            </div>
+                            <div class="carousel-inner">
+                                <div class="carousel-item active">
+                                    <img src={img} class="d-block w-100 mt-2" alt="...">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src={img1} class="d-block w-100 mt-2" alt="...">
+                                </div>
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
+                <div class="d-flex justify-content-center mb-4" >
+                    {#if tournament_name==undefined || tournament_name==""}
+                        <button class="btn btn-dark btn-lg mb-5 p-3 mybtn" style="opacity:0.7" title="Insert a Tournament name">Create Tournament</button>
+                    {:else}
+                        <button type="submit" class="btn btn-dark btn-lg mb-5 p-3" on:click={create_tournament}>Create Tournament</button>
+                    {/if}
+                </div>
             </div>
-            <div class="d-flex justify-content-center mb-4" >
-                {#if tournament_name==undefined || tournament_name==""}
-                    <button class="btn btn-dark btn-lg mb-5 p-3 mybtn" style="opacity:0.7" title="Insert a Tournament name">Create Tournament</button>
-                {:else}
-                    <button type="button" class="btn btn-dark btn-lg mb-5 p-3" on:click={create_tournament}>Create Tournament</button>
-                {/if}
-            </div>
-        </div>
+        </form>
     </div>
 </div>
 
