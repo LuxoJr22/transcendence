@@ -228,7 +228,8 @@ export async function fetchUser(): Promise<void> {
                 username: user.username,
                 email: user.email,
                 profile_picture: user.profile_picture,
-                is_2fa_enabled: user.is_2fa_enabled
+                is_2fa_enabled: user.is_2fa_enabled,
+                skin: user.skin,
             },
             accessToken : localStorage.getItem('access_token'),
             refreshToken: localStorage.getItem('refresh_token')
