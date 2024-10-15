@@ -1,8 +1,7 @@
 <script lang='ts'>
-    import type { AuthState } from "$lib/stores/auth";
+    import { fetchUser, type AuthState } from "$lib/stores/auth";
     import type { Messages } from "$lib/stores/chat";
     import { messages } from "$lib/stores/chat";
-    import type { Profile } from "$lib/stores/user";
     import { beforeUpdate, afterUpdate, onMount } from 'svelte';
 
     export let roomId : string;
@@ -16,7 +15,11 @@
         window.location.href = `/matchmaking/${gamemode}/private/`;
     }
 
-    let div;
+    onMount(async () => {
+        await fetchUser();
+    })
+
+    let div : HTMLDivElement = 0;
     let autoscroll = false;
     beforeUpdate(() => {
         if (div){
@@ -26,7 +29,7 @@
     });
     
     afterUpdate(() => {
-		if (autoscroll) {
+		if (autoscroll && div) {
 			div.scrollTo(0, div.scrollHeight);
 		}
 	});

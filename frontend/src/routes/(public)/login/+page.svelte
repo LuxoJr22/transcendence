@@ -34,6 +34,8 @@
 
     onMount(async () => {
         const status = await login42();
+        if (status == '2fa')
+            displayModal();
         if (status == 'success'){
             window.location.href= '/';
         }
