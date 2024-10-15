@@ -134,7 +134,7 @@ class PublicUserSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = User
-		fields = ['id', 'username', 'profile_picture_url', 'is_online']
+		fields = ['id', 'username', 'profile_picture_url', 'skin', 'is_online']
 
 	def get_profile_picture_url(self, obj):
 		if obj.profile_picture:
