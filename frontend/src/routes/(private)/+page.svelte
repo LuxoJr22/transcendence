@@ -56,9 +56,9 @@
 		</div>
 	</div>
 	<div class="d-flex m-auto align-items-center btn-group-vertical py-5" style="width:15%;">
-		<button  class="btn btn-success btn-lg border mb-1 px-5 py-3 title" on:click={gameHref}>PLAY</button>
-		<a href="/tournament" class="btn btn-light btn-lg border  mb-1 px-5 py-3 subtitle">Tournament</a>
-		<a href="/selection" class="btn btn-light btn-lg border mb-1 px-5 py-3 subtitle">Character</a>
+		<button  class="btn btn-success btn-lg border mb-1 px-5 py-3 title text-truncate" on:click={gameHref}>PLAY</button>
+		<a href="/tournament" class="btn btn-light btn-lg border  mb-1 px-5 py-3 subtitle text-truncate">Tournament</a>
+		<a href="/selection" class="btn btn-light btn-lg border mb-1 px-5 py-3 subtitle text-truncate">Character</a>
 	</div>
 </div>
 
@@ -85,12 +85,12 @@
 
 	.title {
 		font-weight: 800;
-		font-size: 30px;
+		font-size: 170%;
 	}
 
 	.subtitle {
 		font-weight: 700;
-		font-size: 20px;
+		font-size: 120%;;
 	}
 
 	.form-check-input:checked+.card {

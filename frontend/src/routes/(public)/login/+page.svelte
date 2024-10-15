@@ -10,6 +10,7 @@
     let myModal = null;
     let errorTwoFA = ''
     let error42Login : any;
+    let twoFaWith42 = false;
 
     function resetLoginErrors(){
         errorsLogin = false;
@@ -34,8 +35,10 @@
 
     onMount(async () => {
         const status = await login42();
-        if (status == '2fa')
+        if (status == '2fa'){
             displayModal();
+            twoFaWith42 = true;
+        }
         if (status == 'success'){
             window.location.href= '/';
         }
@@ -51,6 +54,9 @@
     })
 
     async function handleTwoFA(){
+        if (twoFaWith42){
+            username = ''
+        }
         errorTwoFA = await loginWithTwoFA(username, password, otp_code);
         if (localStorage.getItem('access_token'))
             goto('/');

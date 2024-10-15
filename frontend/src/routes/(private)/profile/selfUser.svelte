@@ -129,7 +129,9 @@
         <div class="flex-column col-4 border-end my-3 ">
             <div>
                 <h2 class="text-center p-3 title-profile">Win Rate</h2>
+                {#if victories != 0 || defeats != 0}
                 <p class="text-light text-center" style="font-weight:800; font-size:20px;">{(victories / (defeats + victories) * 100).toFixed(1)}%</p>
+                {/if}
             </div>
             <div class="d-flex justify-content-center align-items-center" style="height:30%;">
                 {#if fetchStatus}
@@ -148,6 +150,9 @@
 </div>
 
 <style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+
     .img-circle {
         width: 80%;
         height: 80%;
@@ -156,9 +161,9 @@
     }
 
     .title-profile {
-        font-family: "Nabla", sans-serif;
+        font-family: "Luckiest Guy", sans-serif;
         font-size: 250%;
-        color: var(--bs-warning-bg-subtle);
+        color: var(--bs-light-bg-subtle);
     }
 
     .align-img-end {
@@ -180,8 +185,8 @@
     }
 
     .friend-title{
-        color: var(--bs-warning-bg-subtle);
-        font-family: "Nabla", sans-serif;
+        color: var(--bs-light-bg-subtle);
+        font-family: "Luckiest Guy", sans-serif;
         font-size: 175%;
     }
     .container {

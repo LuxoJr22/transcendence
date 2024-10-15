@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { AuthState } from "$lib/stores/auth";
+    import { goto } from "$app/navigation"
     import ImgOnline from "../imgOnline.svelte";
     import { history } from "$lib/stores/chat";
     import type { History } from "$lib/stores/chat";
