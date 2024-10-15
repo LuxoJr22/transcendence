@@ -34,8 +34,15 @@ class UserStatusConsumer(WebsocketConsumer):
 		self.user.save(update_fields=['is_online'])
 
 	def notify_user(self, event):
-		message = event["message"]
-		self.send(text_data=json.dumps({
-			"type": "notification",
-			"message": message,
-		}))
+		notification_type = event["notification_type"]
+		if (notification_type != "tournament"):
+			self.send(text_data=json.dumps({
+				"type": notification_type,
+				"message": event["message"],
+			}))
+		else:
+			self.send(text_data=json.dumps({
+				"type": notification_type,
+				"message": event["message"],
+				"tournament": event["tournament"],
+			}))

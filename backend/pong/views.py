@@ -6,6 +6,18 @@ from .models import PongMatch
 from .serializers import PongMatchSerializer
 from users.models import User
 
+class PongMatchView(generics.RetrieveAPIView):
+	serializer_class = PongMatchSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get(self, request, *args, **kwargs):
+		game_id = kwargs.get('match_id')
+		try:
+			match = PongMatch.objects.get(id=game_id)
+		except PongMatch.DoesNotExist:
+			return Response({'error': 'Match not found'}, status=status.HTTP_404_NOT_FOUND)
+		return Response(self.get_serializer(match).data, status=status.HTTP_200_OK)
+
 class PongMatchHistoryView(generics.ListAPIView):
 	serializer_class = PongMatchSerializer
 	permission_classes = [IsAuthenticated]

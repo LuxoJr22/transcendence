@@ -48,9 +48,6 @@
             const data = JSON.parse(event.data);
             await fetchLatestDiscussion();
             await fetchChatMessages(id);
-            if (data.match_id && data.sender == state.user?.username) {
-                joinPrivateGame(data.gamemode, data.match_id);
-            }           
         };
     }
 
@@ -62,11 +59,6 @@
             newMessage = '';
         }
         await fetchLatestDiscussion();
-    }
-
-    function joinPrivateGame(gamemode: string, match_id: string) {
-        localStorage.setItem('game_id', match_id);
-        window.location.href = `/matchmaking/${gamemode}/private/`;
     }
 
     onDestroy(() => {
