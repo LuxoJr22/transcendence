@@ -22,6 +22,7 @@ class SendFriendRequestView(generics.CreateAPIView):
 			f"user_{receiver.id}",
 			{
 				"type": "notify_user",
+				"notification_type": "friend_request",
 				"message": f"{sender} sent you a friend request",
 			}
 		)

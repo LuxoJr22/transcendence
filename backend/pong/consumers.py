@@ -349,8 +349,9 @@ class PongConsumer(WebsocketConsumer):
 							f'user_{el["winner"]}',
 							{
 								'type': 'notify_user',
+								'notification_type': 'tournament',
 								'message': f"{tour.name}: new round ready to start",
-								# 'tournament': tour.name,
+								'tournament': tour.name,
 							})
 					
 		if (self.pong_match.winner != None and self.winner == 0):

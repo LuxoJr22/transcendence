@@ -81,8 +81,9 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 							f'user_{usr}',
 							{
 								'type': 'notify_user',
+								'notification_type': 'tournament',
 								'message': f"{self.tournament_room.name}: new round ready to start",
-								# 'tournament': tour.name,
+								'tournament': self.tournament_room.name,
 							})
 				values = []
 

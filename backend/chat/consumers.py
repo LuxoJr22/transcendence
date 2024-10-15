@@ -75,6 +75,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			f'user_{self.receiver_id}',
 			{
 				'type': 'notify_user',
+				'notification_type': 'chat',
 				'message': f"{self.sender.username}: {message}",
 			}
 		)
