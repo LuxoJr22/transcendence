@@ -16,6 +16,7 @@
     }
 
     let notifications = new Array<Notifications>();
+    let navBarNotifications = new Array<Notifications>();
 
 	let state: AuthState;
 	$: $auth, state = $auth;
@@ -43,11 +44,15 @@
     let wsOnline : WebSocket;
     onMount( async () => {
         await fetchUser();
+        auth.subscribe((value : AuthState) =>{
+            state = value;
+        });
         if (state.accessToken != null)
             wsOnline = new WebSocket('/ws/status/?token=' + localStorage.getItem('access_token'));
         
         wsOnline.onmessage = async function (event) {
         parseNotifications(JSON.parse(event.data));
+        navBarNotifications.push(event.data);
         await fetchLatestDiscussion();
         if (window.location.href.search('/chat/') == -1){
             const toastElList = document.querySelectorAll('.toast')
@@ -121,6 +126,11 @@
                             </button>
                         </div>
                         {/if}
+                    {/each}
+                    {#each navBarNotifications as notif, i}
+                        <div class="d-flex align-items-center p-2 m-2 mt-1 border rounded">
+                            { notif?.message }
+                        </div>
                     {/each}
                     {#if !requestsList[0]}
                     <div class="d-flex justify-content-center">
