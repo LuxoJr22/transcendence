@@ -36,7 +36,6 @@ class Settings(models.Model):
 	pong = models.JSONField(default=pong_dict)
 	shooter = models.JSONField(default=shooter_dict)
 
-
 class User(AbstractBaseUser):
 	username = models.CharField(max_length=12, unique=True)
 	email = models.EmailField(max_length=254, unique=True)

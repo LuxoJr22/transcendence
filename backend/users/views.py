@@ -195,19 +195,19 @@ class OAuth42CallbackView(generics.CreateAPIView):
 			headers={
 				'Authorization': f'Bearer {access_token}'
 			})
-		
+
 		if user_info_response.status_code != 200:
 			return Response({'error': 'Invalid access token'}, status=status.HTTP_400_BAD_REQUEST)
-		
+
 		user_info = user_info_response.json()
 		try:
 			user = self.find_or_create_42user(user_info)
 		except ValidationError as e:
 			return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-		if user is None:
-			return Response({'error': 'Triplum internal error, please create regular account'}, status=status.HTTP_400_BAD_REQUEST)
-		
+		if user.is_2fa_enabled:
+			return Response({'is_2fa_enabled': True}, status=status.HTTP_200_OK)
+
 		refresh = RefreshToken.for_user(user)
 		return Response({
 			"refresh": str(refresh),
