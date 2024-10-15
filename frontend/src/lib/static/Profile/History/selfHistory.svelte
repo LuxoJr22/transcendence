@@ -38,7 +38,7 @@
             let scoreOpponent = 0;
             if (data[i].player1 == state.user?.id){
                 scoreMe = data[i].score1;
-                scoreOpponent = data[i].score2; 
+                scoreOpponent = data[i].score2;
             }
             else {
                 scoreMe = data[i].score2;
