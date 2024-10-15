@@ -34,7 +34,7 @@
 			<label class="form-check-label" for="pong">
 			<input class="form-check-input d-none" type="radio" name="gameRadio" id="pong" checked>
 				<div class="card m-4 bg-light" style="width: 90%;">
-					<img src={img} class="card-img-top p-3" alt="pong">
+					<img src={img} class="card-img-top p-3" alt="pong" draggable="false">
 				</div>
 			</label>
 		</div>
@@ -42,7 +42,7 @@
 			<label class="form-check-label" for="pong_retro">
 			<input class="form-check-input d-none" type="radio" name="gameRadio" id="pong_retro">
 				<div class="card m-4 bg-black" style="width: 90%;">
-					<img src={img1} class="card-img-top p-3" alt="pong">
+					<img src={img1} class="card-img-top p-3" alt="pong" draggable="false">
 				</div>
 			</label>
 		</div>
@@ -50,7 +50,7 @@
 			<label class="form-check-label" for="shooter">
 			<input class="form-check-input d-none" type="radio" name="gameRadio" id="shooter">
 				<div class="card m-4 bg-light" style="width: 90%;">
-					<img src={img} class="card-img-top p-3" alt="pong">
+					<img src={img} class="card-img-top p-3" alt="pong" draggable="false">
 				</div>
 			</label>
 		</div>
