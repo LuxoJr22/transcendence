@@ -1,6 +1,6 @@
 <script lang='ts' >
-    import { afterNavigate, goto } from '$app/navigation';
-    import { onDestroy, onMount } from 'svelte';
+    import { goto } from '$app/navigation';
+    import { onMount } from 'svelte';
     import {get} from 'svelte/store';
     import { auth, fetchUser, logout , refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
@@ -37,18 +37,6 @@
         return (navBarNotifications);
     }
 
-	afterNavigate(async () => {
-        const status = await fetchUser();
-		auth.subscribe((value : AuthState) =>{
-            state = value;
-        });
-		let token = localStorage.getItem('access_token');
-        if (!token || token === ''){
-            // handleLogout();
-            window.location.href = '/login'
-        }
-	});
-
     let wsOnline : WebSocket;
     onMount( async () => {
         await fetchUser();
@@ -58,33 +46,29 @@
         if (state.accessToken != null)
             wsOnline = new WebSocket('/ws/status/?token=' + localStorage.getItem('access_token'));
         
-        wsOnline.onmessage = async function (event) {
-        parseNotifications(JSON.parse(event.data));
-        navBarNotifications = addNotifications(JSON.parse(event.data));
-        console.log(navBarNotifications[0]);
-        await fetchLatestDiscussion();
-        if (window.location.href.search('/chat/') == -1){
-            const toastElList = document.querySelectorAll('.toast')
-            const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
-                animation: true,
-                autohide: true,
-                delay: 5000
-            }))
-            toastList.forEach(toast => toast.show());
+        if (wsOnline && wsOnline.readyState == WebSocket.OPEN){
+            wsOnline.onmessage = async function (event) {
+                parseNotifications(JSON.parse(event.data));
+                navBarNotifications = addNotifications(JSON.parse(event.data));
+                await fetchLatestDiscussion();
+                if (window.location.href.search('/chat/') == -1){
+                    const toastElList = document.querySelectorAll('.toast')
+                    const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
+                        animation: true,
+                        autohide: true,
+                        delay: 5000
+                    }))
+                    toastList.forEach(toast => toast.show());
+                }
+            }
         }
-    }
-    });
-
-    onDestroy(() =>{
-        if (wsOnline.readyState == 1){
-            wsOnline.close(0);
-        }
+        
     });
 
 	function handleLogout() {
-		logout();
         if (wsOnline && wsOnline.readyState == WebSocket.OPEN)
-            wsOnline.close();
+            wsOnline.close(3000);
+        logout();
         goto('/login');
 	};
 
@@ -121,7 +105,6 @@
 		if (resp.ok)
 		{
 			keyBinds[0] = dat.settings;
-            console.log(keyBinds[0]);
 		}
         const resp1 = await fetch('/api/shooter/settings/' + state.user?.id + '/', {
 		    method: 'GET',
@@ -135,7 +118,6 @@
 
 </script>
 
-<!-- {#if $page.url.pathname != "/shooter" && $page.url.pathname != "/pong" && $page.url.pathname != "/pong_retro"} -->
  {#if $page.url.pathname != "/shooter"}
     <nav class="navbar">
         <div class="container-fluid container-size">
