@@ -401,12 +401,13 @@
                 let i = 0
                 while (players[i])
                 {
-                    players[i].target.forEach(el => {scene.remove(el)})
-                    players[i].mesh.geometry = undefined
-                    players[i].mesh.material = undefined
-                    scene.remove(players[i].mesh)
-                    if (players[i].id == data.id - 1)
+                    if (players[i].id == data.id - 1) {
+                        players[i].target.forEach(el => {scene.remove(el)})
+                        players[i].mesh.geometry = undefined
+                        players[i].mesh.material = undefined
+                        scene.remove(players[i].mesh)
                         players.splice(i, 1)
+                    }
                     i ++
                 }
                 createPlayer(data.id - 1, data.players[data.id - 1].skin)
