@@ -203,7 +203,7 @@ class OAuth42CallbackView(generics.CreateAPIView):
 			return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 		if user.is_2fa_enabled:
-			return Response({'is_2fa_enabled': True}, status=status.HTTP_200_OK)
+			return Response({'is_2fa_enabled': True, 'username': user.username}, status=status.HTTP_200_OK)
 
 		refresh = RefreshToken.for_user(user)
 		return Response({
