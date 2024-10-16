@@ -15,6 +15,6 @@ re: clean all
 
 prune: fclean
 	@docker system prune -af
-	@docker volume prune -f
+	@docker volume prune -af
 
 .PHONY: all clean fclean re prune

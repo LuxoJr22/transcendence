@@ -28,6 +28,8 @@ class LoginView(TokenObtainPairView):
 
 		user = User.objects.get(username=request.data['username'])
 
+		if user.login42 is not None:
+			return Response({'error': 'This account is linked to 42, please use the 42 login button'}, status=status.HTTP_400_BAD_REQUEST)
 		if user.is_2fa_enabled:
 			return Response({'is_2fa_enabled': True}, status=status.HTTP_200_OK)
 
@@ -116,15 +118,11 @@ class SettingsUpdateView(generics.UpdateAPIView):
 		shooter_dict = request.data['shooter']
 		pong_dict = request.data['pong']
 		for key in shooter_keys:
-			try:
-				value = shooter_dict[key]
-			except:
-				raise ValidationError("keys are not valid")
+			if key not in shooter_dict:
+				return Response({'error': f"Invalid key in shooter settings: {key}"}, status=status.HTTP_400_BAD_REQUEST)
 		for key in pong_keys:
-			try:
-				value = pong_dict[key]
-			except:
-				raise ValidationError("keys are not valid")
+			if key not in pong_dict:
+				return Response({'error': f"Invalid key in pong settings: {key}"}, status=status.HTTP_400_BAD_REQUEST)
 		settings.shooter = request.data['shooter']
 		settings.pong = request.data['pong']
 		settings.save()
@@ -151,7 +149,7 @@ class OAuth42CallbackView(generics.CreateAPIView):
 			i += 1
 			username = f"{user_info['login']}{str(i)}"
 		if len(username) > 12:
-			raise ValidationError("Triplum internal error, please create regular account.")
+			raise ValidationError("Triplum internal error, please create regular account")
 
 		if User.objects.filter(email=user_info['email']).exists():
 			raise ValidationError("An account with this email already exists")
@@ -160,7 +158,6 @@ class OAuth42CallbackView(generics.CreateAPIView):
 			username=username,
 			email=user_info['email'],
 			login42=user_info['login'],
-			password='42_OAuth',
 			settings = Settings.objects.create(),
 		)
 		user.save()
@@ -206,7 +203,7 @@ class OAuth42CallbackView(generics.CreateAPIView):
 			return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 		if user.is_2fa_enabled:
-			return Response({'is_2fa_enabled': True}, status=status.HTTP_200_OK)
+			return Response({'is_2fa_enabled': True, 'username': user.username}, status=status.HTTP_200_OK)
 
 		refresh = RefreshToken.for_user(user)
 		return Response({
@@ -290,13 +287,16 @@ class Verify2FAView(TokenObtainPairView):
 	serializer_class = TokenObtainPairSerializer
 
 	def post(self, request):
-		serializer = self.get_serializer(data=request.data)
-		serializer.is_valid(raise_exception=True)
-
-		user = User.objects.get(username=request.data['username'])
-
+		try:
+			user = User.objects.get(username=request.data['username'])
+		except User.DoesNotExist:
+			return Response({'error': 'User not found'}, status=status.HTTP_400_BAD_REQUEST)
 		if not 'otp_code' in request.data:
 			return Response({'error': 'No 2FA code provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+		if user.login42 is None:
+			serializer = self.get_serializer(data=request.data)
+			serializer.is_valid(raise_exception=True)
 
 		totp = pyotp.TOTP(user.otp_secret)
 		if not totp.verify(request.data['otp_code']):

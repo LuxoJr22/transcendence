@@ -3,6 +3,7 @@
     import type { Messages } from "$lib/stores/chat";
     import { messages } from "$lib/stores/chat";
     import { beforeUpdate, afterUpdate, onMount } from 'svelte';
+    import { goto } from '$app/navigation';
 
     export let roomId : string;
     export let state : AuthState;
@@ -12,11 +13,14 @@
 
     function joinPrivateGame(gamemode: string, match_id: string) {
         localStorage.setItem('game_id', match_id);
-        window.location.href = `/matchmaking/${gamemode}/private/`;
+        goto(`/matchmaking/${gamemode}/private/`);
     }
 
     onMount(async () => {
         await fetchUser();
+        messages.subscribe((value : Messages[]) => {
+            chatMessages = value;
+        });
     })
 
     let div : HTMLDivElement = 0;
@@ -27,20 +31,14 @@
             autoscroll = div.scrollTop > scrollableDistance - 20;
         }
     });
-    
+
     afterUpdate(() => {
-		if (autoscroll && div) {
-			div.scrollTo(0, div.scrollHeight);
-		}
-	});
-
-    onMount(async () => {
-        messages.subscribe((value : Messages[]) => {
-            chatMessages = value;
-        });
-    })
-
+        if (autoscroll && div) {
+            div.scrollTo(0, div.scrollHeight);
+        }
+    });
 </script>
+
 {#if roomId == 'home'}
     <div class="d-flex position-absolute top-50" style="left:35%;">
             <h4 style="color:grey" class="">No discussion selectionned</h4>
@@ -51,7 +49,7 @@
             <div class="d-flex justify-content-{msg.sender == state.user?.id ? 'end' : 'start'} text-center">
                 <p class="col-auto border rounded bg-light p-2 m-2 msgBox">
                     {msg.content}
-                    {#if msg.is_invitation}
+                    {#if msg.is_invitation && msg.is_over == false}
                         <button class="ms-2 btn btn-success btn-sm" on:click={() => joinPrivateGame(msg.gamemode, msg.match_id)}>Play</button>
                     {/if}
                 </p>

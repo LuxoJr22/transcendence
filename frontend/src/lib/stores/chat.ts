@@ -7,7 +7,8 @@ export interface Messages {
     content: string;
     is_invitation: boolean;
     gamemode: string | null;
-    match_id: number | null;
+    match_id: string | null;
+    is_over: boolean;
 }
 
 export interface History{
@@ -25,6 +26,16 @@ export interface History{
 export let messages = writable<Messages[]>([]);
 export let history = writable<History[]>([]);
 
+async function checkPongMatch(match_id: string) {
+    const response = await fetch(`/api/pong/match/${match_id}`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        }
+    });
+    const data = await response.json();
+    return !(data.winner === null);
+}
+
 export async function fetchChatMessages(id: number){
     const accessToken = localStorage.getItem('access_token');
     const response = await fetch('/api/chat/messages/' + id + '/', {
@@ -33,6 +44,9 @@ export async function fetchChatMessages(id: number){
         }
     });
     const data = await response.json();
+    for (let message of data)
+        if (message.is_invitation)
+            message.is_over = await checkPongMatch(message.match_id);
     messages.set(data);
 };
 

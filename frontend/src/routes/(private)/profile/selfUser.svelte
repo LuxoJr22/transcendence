@@ -13,7 +13,7 @@
     import Email from '$lib/static/Profile/UpdateUserInformation/email.svelte';
     import Password from '$lib/static/Profile/UpdateUserInformation/password.svelte';
     import History from '$lib/static/Profile/History/selfHistory.svelte';
-    import Skin from '../../../lib/static/Profile/Skin.svelte';
+    import Skin from '$lib/static/Profile/Skin.svelte';
 
     let historyData : any;
     let fetchStatus = false;
@@ -33,12 +33,8 @@
         friendList.subscribe((value : friendInterface[]) => {
             listOfFriend = value;
         });
+        console.log('a');
     });
-    
-    function handleGoto(e : Event, path : string) {
-        e.preventDefault();
-        window.location.href = path;
-    }
 
     /******************HISTORY******************/
     
@@ -87,8 +83,8 @@
                     {#each listOfFriend as friend}
                         <div class="border rounded d-flex align-items-center me-2 mb-2 my-bg-black">
                             <div class="d-flex ms-2 align-items-center">
-                                <ImgOnline path={friend?.profile_picture_url} status={friend?.is_online} width=20% height=20% />
-                                <p class="text-light ms-3 mt-3 link" style="font-size:100%;" role="button" on:click={(event) => {handleGoto(event, "/profile/" + friend.id)}}>{friend.username}</p>
+                                <ImgOnline path={friend?.profile_picture_url} status={friend?.is_online} width=30% height=30% />
+                                <a class="text-light ms-3 mb-3 mt-3 link" style="font-size:100%;" role="button" href={"/profile/" + friend.id}>{friend.username}</a>
                             </div>
                             <div class="d-flex">
                                 <a class="btn" href="/chat/{friend.id}"><i class="bi bi-chat" style="color:white;"></i></a>
@@ -130,7 +126,9 @@
         <div class="flex-column col-4 border-end my-3 ">
             <div>
                 <h2 class="text-center p-3 title-profile">Win Rate</h2>
+                {#if victories != 0 || defeats != 0}
                 <p class="text-light text-center" style="font-weight:800; font-size:20px;">{(victories / (defeats + victories) * 100).toFixed(1)}%</p>
+                {/if}
             </div>
             <div class="d-flex justify-content-center align-items-center" style="height:30%;">
                 {#if fetchStatus}
@@ -138,8 +136,8 @@
                 {/if}
             </div>
             <h2 class="text-center p-3 title-profile">Skin</h2>
-            <div>
-                <Skin />
+            <div class="d-flex justify-content-center">
+                <Skin skinName={state.user?.skin}/>
             </div>
         </div>
         <div class="justify-content-center flex-column col-5">
@@ -152,6 +150,9 @@
 </div>
 
 <style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+
     .img-circle {
         width: 80%;
         height: 80%;
@@ -160,9 +161,9 @@
     }
 
     .title-profile {
-        font-family: "Nabla", sans-serif;
+        font-family: "Luckiest Guy", sans-serif;
         font-size: 250%;
-        color: var(--bs-warning-bg-subtle);
+        color: var(--bs-light-bg-subtle);
     }
 
     .align-img-end {
@@ -184,8 +185,8 @@
     }
 
     .friend-title{
-        color: var(--bs-warning-bg-subtle);
-        font-family: "Nabla", sans-serif;
+        color: var(--bs-light-bg-subtle);
+        font-family: "Luckiest Guy", sans-serif;
         font-size: 175%;
     }
     .container {

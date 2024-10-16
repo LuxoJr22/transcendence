@@ -10,6 +10,7 @@
     let myModal = null;
     let errorTwoFA = ''
     let error42Login : any;
+    let twoFaWith42 = false;
 
     function resetLoginErrors(){
         errorsLogin = false;
@@ -34,8 +35,10 @@
 
     onMount(async () => {
         const status = await login42();
-        if (status == '2fa')
+        if (status == '2fa'){
             displayModal();
+            twoFaWith42 = true;
+        }
         if (status == 'success'){
             window.location.href= '/';
         }
@@ -115,8 +118,15 @@
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form on:submit|preventDefault={handleTwoFA}>
-                    <div class="modal-body">
-                        <input type="text" bind:value="{otp_code}" required class="form-control col-12" placeholder="Enter code">
+                    {#if twoFaWith42}
+                    <p class="h5 ms-4 mt-2">Username</p>
+                        <div class="ps-4 pe-5">
+                            <input type="text" bind:value="{username}" required class="form-control col-12 mb-2 " placeholder="Enter triplum's username">
+                        </div>
+                    {/if}
+                    <p class="h5 ms-4">2FA code</p>
+                    <div class="ps-4 pe-5">
+                        <input type="text" bind:value="{otp_code}" required class="form-control col-12 mb-2" placeholder="Enter code">
                     </div>
                     {#if errorTwoFA.error}
                         <div class="alert alert-danger mx-3" role="alert">

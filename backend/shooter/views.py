@@ -1,14 +1,28 @@
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Shooter, ShooterMatchmaking, ShooterMatch
+from .models import ShooterMatch
 from .serializers import ShooterMatchSerializer
 from django.db import models
 from users.models import User
 
-import sys
+class ShooterMatchHistoryView(generics.ListAPIView):
+	serializer_class = ShooterMatchSerializer
+	permission_classes = [IsAuthenticated]
 
-# Create your views here.
+	def get_queryset(self):
+		user_id = self.kwargs['user_id']
+		user = generics.get_object_or_404(User, id=user_id)
+		return ShooterMatch.objects.filter(models.Q(players=user.id) & models.Q(winner__isnull=False))
+
+	def list(self, request, *args, **kwargs):
+		queryset = sorted(
+			self.get_queryset(),
+			key=lambda match: match.match_date,
+			reverse=True
+		)
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data, status=status.HTTP_200_OK)
 
 class ShooterMatchMakingView(generics.CreateAPIView):
 	permission_classes = [IsAuthenticated]
