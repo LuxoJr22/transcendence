@@ -35,11 +35,6 @@
         });
         console.log('a');
     });
-    
-    function handleGoto(e : Event, path : string) {
-        e.preventDefault();
-        window.location.href = path;
-    }
 
     /******************HISTORY******************/
     
@@ -88,8 +83,8 @@
                     {#each listOfFriend as friend}
                         <div class="border rounded d-flex align-items-center me-2 mb-2 my-bg-black">
                             <div class="d-flex ms-2 align-items-center">
-                                <ImgOnline path={friend?.profile_picture_url} status={friend?.is_online} width=20% height=20% />
-                                <p class="text-light ms-3 mt-3 link" style="font-size:100%;" role="button" on:click={(event) => {handleGoto(event, "/profile/" + friend.id)}}>{friend.username}</p>
+                                <ImgOnline path={friend?.profile_picture_url} status={friend?.is_online} width=30% height=30% />
+                                <a class="text-light ms-3 mb-3 mt-3 link" style="font-size:100%;" role="button" href={"/profile/" + friend.id}>{friend.username}</a>
                             </div>
                             <div class="d-flex">
                                 <a class="btn" href="/chat/{friend.id}"><i class="bi bi-chat" style="color:white;"></i></a>

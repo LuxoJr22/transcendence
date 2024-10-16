@@ -43,8 +43,9 @@
             state = value;
         });
 		let token = localStorage.getItem('access_token');
-        if (!token || token === '')
-            window.location.href = '/login';
+        if (!token || token === ''){
+            handleLogout();
+        }
 	});
 
     let wsOnline : WebSocket;
@@ -79,9 +80,11 @@
         }
     });
 
-	async function handleLogout() {
+	function handleLogout() {
 		logout();
-        window.location.href = '/login';
+        if (wsOnline && wsOnline.readyState == WebSocket.OPEN)
+            wsOnline.close();
+        goto('/login');
 	};
 
     /******************Friendship********************/

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Settings from "$lib/static/Profile/Settings.svelte";
-	import { auth, fetchUser, type AuthState } from "$lib/stores/auth";
+	import { auth, type AuthState } from "$lib/stores/auth";
 	import { onMount } from "svelte";
+	import { goto } from '$app/navigation';
 	const img = new URL('$lib/assets/Super-Pong.png', import.meta.url).href
 	const img1 = new URL('$lib/assets/Pong-Retro.png', import.meta.url).href
 
@@ -20,7 +20,7 @@
 		let tmp = null;
 		for (let game of games){
 			if (game.checked){
-				window.location.href = (game.id == "shooter" ? '/shooter' : "/matchmaking/" + game.id + "/public/");
+				goto((game.id == "shooter" ? '/shooter' : "/matchmaking/" + game.id + "/public/"));
 				break ;
 			}
 		}
