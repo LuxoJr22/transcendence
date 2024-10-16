@@ -44,7 +44,8 @@
         });
 		let token = localStorage.getItem('access_token');
         if (!token || token === ''){
-            handleLogout();
+            // handleLogout();
+            window.location.href = '/login'
         }
 	});
 

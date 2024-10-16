@@ -17,7 +17,7 @@ class Game:
 
 	def CreatePlayer(self, id, user_id, skin, username):
 		sidenb = (id // 2)
-		spawn = {'x': 100 * math.pow(-1, id) , 'y':0, 'z':0  + (sidenb * 5 *  math.pow(-1, sidenb))}
+		spawn = {'x': 55 * math.pow(-1, id) , 'y':11, 'z':0  + (sidenb * 5 *  math.pow(-1, sidenb))}
 		rotaspawn = {'x':0, 'y':math.pi / 2 * math.pow(-1, id), 'z':0}
 		return {
 		'skin': skin,
