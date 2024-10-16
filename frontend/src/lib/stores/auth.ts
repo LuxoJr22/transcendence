@@ -209,6 +209,7 @@ export async function fetchUser(): Promise<void> {
     const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken) {
+        logout();
         return;
     }
 

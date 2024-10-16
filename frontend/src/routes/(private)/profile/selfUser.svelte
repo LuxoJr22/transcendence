@@ -33,7 +33,6 @@
         friendList.subscribe((value : friendInterface[]) => {
             listOfFriend = value;
         });
-        console.log('a');
     });
 
     /******************HISTORY******************/

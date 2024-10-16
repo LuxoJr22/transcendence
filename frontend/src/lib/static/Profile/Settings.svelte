@@ -97,7 +97,6 @@
 		if (resp.ok)
 		{
 			keyBinds[0] = dat.settings;
-            console.log(keyBinds[0]);
 		}
         const resp1 = await fetch('/api/shooter/settings/' + state.user?.id + '/', {
 		    method: 'GET',
@@ -136,7 +135,6 @@
         const data = await response.json();
 
         if (response.ok){
-            console.log('a');
         }
     }
 
