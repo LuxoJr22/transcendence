@@ -11,13 +11,14 @@
         labels: ['Victory (%)', 'Defeat (%)'],
         datasets: [{
             data: [(victories / (defeats + victories) * 100).toFixed(1), (defeats / (defeats + victories) * 100).toFixed(1)],
+            borderColor: [
+                '#f8f9fa',
+                '#f8f9fa'
+                
+            ],
             backgroundColor: [
                 'rgba(13, 110, 253, 1)',
                 'rgba(220, 53, 69, 1)',
-            ],
-            borderColor: [
-                'rgba(13, 170, 253, 1)',
-                'rgba(255, 153, 125, 1)',
             ],
             borderWidth: 3
         }]

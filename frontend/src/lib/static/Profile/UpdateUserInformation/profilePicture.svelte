@@ -55,6 +55,8 @@
     .img-circle {
         width: 80%;
         height: 80%;
+        min-width: 10.9vw;
+        min-height: 22.6vh;
         object-fit: cover;
         aspect-ratio: 1;
     }

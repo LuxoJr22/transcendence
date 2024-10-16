@@ -27,14 +27,13 @@
     let waitingForKey = false;
     let keySelected = [];
 	let displayInput = false;
-    let keyBinds = [{up: 90, down: 83, left:81, right:68, charge:32}, {up: 90, down: 83, left:81, right:68, jump:32}]
+    export let keyBinds = [{}, {}]
 
     onMount(async () => {
         await fetchUser();
         auth.subscribe((value : AuthState) =>{
             state = value;
         });
-        await getKeyBinds();
     })
 
     async function getQrcode(){
@@ -171,7 +170,7 @@
                             <li class="h5">Back: <button class="kbc-button" on:click={() => updateBinds(1, 'down')}>{String.fromCharCode(keyBinds[1].down)}</button></li>
                             <li class="h5">Left: <button class="kbc-button" on:click={() => updateBinds(1, 'left')}>{String.fromCharCode(keyBinds[1].left)}</button></li>
                             <li class="h5">Right: <button class="kbc-button" on:click={() => updateBinds(1, 'right')}>{String.fromCharCode(keyBinds[1].right)}</button></li>
-                            <li class="h5">Dash: <button class="kbc-button" on:click={() => updateBinds(1, 'jump')}>{String.fromCharCode(keyBinds[1].jump)}</button></li>
+                            <li class="h5">Jump: <button class="kbc-button" on:click={() => updateBinds(1, 'jump')}>{String.fromCharCode(keyBinds[1].jump)}</button></li>
                         </ul>
                     </div>
                 </div>

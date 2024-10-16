@@ -65,12 +65,11 @@ export async function login42(){
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code }),
         });
-    }
 
-    data = await response.json();
-    console.log(data);
-    if (data.is_2fa_enabled){
-        return ('2fa');
+        data = await response.json();
+        if (data.is_2fa_enabled){
+            return ('2fa');
+        }
     }
 
     if (response && response.ok){
@@ -228,7 +227,8 @@ export async function fetchUser(): Promise<void> {
                 username: user.username,
                 email: user.email,
                 profile_picture: user.profile_picture,
-                is_2fa_enabled: user.is_2fa_enabled
+                is_2fa_enabled: user.is_2fa_enabled,
+                skin: user.skin,
             },
             accessToken : localStorage.getItem('access_token'),
             refreshToken: localStorage.getItem('refresh_token')

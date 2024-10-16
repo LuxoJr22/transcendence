@@ -1,8 +1,9 @@
 <script>
     import { onDestroy, onMount } from 'svelte';
+    import { goto } from '$app/navigation'
 
     onMount(() => {
         if (window.location.href.substring(window.location.href.lastIndexOf('/') + 1) == 'chat')
-            window.location.href = '/chat/home';
+            goto('/chat/home');
     })
 </script>

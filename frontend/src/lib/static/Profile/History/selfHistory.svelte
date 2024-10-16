@@ -38,7 +38,7 @@
             let scoreOpponent = 0;
             if (data[i].player1 == state.user?.id){
                 scoreMe = data[i].score1;
-                scoreOpponent = data[i].score2; 
+                scoreOpponent = data[i].score2;
             }
             else {
                 scoreMe = data[i].score2;
@@ -68,20 +68,15 @@
         return (gamesHistory);
     }
 
-    function handleGoto(e : Event, path : string) {
-        e.preventDefault();
-        window.location.href = path;
-    }
-
 </script>
 
 <div class="flex-column history-container justify-content-top">
     {#if gamesHistory[0] != null}
         {#each gamesHistory as game}
-        <div class="row border {game.winner != game.opponent.id ? 'border-primary' : 'border-danger'} rounded match my-1 bg-dark text-truncate">
-            <p class="col-4 text-center text-light h4">Me</p>
-            <p class="col-4 text-center text-light h4">{game.me.score} / {game.opponent.score}</p>
-            <p class="col-4 text-center text-light h4 link" role="button" on:click={(event) => {handleGoto(event, "/profile/" + game.opponent.id)}}>{game.opponent.username}</p>
+        <div class="row border  rounded match my-1 bg-dark text-truncate {game.winner != game.opponent.id ? 'border-primary' : 'border-danger'}">
+            <p class="col-4 text-center text-light h4 mt-1">Me</p>
+            <p class="col-4 text-center h4 {game.winner != game.opponent.id ? 'text-primary' : 'text-danger'} mt-1">{game.me.score} / {game.opponent.score}</p>
+            <a class="col-4 text-center text-light h4 link mt-1" href={"/profile/" + game.opponent.id}>{game.opponent.username}</a>
             <div class="d-flex">
                 <p class="col-4" style="color:grey;">{game.date}</p>
                 <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>

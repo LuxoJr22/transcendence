@@ -11,16 +11,19 @@
     export let userId : string;
     let data : any;
 
+    $: isFriendStatus = false;
+
     let user : Profile;
     $: user = $profile;
 
     let friends : friendInterface[];
-    friends = $friendList;
+    $: friends = $friendList;
 
     onMount(async () => {
         await fetchHistoryMatches();
         await profileData(parseInt(userId));
         await fetchFriendList();
+        isFriendStatus = isFriend();
         profile.subscribe((value : Profile) =>{
             user = value;
         })
@@ -100,11 +103,14 @@
             delay: 5000
         }))
         toastList.forEach(toast => toast.show());
+        await fetchFriendList();
+        isFriendStatus = isFriend();
     }
 
     async function delFriend() {
         await deleteFriend(parseInt(userId));
         await fetchFriendList();
+        isFriendStatus = isFriend();
     }
 
     function isFriend(){
@@ -141,23 +147,28 @@
                 <Block />
             </div>
             <div class="align-self-end align-img-end mb-3">
-                {#if !isFriend()}
+                {#if isFriendStatus == true}
                     <button type="button" class="p-0 btn" on:click={delFriend}><i class="bi bi-person-dash hover-effect" style="color: grey; font-size: 1.3em"></i></button>
-                {:else}
+                {:else if isFriendStatus == false}
                     <button type="button" class="p-0 btn" on:click={addFriend}><i class="bi bi-person-add hover-effect" style="color: grey; font-size: 1.3em"></i></button>
                 {/if}
                 </div>
         <div class="flex-column col-4 border-end my-3 ">
             <div>
                 <h2 class="text-light text-center p-3 title-profile">Win Rate</h2>
-                <p class="text-light text-center" style="font-weight:800; font-size:20px;">{(victories / (defeats + victories) * 100).toFixed(1)}%</p>
+                {#if victories != 0 || defeats != 0}
+                    <p class="text-light text-center" style="font-weight:800; font-size:20px;">{(victories / (defeats + victories) * 100).toFixed(1)}%</p>
+                {/if}
             </div>
             <div class="d-flex justify-content-center align-items-center" style="height:30%;">
                 {#if finish}
                     <Pie victories={victories} defeats={defeats}></Pie>
                 {/if}
             </div>
-            <h2 class="text-center p-3 title-profile">Skin</h2>
+            <h2 class="text-center text-light p-3 title-profile">Skin</h2>
+            <!-- <div class="d-flex justify-content-center">
+                <Skin skinName={state.user?.skin}/>
+            </div> -->
         </div>
         <div class="justify-content-center flex-column col-5">
             <h2 class="text-light text-center p-4 m-1 title-profile">History</h2>
@@ -184,15 +195,19 @@
 
 <style>
 
+    @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+
     .img-circle{
         width: 80%;
         height: 80%;
+        min-width: 10.9vw;
+        min-height: 22.6vh;
         object-fit: cover;
         aspect-ratio: 1;
     }
 
     .title-profile {
-        font-family: Nabla;
+        font-family: 'Luckiest Guy';
         font-size: 250%;
     }
 
