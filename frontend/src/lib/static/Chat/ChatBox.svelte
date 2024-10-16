@@ -3,6 +3,7 @@
     import type { Messages } from "$lib/stores/chat";
     import { messages } from "$lib/stores/chat";
     import { beforeUpdate, afterUpdate, onMount } from 'svelte';
+    import { goto } from '$app/navigation';
 
     export let roomId : string;
     export let state : AuthState;
@@ -12,7 +13,7 @@
 
     function joinPrivateGame(gamemode: string, match_id: string) {
         localStorage.setItem('game_id', match_id);
-        window.location.href = `/matchmaking/${gamemode}/private/`;
+        goto(`/matchmaking/${gamemode}/private/`);
     }
 
     onMount(async () => {
