@@ -4,5 +4,4 @@ from .models import ShooterMatch
 class ShooterMatchSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = ShooterMatch
-		fields = [ 'id', 'players', 'elo', 'match_date']
-		
+		fields = [ 'id', 'players', 'scores', 'winner', 'elo', 'match_date']
