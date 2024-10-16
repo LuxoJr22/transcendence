@@ -1,31 +1,30 @@
 <script lang='ts'>
     import { onMount } from 'svelte';
-    import { auth } from '$lib/stores/auth';
+    import { beforeNavigate } from '$app/navigation';
+    import { page } from '$app/stores';
+    import { auth, fetchUser } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
-    import SelfUser from './../selfUser.svelte';
+    import SelfUser from '../selfUser.svelte';
     import type { Profile } from '$lib/stores/user';
     import { profileData, profile } from '$lib/stores/user';
     import OtherUser from '../otherUser.svelte';
 
-    let victories = 15;
-    let defeats = 3;
-    let games = [];
-    
-    let currentUrl : string = window.location.href;
-    let currentUser :string = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
+    $: currentUser = $page.params.id;
+
+    $: {
+        fetchUser();
+        profileData(parseInt(currentUser));
+    }
 
     let state: AuthState;
     $: state = $auth;
 
     let user : Profile;
     $: user = $profile;
-    
-    auth.subscribe((value : AuthState) =>{
-        state = value
-    });
 
     onMount(async () => {
         await profileData(parseInt(currentUser));
+        await fetchUser();
         auth.subscribe((value : AuthState) =>{
             state = value
         });

@@ -33,6 +33,7 @@
         friendList.subscribe((value : friendInterface[]) => {
             listOfFriend = value;
         });
+        console.log('a');
     });
     
     function handleGoto(e : Event, path : string) {

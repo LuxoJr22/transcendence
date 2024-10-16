@@ -1,5 +1,5 @@
 <script lang='ts' >
-    import { afterNavigate } from '$app/navigation';
+    import { afterNavigate, goto } from '$app/navigation';
     import { onDestroy, onMount } from 'svelte';
     import {get} from 'svelte/store';
     import { auth, fetchUser, logout , refresh_token } from '$lib/stores/auth';
@@ -103,9 +103,9 @@
         }
     }
 
-    function handleGoto(e : Event, path : string) {
+    async function handleGoto(e : Event, path : string) {
         e.preventDefault();
-        window.location.href = path;
+        goto(path);
     }
 
     async function getKeyBinds(){
@@ -124,8 +124,7 @@
 		    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
 		});
 		const dat1 = await resp1.json();
-		if (resp.ok)
-		{
+		if (resp.ok){
 			keyBinds[1] = dat1.settings;
 		}
     }
@@ -136,7 +135,7 @@
  {#if $page.url.pathname != "/shooter"}
     <nav class="navbar">
         <div class="container-fluid container-size">
-            <a href="/" class="navbar-item navbar-brand fs-1 layout-title text-warning-subtle ms-4 opacity" on:click={(event) => {handleGoto(event, '/')}}>t r i p l u m</a>
+            <a href="/" class="navbar-item navbar-brand fs-1 layout-title text-warning-subtle ms-4 opacity">t r i p l u m</a>
             <div class="row">
                 <div class="dropdown col-3">
                     <button class="btn" style="text-decoration:none; color:white;" type="button" data-bs-toggle="dropdown" aria-expanded="false" on:click={fetchFriendRequests}>
@@ -173,10 +172,10 @@
                         <img src={state.user?.profile_picture} alt="User profile" class="border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">{state.user?.username}
                     </a>
                     <ul class="dropdown-menu ms-2" style="min-width: 0;">
-                        <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-3" on:click={(event) => {handleGoto(event, '/chat/home')}}><i class="bi-chat pe-2" style="font-size: 1.3rem; color: grey;"></i>chat</button></li>
-                        <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-3" on:click={(event) => {handleGoto(event, '/profile/' + state.user?.id)}}><i class="bi-person-fill pe-2" style="font-size: 1.3rem; color: grey;"></i>profile</button></li>
+                        <li class="border border-2 rounded m-2 button-dropdown"><a class="dropdown-item text-start py-1 px-3" href='/chat/home'><i class="bi-chat pe-2" style="font-size: 1.3rem; color: grey;"></i>chat</a></li>
+                        <li class="border border-2 rounded m-2 button-dropdown"><a class="dropdown-item text-start py-1 px-3" href={'/profile/' + state.user?.id}><i class="bi-person-fill pe-2" style="font-size: 1.3rem; color: grey;"></i>profile</a></li>
                         <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-3" data-bs-toggle="modal" data-bs-target="#settingsModal" on:click={async () => await getKeyBinds()}><i class="bi bi-gear pe-2" style="font-size: 1.3rem; color: grey;"></i>settings</button></li>
-                        <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-danger text-start py-1 px-3" on:click={(event) => {handleGoto(event, '/login')}} on:click={handleLogout}><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</button></li>
+                        <li class="border border-2 rounded m-2 button-dropdown"><a class="dropdown-item text-danger text-start py-1 px-3" href='/login' on:click={handleLogout}><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</a></li>
                     </ul>
                     <Settings state={state} twoFA_data={0} otp_code={''} keyBinds={keyBinds}/>
             </div>
