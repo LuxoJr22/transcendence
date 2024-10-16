@@ -1,5 +1,7 @@
 <script lang='ts'>
     import { onDestroy, onMount } from 'svelte';
+    import { goto } from '$app/navigation';
+    import { page } from '$app/stores'
     import { auth} from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchChatMessages, fetchLatestDiscussion } from '$lib/stores/chat';
@@ -10,12 +12,24 @@
     import PlayButton from '$lib/static/Chat/PlayButton.svelte';
     import ChatBox from '$lib/static/Chat/ChatBox.svelte';
 
-    let roomId : string;
+    $: roomId = $page.params.room;
     let ws : WebSocket;
     let state: AuthState;
     
     state = $auth;
     let newMessage = '';
+
+    $: {
+        roomId;
+        fetchLatestDiscussion();
+        roomId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
+        auth.subscribe((value : AuthState) =>{
+            state = value;
+        });
+        if (roomId != 'home'){
+            createRoom(parseInt(roomId));
+        }
+    }
 
     onMount(async () => {
         await fetchLatestDiscussion();
@@ -24,7 +38,7 @@
             state = value;
         });
         if (parseInt(roomId) == state.user?.id || window.location.href == '/chat')
-            window.location.href = '/chat/home/';
+            goto('/chat/home/');
         else if (roomId != 'home'){
             createRoom(parseInt(roomId));
         }

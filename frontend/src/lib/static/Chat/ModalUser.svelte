@@ -2,6 +2,7 @@
     import { refresh_token } from "$lib/stores/auth";
     import type { Profile } from "$lib/stores/user";
     import { onMount } from "svelte";
+    import { goto } from '$app/navigation';
     import ImgOnline from "../imgOnline.svelte";
     
     let allUser = new Array<Profile>();
@@ -26,7 +27,7 @@
     }
 
     function loadRoom(roomId : number){
-        window.location.href = '/chat/' + (roomId.toString()) + '/'; 
+        goto('/chat/' + (roomId.toString()) + '/'); 
     }
 
     onMount(async () => {

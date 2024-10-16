@@ -8,8 +8,8 @@
 
     export let state : AuthState;
     export let roomId : string;
-    let latestDiscussion : History[];
     
+    let latestDiscussion : History[];
     latestDiscussion = $history;
 
     onMount(() => {
@@ -19,7 +19,7 @@
     })
 
     function loadRoom(roomId : number){
-        window.location.href = '/chat/' + (roomId.toString()) + '/'; 
+        goto('/chat/' + (roomId.toString()) + '/'); 
     }
 </script>
 
