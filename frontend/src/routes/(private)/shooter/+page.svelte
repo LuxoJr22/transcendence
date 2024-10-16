@@ -23,8 +23,8 @@
         auth.subscribe((value : AuthState) =>{
             state = value;
         });
-        var match_id
 
+        var match_id
         const response = await fetch('/api/shooter/create/', {
 		method: 'POST',
 		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
@@ -53,6 +53,9 @@
         var scoreboard = document.getElementById("scoreboard")
         var timer = document.getElementById("timer")
         var table_body = document.getElementById("mytbody")
+        var play_btn = document.getElementById("play_btn")
+        var menu_btn = document.getElementById("menu_btn")
+
 
         var score_cells = []
 
@@ -61,7 +64,7 @@
 
         scene.background = new THREE.Color(0x54A0E4);
 
-
+        var menu_displayed = true;
         
         var bind = {up: 90, down: 83, left:81, right:68, jump:32}
 
@@ -77,8 +80,9 @@
 
 
         var id = 0
+        const loader = new GLTFLoader()
         
-        createmap(scene);
+        createmap(scene, loader);
 
 
         const sh = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.1, 20), flagshader)
@@ -97,40 +101,43 @@
         scene.add(toru)
 
 
-        const loader = new GLTFLoader()
+        
 
         const flag = await loader.loadAsync('src/routes/(private)/shooter/public/f.glb');
         flag.scene.name = 'flag'
         flag.scene.position.set(0, 5, -5);
-        
 
-        const mount = await loader.loadAsync('src/routes/(private)/shooter/public/mountain.glb');
-        //scene.add(mount.scene);
 
-        
-        //mount.scene.children[0].children[0].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
-        //mount.scene.children[0].children[1].geometry.applyMatrix4(new THREE.Matrix4().makeScale(20, 20, 20));
 
 
         var play = new Shooter(bind, 0.15, camera, scene);
         
             //scene.add(play.mesh);
 
-        el.addEventListener('click', function () {
+        play_btn.addEventListener('click',  function() {
             let now = performance.now()
             if (pointerLockActivated && now - pointerLockActivated < 1100)
                 return
+            menu_displayed = false
             el.style.opacity = "0";
             el.style.display = 'none';
             play.cam.lock();
-            
-            
+        });
+
+        menu_btn.addEventListener('click',  function() {
+            window.location.href = '/'
         });
 
 
         play.cam.addEventListener( 'unlock', function () {
             pointerLockActivated = performance.now()
-            el.style.opacity = "0.5";
+            play.controller.xp = 0;
+            play.controller.xn = 0;
+            play.controller.yp = 0;
+            play.controller.yn = 0;
+            menu_displayed = true
+            scoreboard.style.display = 'none'
+            el.style.opacity = "1";
             el.style.display = '';
         } );
 
@@ -142,21 +149,7 @@
 
 
 
-        const amblight = new THREE.AmbientLight( 0xffffff, 0.7 );
-		scene.add( amblight );
 
-        const dl = new THREE.DirectionalLight( 0xffffff, 1.0 );
-        
-        dl.position.set( 0, 100, 0 );
-        dl.target.position.set(0, 0, 0)
-        dl.castShadow = true;
-        scene.add( dl );
-        scene.add( dl.target)
-        var size = 50;
-        dl.shadow.camera.top = size;
-        dl.shadow.camera.bottom = -size;
-        dl.shadow.camera.left = size;
-        dl.shadow.camera.right = -size;
 
         const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
         var canvasSize = {width: (window.innerHeight) * 16 / 9,  height: (window.innerHeight)}
@@ -171,6 +164,12 @@
         ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
         ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
         timer.style.fontSize = canvasSize.height / 10 + "px"
+        play_btn.style.fontSize = canvasSize.height / 15 + "px"
+        play_btn.style.width = canvasSize.width / 3 + "px"
+        play_btn.style.height = canvasSize.height / 10 + "px"
+        menu_btn.style.fontSize = canvasSize.height / 15 + "px"
+        menu_btn.style.width = canvasSize.width / 3 + "px"
+        menu_btn.style.height = canvasSize.height / 10 + "px"
         renderer.shadowMap.enabled = true;
         document.body.appendChild( renderer.domElement );
 
@@ -278,17 +277,24 @@
             ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
             ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
             timer.style.fontSize = canvasSize.height / 10 + "px"
+            play_btn.style.fontSize = canvasSize.height / 15 + "px"
+            play_btn.style.width = canvasSize.width / 3 + "px"
+            play_btn.style.height = canvasSize.height / 10 + "px"
+            menu_btn.style.fontSize = canvasSize.height / 15 + "px"
+            menu_btn.style.width = canvasSize.width / 3 + "px"
+            menu_btn.style.height = canvasSize.height / 10 + "px"
+
 
             
         }
 
         
         function onMouse(event) {
-            if (event.which == 1)
+            if (event.which == 1 && menu_displayed == false)
             {
                 shoot()
             }
-            if (event.which == 3)
+            if (event.which == 3 && menu_displayed == false)
             {
                 jumpBoost()
             }
@@ -483,20 +489,26 @@
 
 
         function onDocumentKeyDown(event) {
-            var keyCode = event.which;
-            play.keydown(keyCode);
-            if (keyCode == 20)
+            if (menu_displayed == false)
             {
-                scoreboard.style.display = 'flex'
-                sortTable()    
+                var keyCode = event.which;
+                play.keydown(keyCode);
+                if (keyCode == 20)
+                {
+                    scoreboard.style.display = 'flex'
+                    sortTable()    
+                }
             }
         };
 
         function onDocumentKeyUp(event) {
-            var keyCode = event.which;
-            play.keyup(keyCode);
-            if (keyCode == 20)
-                scoreboard.style.display = 'none'
+            if (menu_displayed == false)
+            {
+                var keyCode = event.which;
+                play.keyup(keyCode);
+                if (keyCode == 20)
+                    scoreboard.style.display = 'none'
+            }
         };
 
         //#endregion
@@ -579,7 +591,7 @@
 		position: absolute;
 		width: 100%;
 		height: 100%;
-		background-color: rgba(0,0,0,0.3);
+		background-color: rgba(0,0,0,0.4);
 	}
     #crosshair {
         position: absolute;
@@ -614,7 +626,7 @@
 
     .text {
 		font-family: "Luckiest Guy", cursive;
-  		font-weight: 400;
+        pointer-events: none;
   		font-style: normal;
 		color:white;
 		font-size: 70px;
@@ -623,6 +635,15 @@
 		-2px 2px 0 #000,
 		-2px -2px 0 #000,
 		2px -2px 0 #000;
+	}
+
+    .text_menu {
+		font-family: "Luckiest Guy", cursive;
+  		font-style: normal;
+		color:white;
+        padding: 0%;
+		font-size: 40px;
+        margin-top: 0%;
 	}
 
 
@@ -647,6 +668,7 @@
     table {
         border: 1px solid rgba(0,0,0,0);
         color: white;
+        z-index: 4;
     }
     :global(tr > td:nth-child(even)) {
       background-color: rgba(255, 101, 101, 0.7);
@@ -662,11 +684,16 @@
 
         background-color: rgba(54, 54, 54, 0.7);
     }
+    th:first-child{
+        width: 100px;
+    }
 
 </style>
 
 <div id="ui">
-    <div id="blocker">
+    <div id="blocker" class="d-flex align-items-center flex-column ">
+        <button class="btn btn-dark btn-lg border m-0 p-0 mb-1 position-relative text_menu" style="top:45%" id="play_btn">Play</button>
+        <button class="btn btn-dark btn-lg border m-0 p-0 mb-1 position-relative text_menu" style="top:45%" id="menu_btn">BACK TO MENU</button>
     </div>
     <div>
         <img id="flagicon" alt="flag" src="src/routes/(private)/shooter/public/flag.png"/>

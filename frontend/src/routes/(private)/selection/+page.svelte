@@ -6,7 +6,7 @@
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 	import { SkeletonCollider } from "./skeletoncollider.js"
-	import { auth } from '$lib/stores/auth';
+	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 
 	let state: AuthState;
@@ -15,6 +15,7 @@
 	let canvas;
 
 	onMount(() => { (async () => {
+		await fetchUser()
 		auth.subscribe((value : AuthState) =>{
             state = value;
         });
