@@ -50,11 +50,8 @@ class PrivateMatchmakingConsumer(WebsocketConsumer):
 		self.accept()
 		
 		if self.matchmaking_room.users_online.count() >= 2:
-			qs = self.matchmaking_room.users_online.all()
-			values = [item.id for item in qs]
-
-			self.player1 = values[0]
-			self.player2 = values[1]
+			self.player1 = self.pongmatch.player1
+			self.player2 = self.pongmatch.player2
 
 			dictio[f'{self.gamemode}_{self.game_id}'] = Game(self.gamemode, self.pongmatch.id, self.player1, self.player2)
 
