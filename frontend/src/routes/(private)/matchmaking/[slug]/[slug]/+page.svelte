@@ -2,6 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
+	import Waiting from '$lib/static/Matchmaking/Waiting.svelte';
 
 	let state: AuthState;
 	$: $auth, state = $auth;
@@ -65,4 +66,7 @@
 
 <div class="container-fluid">
 	<p style="color: white">WAITING FOR OPONENT</p>
+</div>
+<div class="d-flex justify-content-center">
+	<Waiting skinName={state.user?.skin}/>
 </div>

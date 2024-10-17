@@ -44,10 +44,6 @@
 			bind = dat.settings
 		}
 		
-
-
-
-
 		var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 16 * 9}
 		var winner = 0
 

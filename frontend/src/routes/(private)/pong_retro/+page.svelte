@@ -10,15 +10,36 @@
 	import { Player } from "./player.js";
 	import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 	import {CrtShader} from "./crtShader.js";
+	import { auth, fetchUser } from '$lib/stores/auth';
+	import type { AuthState } from '$lib/stores/auth';
 
 	var pongSocket: WebSocket;
 	let canvas;
 	var scoring = 0;
+	let state: AuthState;
+	$: $auth, state = $auth;
 
 	onMount(() => { (async () => {
+		await fetchUser()
+		auth.subscribe((value : AuthState) =>{
+            state = value;
+        });
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
 		scene.background = new THREE.Color(0x000000);
+
+
+		var skins
+		const response = await fetch('/api/pong/skins/' + localStorage.getItem('game_id'), {
+		method: 'GET',
+		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		});
+		const data = await response.json();
+		if (response.ok)
+		{
+			skins = data
+		}
+
 
 		
 		var bind = {up: 90, down: 83, left:81, right:68, charge:32}
@@ -32,7 +53,13 @@
 		var ui = document.getElementById("ui");
 		var score1 = document.getElementById("player1")
 		var score2 = document.getElementById("player2")
+		var name1 = document.getElementById("player1_name")
+		var name2 = document.getElementById("player2_name")
 		var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 16 * 9}
+
+
+		name1.textContent = skins["player1"]["username"]
+		name2.textContent = skins["player2"]["username"]
 
 		//#region LoadModel
 
@@ -148,6 +175,8 @@
         ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		score1.style.fontSize = canvasSize.height / 10 + "px"
 		score2.style.fontSize = canvasSize.height / 10 + "px"
+		name1.style.fontSize = canvasSize.height / 15 + "px"
+		name2.style.fontSize = canvasSize.height / 15 + "px"
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
 
@@ -236,6 +265,8 @@
             ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 			score1.style.fontSize = canvasSize.height / 10 + "px"
 			score2.style.fontSize = canvasSize.height / 10 + "px"
+			name1.style.fontSize = canvasSize.height / 15 + "px"
+			name2.style.fontSize = canvasSize.height / 15 + "px"
 		}
 
 		function onDocumentKeyDown(event) {
@@ -504,8 +535,10 @@
 
 <div id="ui">
 	<div id="score">
+		<span class="text" id="player1_name"></span>
 		<span class="text" id="player1">0</span>
 		<span class="text" id="player2">0</span>
+		<span class="text" id="player2_name"></span>
 	</div>
 </div>
 
