@@ -2,11 +2,9 @@
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-	import { auth, fetchUser } from '$lib/stores/auth';
-	import type { AuthState } from '$lib/stores/auth';
 	
     export let skinName = '';
-    let canvas;
+    let canvas : HTMLCanvasElement;
 
 	onMount(() => { (async () => {
 		const scene = new THREE.Scene();

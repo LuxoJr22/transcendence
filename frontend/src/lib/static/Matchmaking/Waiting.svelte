@@ -52,14 +52,14 @@
 		var gloves = document.getElementById("gloves_ui");
 
 		var ui = document.getElementById("ui");
-		ui.style.width = canvasSize.width + "px";
-		ui.style.height = canvasSize.height + "px";
+		ui!.style.width = canvasSize.width + "px";
+		ui!.style.height = canvasSize.height + "px";
 
 		window.onresize = function(event){
 			canvasSize.width = window.innerWidth * 0.7
 			canvasSize.height = window.innerWidth * 0.7 / 2 * 1
-			ui.style.width = canvasSize.width + "px";
-       		ui.style.height = canvasSize.height + "px";
+			ui!.style.width = canvasSize.width + "px";
+       		ui!.style.height = canvasSize.height + "px";
 			top = renderer.domElement.getBoundingClientRect().top
 			l = renderer.domElement.getBoundingClientRect().left
 			renderer.setSize( canvasSize.width, canvasSize.height);
