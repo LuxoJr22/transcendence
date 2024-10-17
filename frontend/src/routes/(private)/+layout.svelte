@@ -1,5 +1,5 @@
 <script lang='ts' >
-    import { goto } from '$app/navigation';
+    import { goto, afterNavigate } from '$app/navigation';
     import { onMount } from 'svelte';
     import {get} from 'svelte/store';
     import { auth, fetchUser, logout , refresh_token } from '$lib/stores/auth';
@@ -19,7 +19,7 @@
 
     let notifications = new Array<Notifications>();
     let navBarNotifications = new Array<Notifications>();
-
+    $: currentUrl = $page.url.pathname;
 	let state: AuthState;
 	$: $auth, state = $auth;
 
@@ -36,6 +36,18 @@
         navBarNotifications.push(data);
         return (navBarNotifications);
     }
+
+    afterNavigate(async () => {
+        let token = localStorage.getItem('access_token');
+        if (currentUrl != '/login' && currentUrl != '/register' && !token){
+            await refresh_token();
+            let tmp = localStorage.getItem('access_token');
+            if (!tmp){
+                logout();
+                goto('/login');
+            }
+        }
+    })
 
     let wsOnline : WebSocket;
     onMount( async () => {

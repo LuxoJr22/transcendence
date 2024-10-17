@@ -10,6 +10,7 @@
 	import { Player } from "./player.js";
 	import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 	import {CrtShader} from "./crtShader.js";
+	import { goto } from '$app/navigation';
 
 	var pongSocket: WebSocket;
 	let canvas;
@@ -113,7 +114,6 @@
 		scene.add( sphere );
 
 		let spherebb = new THREE.Sphere(sphere.position, 1);
-
 
 		const textur = new THREE.TextureLoader().load( "src/routes/(private)/pong_retro/public/suhd.png" );
 		textur.wrapS = THREE.RepeatWrapping;
@@ -334,7 +334,7 @@
 		}
 
 		pongSocket.onclose = function(e) {
-			window.location.href = '/';
+			goto('/');
 		}
 
 		//#endregion

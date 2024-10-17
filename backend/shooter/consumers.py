@@ -103,8 +103,6 @@ class ShooterConsumer(WebsocketConsumer):
 			self.game.timer += dt 
 		else:
 			self.game.timer -= dt
-		
-		del self.shootermatch.winner 
 		if (self.game.game_state == FINISHED and self.shootermatch.winner == None):
 			newlist = sorted(self.game.players, key=operator.itemgetter('score', 'kill', 'death', 'id'), reverse=True)
 			self.shootermatch.winner = newlist[0]['id']

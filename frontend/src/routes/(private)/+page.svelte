@@ -20,8 +20,7 @@
 		let tmp = null;
 		for (let game of games){
 			if (game.checked){
-				// goto((game.id == "shooter" ? '/shooter' : "/matchmaking/" + game.id + "/public/"));
-				window.location.href = '/shooter'
+				goto((game.id == "shooter" ? '/shooter' : "/matchmaking/" + game.id + "/public/"));
 				break ;
 			}
 		}
