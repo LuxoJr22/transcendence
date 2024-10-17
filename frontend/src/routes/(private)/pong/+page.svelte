@@ -8,6 +8,7 @@
 	import { Firework } from './firework.js';
 	import { auth } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
+	import { goto } from '$app/navigation';
 
 	let state: AuthState;
 	$: $auth, state = $auth;
@@ -482,7 +483,7 @@
 		}
 
 		pongSocket.onclose = function(e) {
-			window.location.href = '/';
+			goto('/');
 		}
 
 

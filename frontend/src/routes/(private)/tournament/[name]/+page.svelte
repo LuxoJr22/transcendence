@@ -1,6 +1,8 @@
 <script lang="ts">
     import ImgOnline from "$lib/static/imgOnline.svelte";
-import { onDestroy } from "svelte";
+	import { onDestroy } from "svelte";
+	import {beforeNavigate, goto } from '$app/navigation';
+
 
 	let currentUrl : string = window.location.href;
 	var tournament_name = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
@@ -31,12 +33,12 @@ import { onDestroy } from "svelte";
 		if (data.event == "Match")
 		{
 			localStorage.setItem('game_id', data.game_id);
-			window.location.href = '/matchmaking/pong/private';
+			goto('/matchmaking/pong/private');
 		}
 	}
 
 	chatSocket.onclose = function(e) {
-			window.location.href = '/tournament';
+			goto('/tournament');
 		}
 
 
@@ -166,7 +168,7 @@ import { onDestroy } from "svelte";
 		return( bracket)
 	}
 
-	onDestroy(() => {
+	beforeNavigate(() => {
 		if (chatSocket)
 			chatSocket.close()
 	})

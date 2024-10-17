@@ -11,14 +11,32 @@
     import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
     import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
+    import { goto, beforeNavigate, afterNavigate } from '$app/navigation';
+    import Block from '$lib/static/Profile/Block.svelte';
 
 	let state: AuthState;
 	$: $auth, state = $auth;
     var chatSocket: WebSocket;
+    let i = false;
+
+
+    window.onbeforeunload = () => {
+        console.log('Page is refreshing or closing');
+        if (chatSocket) {
+            chatSocket.close();
+            chatSocket = null;
+        }
+    };
 
     // let canvas;
 
-    onMount(() => { (async () => {
+    afterNavigate(() => { (async () => {
+        if (!i){
+            i = true;
+        }
+        else
+            return ;
+        console.log('a');
         await fetchUser();
         auth.subscribe((value : AuthState) =>{
             state = value;
@@ -125,7 +143,9 @@
         });
 
         menu_btn.addEventListener('click',  function() {
-            window.location.href = '/'
+            if (chatSocket)
+                chatSocket.close();
+            goto('/');
         });
 
 
@@ -358,7 +378,8 @@
         }
 
         let url = '/ws/shooter/shooter_' + match_id + '/?token=' + localStorage.getItem('access_token');
-		chatSocket = new WebSocket(url)
+        
+        chatSocket = new WebSocket(url);
         
 		chatSocket.onmessage = function(e) {
 	
@@ -473,7 +494,7 @@
                 play.cam.getObject().rotation.z = data.rotation.z
             }
             if (data.event == "Quit")
-                window.location.href = '/';
+                goto('/');
 		}
 
         function timer_update(totalSeconds)
@@ -573,10 +594,11 @@
     })();
     });
 
-    onDestroy(() => {
+    beforeNavigate(() => {
 		if (chatSocket)
             chatSocket.close()
 	})
+
 </script>
 
 <style>

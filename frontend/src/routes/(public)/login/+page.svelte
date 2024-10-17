@@ -40,7 +40,7 @@
             twoFaWith42 = true;
         }
         if (status == 'success'){
-            window.location.href= '/';
+            goto('/');
         }
         else{
             goto('/login');
