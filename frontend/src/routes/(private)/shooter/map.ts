@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export async function createmap(scene, loader)
+export async function createmap(scene : THREE.Object3D, loader : GLTFLoader)
 {
 	const map = await loader.loadAsync('src/lib/assets/maps/shooter/map.glb');
 	map.scene.rotation.y = Math.PI / 2
@@ -9,7 +9,7 @@ export async function createmap(scene, loader)
 
 	map.scene.castShadow = true;
 	map.scene.receiveShadow = true;
-	map.scene.traverse( function( child ) { 
+	map.scene.traverse( function( child : THREE.Object3D ) { 
 
 		if ( child.isMesh ) {
 	

@@ -1,14 +1,10 @@
 <script lang="ts">
-    import { onMount, onDestroy } from 'svelte';
-    import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { Shooter } from "./shooter.js";
-    import { Player } from "./player.js";
-    import { flagshader } from "./flagshader.js";
-    import { createmap } from "./map.js"
-    import { SkeletonCollider } from "./skeletoncollider.js"
-    import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
+    import { Shooter } from "./shooter";
+    import { Player } from "./player";
+    import { flagshader } from "./flagshader";
+    import { createmap } from "./map"
     import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
     import { goto, beforeNavigate, afterNavigate } from '$app/navigation';
@@ -16,7 +12,7 @@
 
 	let state: AuthState;
 	$: $auth, state = $auth;
-    var chatSocket: WebSocket;
+    var chatSocket: WebSocket | null;
     let i = false;
 
 
@@ -28,7 +24,6 @@
         }
     };
 
-    // let canvas;
 
     afterNavigate(() => { (async () => {
         if (!i){
@@ -36,7 +31,6 @@
         }
         else
             return ;
-        console.log('a');
         await fetchUser();
         auth.subscribe((value : AuthState) =>{
             state = value;
@@ -70,14 +64,14 @@
         var ficon = document.getElementById("flagicon");
         var scoreboard = document.getElementById("scoreboard")
         var timer = document.getElementById("timer")
-        var table_body = document.getElementById("mytbody")
+        var table_body : HTMLTableElement = document.getElementById("mytbody")! as HTMLTableElement
         var play_btn = document.getElementById("play_btn")
         var menu_btn = document.getElementById("menu_btn")
 
 
-        var score_cells = []
+        var score_cells : HTMLElement[] = []
 
-        var players = []
+        var players : Player[] = []
 
 
         scene.background = new THREE.Color(0x54A0E4);
@@ -132,17 +126,17 @@
         
             //scene.add(play.mesh);
 
-        play_btn.addEventListener('click',  function() {
+        play_btn!.addEventListener('click',  function() {
             let now = performance.now()
             if (pointerLockActivated && now - pointerLockActivated < 1100)
                 return
             menu_displayed = false
-            el.style.opacity = "0";
-            el.style.display = 'none';
+            el!.style.opacity = "0";
+            el!.style.display = 'none';
             play.cam.lock();
         });
 
-        menu_btn.addEventListener('click',  function() {
+        menu_btn!.addEventListener('click',  function() {
             if (chatSocket)
                 chatSocket.close();
             goto('/');
@@ -156,9 +150,9 @@
             play.controller.yp = 0;
             play.controller.yn = 0;
             menu_displayed = true
-            scoreboard.style.display = 'none'
-            el.style.opacity = "1";
-            el.style.display = '';
+            scoreboard!.style.display = 'none'
+            el!.style.opacity = "1";
+            el!.style.display = '';
         } );
 
         scene.add(play.cam.getObject());
@@ -179,17 +173,17 @@
             canvasSize.height =  (window.innerWidth) * 9 / 16
         }
         renderer.setSize( canvasSize.width, canvasSize.height);
-        ui.style.width = canvasSize.width + "px";
-        ui.style.height = canvasSize.height + "px";
-        ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
-        ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
-        timer.style.fontSize = canvasSize.height / 10 + "px"
-        play_btn.style.fontSize = canvasSize.height / 15 + "px"
-        play_btn.style.width = canvasSize.width / 3 + "px"
-        play_btn.style.height = canvasSize.height / 10 + "px"
-        menu_btn.style.fontSize = canvasSize.height / 15 + "px"
-        menu_btn.style.width = canvasSize.width / 3 + "px"
-        menu_btn.style.height = canvasSize.height / 10 + "px"
+        ui!.style.width = canvasSize.width + "px";
+        ui!.style.height = canvasSize.height + "px";
+        ui!.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+        ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+        timer!.style.fontSize = canvasSize.height / 10 + "px"
+        play_btn!.style.fontSize = canvasSize.height / 15 + "px"
+        play_btn!.style.width = canvasSize.width / 3 + "px"
+        play_btn!.style.height = canvasSize.height / 10 + "px"
+        menu_btn!.style.fontSize = canvasSize.height / 15 + "px"
+        menu_btn!.style.width = canvasSize.width / 3 + "px"
+        menu_btn!.style.height = canvasSize.height / 10 + "px"
         renderer.shadowMap.enabled = true;
         document.body.appendChild( renderer.domElement );
 
@@ -202,9 +196,9 @@
         document.addEventListener("keyup", onDocumentKeyUp, false);
         document.addEventListener("mousedown", onMouse, false);
 
-        const gamepads = {};
+        const gamepads : { [id: number]: Gamepad} = {}
 
-        function gamepadHandler(event, connected) {
+        function gamepadHandler(event : GamepadEvent, connected : boolean) {
         const gamepad = event.gamepad;
 
         if (connected) {
@@ -214,7 +208,7 @@
         }
         }
 
-        function handlebuttons(buttons)
+        function handlebuttons(buttons : Gamepad["buttons"])
         {
             if (buttons[0].value > 0)
                 play.controller.jump = 1;
@@ -231,7 +225,7 @@
         camera.rotation.order = "YXZ"
 
 
-        function handlesticks(axes)
+        function handlesticks(axes : Gamepad["axes"])
         {
             if (axes[0] < -0.2)
                 play.controller.xn = axes[0] * xSpeed;
@@ -292,24 +286,24 @@
             }
 
             renderer.setSize( canvasSize.width, canvasSize.height);
-            ui.style.width = canvasSize.width + "px";
-            ui.style.height = canvasSize.height + "px";
-            ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
-            ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
-            timer.style.fontSize = canvasSize.height / 10 + "px"
-            play_btn.style.fontSize = canvasSize.height / 15 + "px"
-            play_btn.style.width = canvasSize.width / 3 + "px"
-            play_btn.style.height = canvasSize.height / 10 + "px"
-            menu_btn.style.fontSize = canvasSize.height / 15 + "px"
-            menu_btn.style.width = canvasSize.width / 3 + "px"
-            menu_btn.style.height = canvasSize.height / 10 + "px"
+            ui!.style.width = canvasSize.width + "px";
+            ui!.style.height = canvasSize.height + "px";
+            ui!.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+            ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+            timer!.style.fontSize = canvasSize.height / 10 + "px"
+            play_btn!.style.fontSize = canvasSize.height / 15 + "px"
+            play_btn!.style.width = canvasSize.width / 3 + "px"
+            play_btn!.style.height = canvasSize.height / 10 + "px"
+            menu_btn!.style.fontSize = canvasSize.height / 15 + "px"
+            menu_btn!.style.width = canvasSize.width / 3 + "px"
+            menu_btn!.style.height = canvasSize.height / 10 + "px"
 
 
             
         }
 
         
-        function onMouse(event) {
+        function onMouse(event : MouseEvent) {
             if (event.which == 1 && menu_displayed == false)
             {
                 shoot()
@@ -333,7 +327,7 @@
                     play.sphere.position.set(intersects[i].point.x, intersects[i].point.y ,intersects[i].point.z );
                     if (play.target.includes(intersects[i].object))
                     {
-                        chatSocket.send(JSON.stringify({
+                        chatSocket!.send(JSON.stringify({
                         'event':'hit',
                         'id':id,
                         'target':intersects[i].object.userData.id
@@ -368,7 +362,7 @@
             }
         }
 
-        async function createPlayer(play_id, skin) {
+        async function createPlayer(play_id : number, skin : string) {
             const gl = await loader.loadAsync('src/lib/assets/skins/' + skin);
             gl.scene.position.set(10, 0, -1.5);
             gl.scene.scale.set(0.5, 0.5, 0.5);
@@ -394,12 +388,12 @@
                 {
                     if (i != id - 1)
                         createPlayer(i, data.players[i].skin)
-                    var row = table_body.insertRow()
+                    var row = table_body!.insertRow()
                     var usercell = row.insertCell(0)
                     var scorecell = row.insertCell(1)
 
                     usercell.innerHTML = data.players[i].username
-                    scorecell.innerHTML = Math.round(data.players[i].score)
+                    scorecell.innerHTML = `${Math.round(data.players[i].score)}`
                     score_cells.push(scorecell)
                     i ++;
                 }
@@ -410,7 +404,7 @@
                 camera.rotation.y = data.rotation.y;
                 camera.rotation.z = data.rotation.z;
 
-                chatSocket.send(JSON.stringify({
+                chatSocket!.send(JSON.stringify({
 					'event':'frame',
 					'player':[play.cam.getObject().position, play.direction],
                     'controller':play.controller,
@@ -423,7 +417,7 @@
                 while (players[i])
                 {
                     if (players[i].id == data.id - 1) {
-                        players[i].target.forEach(el => {scene.remove(el)})
+                        players[i].target.forEach((el : THREE.Object3D) => {scene.remove(el)})
                         players[i].mesh.geometry = undefined
                         players[i].mesh.material = undefined
                         scene.remove(players[i].mesh)
@@ -433,23 +427,23 @@
                 }
                 createPlayer(data.id - 1, data.players[data.id - 1].skin)
 
-                var row = table_body.insertRow()
+                var row = table_body!.insertRow()
                 var usercell = row.insertCell(0)
                 var scorecell = row.insertCell(1)
                 usercell.innerHTML = data.players[id].username
-                scorecell.innerHTML = Math.round(data.players[id].score)
+                scorecell.innerHTML = `${Math.round(data.players[id].score)}`
                 score_cells.push(scorecell)
             }
             if (data.event == 'Flag_picked')
             {
                 if (data.id == id)
-                    ficon.style.display = "block";
+                    ficon!.style.display = "block";
                 scene.remove(flag.scene);
             }
             if (data.event == 'Flag_dropped')
             {
                 if (data.id == id)
-                    ficon.style.display = "none";
+                    ficon!.style.display = "none";
                 scene.add(flag.scene);
                 scene.add(sh)
                 scene.add(tor)
@@ -473,11 +467,11 @@
                         players[i].controller = data.players[actid].controller
                         
                     }
-                    score_cells[actid].innerHTML = Math.round(data.players[actid].score)
+                    score_cells[actid].innerHTML = `${Math.round(data.players[actid].score)}`
                     i ++;
                 }
-                score_cells[id - 1].innerHTML = Math.round(data.players[id - 1].score)
-				chatSocket.send(JSON.stringify({
+                score_cells[id - 1].innerHTML = `${Math.round(data.players[id - 1].score)}`
+				chatSocket!.send(JSON.stringify({
 					'event':'frame',
 					'player':[play.cam.getObject().position, play.direc],
                     'controller':play.controller,
@@ -497,7 +491,7 @@
                 goto('/');
 		}
 
-        function timer_update(totalSeconds)
+        function timer_update(totalSeconds : number)
         {
             if (totalSeconds < 0)            
                 totalSeconds = 0
@@ -506,42 +500,42 @@
             let secondsOnes = seconds % 10;
             let minutes = Math.floor(totalSeconds / 60);
 
-            timer.innerHTML = "" + minutes + ":" + secondsTens + secondsOnes;
+            timer!.innerHTML = "" + minutes + ":" + secondsTens + secondsOnes;
         }
 
 
-        function onDocumentKeyDown(event) {
+        function onDocumentKeyDown(event : KeyboardEvent) {
             if (menu_displayed == false)
             {
                 var keyCode = event.which;
                 play.keydown(keyCode);
                 if (keyCode == 20)
                 {
-                    scoreboard.style.display = 'flex'
+                    scoreboard!.style.display = 'flex'
                     sortTable()    
                 }
             }
         };
 
-        function onDocumentKeyUp(event) {
+        function onDocumentKeyUp(event : KeyboardEvent) {
             if (menu_displayed == false)
             {
                 var keyCode = event.which;
                 play.keyup(keyCode);
                 if (keyCode == 20)
-                    scoreboard.style.display = 'none'
+                    scoreboard!.style.display = 'none'
             }
         };
 
         //#endregion
 
         function sortTable(){
-            var tableData = document.getElementById("score_table").getElementsByTagName('tbody').item(0);
-            var rowData = tableData.getElementsByTagName('tr');
+            var tableData = document.getElementById("score_table")!.getElementsByTagName('tbody').item(0);
+            var rowData = tableData!.getElementsByTagName('tr');
             for(var i = 0; i < rowData.length - 1; i++){
                 for(var j = 0; j < rowData.length - (i + 1); j++){
-                    if(Number(rowData.item(j).getElementsByTagName('td').item(1).innerHTML.replace(/[^0-9\.]+/g, "")) < Number(rowData.item(j+1).getElementsByTagName('td').item(1).innerHTML.replace(/[^0-9\.]+/g, ""))){
-                        tableData.insertBefore(rowData.item(j+1),rowData.item(j));
+                    if(Number(rowData.item(j)!.getElementsByTagName('td').item(1)!.innerHTML.replace(/[^0-9\.]+/g, "")) < Number(rowData.item(j+1)!.getElementsByTagName('td').item(1)!.innerHTML.replace(/[^0-9\.]+/g, ""))){
+                        tableData!.insertBefore(rowData.item(j+1)!,rowData.item(j));
                     }
                 }
             }
@@ -557,7 +551,7 @@
             t += dt;
             if (gamepads[0])
             {
-                gamepads[0] = navigator.getGamepads()[0]
+                gamepads[0] = navigator.getGamepads()[0]!
                 handlebuttons(gamepads[0].buttons)
                 handlesticks(gamepads[0].axes)
             }
@@ -568,12 +562,12 @@
             if (reload > 0)
             {
                 reload -= dt * 400;
-                circle.style.background = `conic-gradient(#cccccc ${360 - reload}deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
+                circle!.style.background = `conic-gradient(#cccccc ${360 - reload}deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
             }
             else
             {
                 reload = 0;
-                circle.style.background = `conic-gradient(#cccccc 0deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
+                circle!.style.background = `conic-gradient(#cccccc 0deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
             }
             play.update(dt);
             players.forEach(element => {
