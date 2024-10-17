@@ -37,22 +37,9 @@ export class Player {
 		this.left = this.mesh.getObjectByName("Bone003L");
 		this.right = this.mesh.getObjectByName("Bone003R");
 		this.bone = this.mesh.getObjectByName("Bone");
-		// this.gamepad = 0;
-		// this.point = 0;
-		// this.dir = 0;
-
-		// this.animleg = 0
-
-		// this.canmove = 1;
-		// this.charging = 1;
-		// this.knockback = 0;
 	
 		this.limit = limit;
 		this.bind = bind;
-		// this.charge = 0;
-
-		// this.controller = {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
-		// this.controllanims = {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
 	}
 	update () {
 		this.knockback = THREE.MathUtils.lerp(this.knockback, 0, 0.1)
