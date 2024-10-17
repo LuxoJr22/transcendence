@@ -36,7 +36,7 @@
             }
     }
 
-    async function go_to_tournament(id){
+    async function go_to_tournament(id : number){
         goto(`/tournament/${id}`);
     }
 

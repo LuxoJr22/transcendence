@@ -5,14 +5,14 @@
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
-	import { SkeletonCollider } from "./skeletoncollider.js"
+	import { SkeletonCollider } from "./skeletoncollider"
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 
 	let state: AuthState;
 	$: $auth, state = $auth;
 
-	let canvas;
+	let canvas : HTMLCanvasElement;
 
 	onMount(() => { (async () => {
 		await fetchUser()
@@ -33,7 +33,7 @@
 
 		const loader = new GLTFLoader()
 
-		var bots = [];
+		var bots : Bot[] = [];
 
 		const pop = await loader.loadAsync('src/lib/assets/skins/vazy.glb');
 		pop.scene.scale.set(0.5, 0.5, 0.5);
@@ -59,7 +59,7 @@
 		var rotating_skin : THREE.Object3D;
 
 		bots.forEach(el => {
-			if (el.name == state.user.skin)
+			if (el.name == state.user!.skin)
 			{
 				rotating_skin = SkeletonUtils.clone(el.mesh);
 				rotating_skin.getObjectByName("Bone003L").rotation.set(0, 0, 0);
@@ -97,10 +97,10 @@
 
 		const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
 		renderer.setSize( canvasSize.width, canvasSize.height);
-		ui.style.width = canvasSize.width + "px";
-        ui.style.height = canvasSize.height + "px";
-        ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
-        ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+		ui!.style.width = canvasSize.width + "px";
+        ui!.style.height = canvasSize.height + "px";
+        ui!.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+        ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		var top = renderer.domElement.getBoundingClientRect().top
 		var left = renderer.domElement.getBoundingClientRect().left
 		renderer.shadowMap.enabled = true;
@@ -119,73 +119,14 @@
 		scene.add(plan)
 		plan.visible = false
 
-		const gamepads = {};
-
-		function gamepadHandler(event, connected) {
-		const gamepad = event.gamepad;
-
-		if (connected) {
-			gamepads[gamepad.index] = gamepad;
-		} else {
-			delete gamepads[gamepad.index];
-		}
-		}
-
-		function handlebuttons(buttons)
-		{
-			if (buttons[0].value > 0)
-				play.controller.charge = 1;
-			if (buttons[0].value == 0)
-				play.controller.charge = 0;
-		}
-
-		var xSpeed = 0.15, ySpeed = 0.15;
-
-		function handlesticks(axes)
-		{
-			if (axes[0] < -0.2)
-				play.controller.xn = axes[0] * xSpeed;
-			else
-				play.controller.xn = 0;
-			if (axes[0] > 0.2)
-				play.controller.xp = axes[0] * xSpeed;
-			else
-				play.controller.xp = 0;
-
-			if (axes[1] < -0.2)
-				play.controller.yn = -axes[1] * ySpeed;
-			else
-				play.controller.yn = 0;
-			if (axes[1] > 0.2)
-				play.controller.yp = -axes[1] * ySpeed;
-			else
-				play.controller.yp = 0;
-		}
-
-		window.addEventListener(
-		"gamepadconnected",
-		(e) => {
-			gamepadHandler(e, true);
-		},
-		false,
-		);
-
-		window.addEventListener(
-		"gamepaddisconnected",
-		(e) => {
-			gamepadHandler(e, false);
-		},
-		false,
-		);
-
 		window.onresize = function(event){
 			canvasSize.width = window.innerWidth * 0.7
 			canvasSize.height = window.innerWidth * 0.7 / 16 * 9
 			renderer.setSize( canvasSize.width, canvasSize.height);
-			ui.style.width = canvasSize.width + "px";
-        	ui.style.height = canvasSize.height + "px";
-        	ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
-        	ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+			ui!.style.width = canvasSize.width + "px";
+        	ui!.style.height = canvasSize.height + "px";
+        	ui!.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+        	ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 			top = renderer.domElement.getBoundingClientRect().top
 			left = renderer.domElement.getBoundingClientRect().left
 		}
@@ -195,9 +136,9 @@
 		const raycaster = new THREE.Raycaster()
 		const clickmouse = new THREE.Vector2()
 		const moveMouse = new THREE.Vector2()
-		var draggable = null
+		var draggable : Bot | null
 
-		whistle.addEventListener('click', (e) => {
+		whistle!.addEventListener('click', (e) => {
 			var i = 0
 			while (bots[i])
 			{
@@ -242,7 +183,7 @@
 					draggable.targetx = found[i].point.x 
 					draggable.targetz = found[i].point.z
 					draggable.moving = 0;
-					ui.style.cursor = "url('src/routes/(private)/selection/public/hand.png'), auto";
+					ui!.style.cursor = "url('src/routes/(private)/selection/public/hand.png'), auto";
 
 					draggable = null
 				}
@@ -265,7 +206,7 @@
 					{
 						
 						draggable = bots[i]
-						ui.style.cursor = "url('src/routes/(private)/selection/public/closedHand.png'), auto";
+						ui!.style.cursor = "url('src/routes/(private)/selection/public/closedHand.png'), auto";
 						draggable.throwed = 0 
 						bots[i].ispicked = 1
 						const response = await fetch('/api/user/skin/update/', {
@@ -315,7 +256,6 @@
 		function animate() {
 			dragObject()
 			requestAnimationFrame( animate );
-			//controls.update();
 			const dt = clock.getDelta();
 			t += dt;
 			bots.forEach(element => {
@@ -323,13 +263,6 @@
 			});
 			if (rotating_skin)
 				rotating_skin.rotation.y += 0.2 * dt
-			if (gamepads[0])
-			{
-				gamepads[0] = navigator.getGamepads()[0]
-				handlebuttons(gamepads[0].buttons)
-				handlesticks(gamepads[0].axes)
-			}
-			frames ++;
 			renderer.render( scene, camera );
 		}
 		animate();
@@ -374,7 +307,7 @@
 
 <div id="ui">
 	<div id="whistle">
-		<img src="src/routes/(private)/selection/public/whistle4.png"/>
+		<img alt="whistle logo" src="src/routes/(private)/selection/public/whistle4.png"/>
 	</div>
 </div>
 
