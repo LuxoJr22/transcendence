@@ -17,7 +17,7 @@
 
 
 	chatSocket.onmessage = function(e) {
-	
+		
 		let data = JSON.parse(e.data)
 		if (data.event == "Connection")
 		{
@@ -38,14 +38,15 @@
 	}
 
 	chatSocket.onclose = function(e) {
+		if (e.code != 1000)
 			goto('/tournament');
-		}
+	}
 
 
 	function start_match() {
 		chatSocket.send(JSON.stringify({
-				'event':'Match_button',
-			}))
+			'event':'Match_button',
+		}))
 	}
 
 	function create_match(position : string, name, score)
