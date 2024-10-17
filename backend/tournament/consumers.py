@@ -16,10 +16,11 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 		self.room_group_name = f'tournament_{self.tournament_name}'
 		self.user = self.scope['user']
 
+		self.accept()
 		try:
 			self.tournament_room = get_object_or_404(Tournament, name=self.tournament_name)
 		except:
-			self.disconnect(0)
+			return self.close(3000)
 
 
 		async_to_sync(self.channel_layer.group_add)(
@@ -33,7 +34,7 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 		if self.user not in self.tournament_room.users_online.all():
 			self.tournament_room.users_online.add(self.user)
 
-		self.accept()
+		
 		# if self.tournament_room.last_round == None:
 		# 	nb_player = self.tournament_room.nb_player
 		# else:
@@ -121,7 +122,7 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-		if not self.tournament_room:
+		if not hasattr(self, 'tournament_room'):
 			return
 		if self.user in self.tournament_room.users_online.all():
 			self.tournament_room.users_online.remove(self.user)
