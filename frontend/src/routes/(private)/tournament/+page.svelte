@@ -6,10 +6,13 @@
     import { goto } from '$app/navigation';
 
     //const create_tournament = document.getElementById("create_button");
+    interface Dictionary<T> {
+        [Key: string]: T;
+    }
 
     var tournament_name : string
 
-    let allTournament = [];
+    let allTournament : Dictionary<string>[] = [];
 
     async function create_tournament() {
         const response = await fetch('api/tournament/create/', {
@@ -36,7 +39,7 @@
             }
     }
 
-    async function go_to_tournament(id : number){
+    async function go_to_tournament(id : string){
         goto(`/tournament/${id}`);
     }
 
@@ -54,7 +57,7 @@
         <div class="modal-body d-flex justify-content-center row user-container m-0 me-2 mb-2">
             {#each allTournament as tournament}
                 <div class="row p-0 m-2" role="button">
-                    <button on:click={go_to_tournament(tournament.name)} class="btn text-light border rounded" aria-label="Close">
+                    <button on:click={() => {go_to_tournament(tournament.name)}} class="btn text-light border rounded" aria-label="Close">
                         <!-- <div class="d-flex justify-content-center"></div> -->
                         <p class="d-inline">{tournament.name}</p>
                         <p class="d-inline">{tournament.participants.length}/{tournament.capacity}</p>
