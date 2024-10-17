@@ -46,20 +46,19 @@
         if (state.accessToken != null)
             wsOnline = new WebSocket('/ws/status/?token=' + localStorage.getItem('access_token'));
         
-        if (wsOnline && wsOnline.readyState == WebSocket.OPEN){
-            wsOnline.onmessage = async function (event) {
-                parseNotifications(JSON.parse(event.data));
-                navBarNotifications = addNotifications(JSON.parse(event.data));
-                await fetchLatestDiscussion();
-                if (window.location.href.search('/chat/') == -1){
-                    const toastElList = document.querySelectorAll('.toast')
-                    const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
-                        animation: true,
-                        autohide: true,
-                        delay: 5000
-                    }))
-                    toastList.forEach(toast => toast.show());
-                }
+        wsOnline.onmessage = async function (event) {
+            parseNotifications(JSON.parse(event.data));
+            console.log(JSON.parse(event.data));
+            navBarNotifications = addNotifications(JSON.parse(event.data));
+            await fetchLatestDiscussion();
+            if (window.location.href.search('/chat/') == -1){
+                const toastElList = document.querySelectorAll('.toast')
+                const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
+                    animation: true,
+                    autohide: true,
+                    delay: 5000
+                }))
+                toastList.forEach(toast => toast.show());
             }
         }
         
