@@ -3,6 +3,7 @@
     const img = new URL('$lib/assets/pong.png', import.meta.url).href
     const img1 = new URL('$lib/assets/game2.png', import.meta.url).href
     import { auth, refresh_token } from '$lib/stores/auth';
+    import { goto } from '$app/navigation';
 
     //const create_tournament = document.getElementById("create_button");
 
@@ -19,7 +20,7 @@
 		const data = await response.json();
         if (response.ok)
 		{
-			window.location.href = `/tournament/${data.name}`;
+			goto(`/tournament/${data.name}`);
 		}
     }
 
@@ -36,7 +37,7 @@
     }
 
     async function go_to_tournament(id){
-        window.location.href = `/tournament/${id}`;
+        goto(`/tournament/${id}`);
     }
 
     onMount(async () => {

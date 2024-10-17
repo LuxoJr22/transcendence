@@ -1,5 +1,5 @@
 <script lang='ts' >
-    import { goto } from '$app/navigation';
+    import { goto, afterNavigate } from '$app/navigation';
     import { onMount } from 'svelte';
     import {get} from 'svelte/store';
     import { auth, fetchUser, logout , refresh_token } from '$lib/stores/auth';
@@ -19,7 +19,7 @@
 
     let notifications = new Array<Notifications>();
     let navBarNotifications = new Array<Notifications>();
-
+    $: currentUrl = $page.url.pathname;
 	let state: AuthState;
 	$: $auth, state = $auth;
 
@@ -37,6 +37,18 @@
         return (navBarNotifications);
     }
 
+    afterNavigate(async () => {
+        let token = localStorage.getItem('access_token');
+        if (currentUrl != '/login' && currentUrl != '/register' && !token){
+            await refresh_token();
+            let tmp = localStorage.getItem('access_token');
+            if (!tmp){
+                logout();
+                goto('/login');
+            }
+        }
+    })
+
     let wsOnline : WebSocket;
     onMount( async () => {
         await fetchUser();
@@ -46,20 +58,19 @@
         if (state.accessToken != null)
             wsOnline = new WebSocket('/ws/status/?token=' + localStorage.getItem('access_token'));
         
-        if (wsOnline && wsOnline.readyState == WebSocket.OPEN){
-            wsOnline.onmessage = async function (event) {
-                parseNotifications(JSON.parse(event.data));
-                navBarNotifications = addNotifications(JSON.parse(event.data));
-                await fetchLatestDiscussion();
-                if (window.location.href.search('/chat/') == -1){
-                    const toastElList = document.querySelectorAll('.toast')
-                    const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
-                        animation: true,
-                        autohide: true,
-                        delay: 5000
-                    }))
-                    toastList.forEach(toast => toast.show());
-                }
+        wsOnline.onmessage = async function (event) {
+            parseNotifications(JSON.parse(event.data));
+            console.log(JSON.parse(event.data));
+            navBarNotifications = addNotifications(JSON.parse(event.data));
+            await fetchLatestDiscussion();
+            if (window.location.href.search('/chat/') == -1){
+                const toastElList = document.querySelectorAll('.toast')
+                const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
+                    animation: true,
+                    autohide: true,
+                    delay: 5000
+                }))
+                toastList.forEach(toast => toast.show());
             }
         }
         

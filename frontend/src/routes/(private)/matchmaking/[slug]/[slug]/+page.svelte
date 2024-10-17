@@ -3,6 +3,7 @@
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 	import Waiting from '$lib/static/Matchmaking/Waiting.svelte';
+	import { goto } from '$app/navigation'
 
 	let state: AuthState;
 	$: $auth, state = $auth;
@@ -29,7 +30,7 @@
 					ws.close();
 					localStorage.setItem('room_name', room_name);
 					localStorage.setItem('game_id', data.match_id);
-					window.location.href = '/' + gamemode + '/';
+					goto('/' + gamemode + '/');
 				}
 				if (data.event == 'Research')
 				{
@@ -49,12 +50,12 @@
 					let room_name = data.room_name;
 					localStorage.setItem('room_name', room_name);
 					ws.close();
-					window.location.href = '/' + gamemode + '/';
+					goto('/' + gamemode + '/');
 				}
 			}
 		}
 		else
-			window.location.href = '/';
+			goto('/');
 	});
 
 	onDestroy(() => {
