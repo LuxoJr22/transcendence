@@ -1,6 +1,4 @@
-import * as THREE from 'three';
-
-export function lerp(current, target, add)
+export function lerp(current : number, target : number, add : number)
 {
 	if (current < target && add > 0)
 	{
@@ -16,12 +14,12 @@ export function lerp(current, target, add)
 	}
 	return (current);
 }
-export function random(min, max)
+export function random(min : number, max : number)
 {
 	return (Math.random() * (max - min)) + min;
 }
 
-export function equal(value, comp)
+export function equal(value : number, comp : number)
 {
 	if (value >= comp - 0.01 && value <= comp + 0.01 )
 		return (1);

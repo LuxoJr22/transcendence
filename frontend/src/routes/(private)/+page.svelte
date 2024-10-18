@@ -9,10 +9,39 @@
 	let state: AuthState;
 		state = $auth;
 
+
 	onMount(() => {
 		auth.subscribe((value : AuthState) =>{
 			state = value;
 		});
+
+		let temp = document.querySelectorAll(".btn_text");
+		var canvasSize = {width: window.innerWidth,  height: window.innerHeight}
+		let i = 0
+		while (temp[i])
+		{
+			if (i == 0)
+				temp[i].style.fontSize = canvasSize.width / 60 + "px"
+			else
+				temp[i].style.fontSize = canvasSize.width / 85 + "px"
+			i ++;
+		}
+
+		window.onresize = function(event){
+			canvasSize.width =  window.innerWidth
+			canvasSize.height =  window.innerHeight
+		
+			let i = 0
+			while (temp[i])
+			{
+				if (i == 0)
+					temp[i].style.fontSize = canvasSize.width / 60 + "px"
+				else
+					temp[i].style.fontSize = canvasSize.width / 85 + "px"
+				i ++;
+			}
+		}
+
 	})
 
 	function gameHref() {
@@ -56,9 +85,9 @@
 		</div>
 	</div>
 	<div class="d-flex m-auto align-items-center btn-group-vertical py-5" style="width:15%;">
-		<button  class="btn btn-success btn-lg border mb-1 px-5 py-3 title text-truncate" on:click={gameHref}>PLAY</button>
-		<a href="/tournament" class="btn btn-light btn-lg border  mb-1 px-5 py-3 subtitle text-truncate">Tournament</a>
-		<a href="/selection" class="btn btn-light btn-lg border mb-1 px-5 py-3 subtitle text-truncate">Character</a>
+		<button  class="btn btn-success btn-lg border mb-1 py-3 title btn_text" on:click={gameHref}>PLAY</button>
+		<a href="/tournament" class="btn btn-light btn-lg border  mb-1 py-3 subtitle btn_text">Tournament</a>
+		<a href="/selection" class="btn btn-light btn-lg border mb-1 py-3 subtitle btn_text">Character</a>
 	</div>
 </div>
 

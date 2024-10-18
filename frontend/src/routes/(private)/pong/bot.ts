@@ -1,10 +1,31 @@
 import * as THREE from 'three';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
-import { equal, lerp, random} from "./utils.js"
+import { equal, lerp, random} from "./utils"
 
 
 export class Bot {
-	constructor (mesh, collision) {
+	rightb : THREE.Box3;
+	upperb : THREE.Box3;
+	leftb : THREE.Box3;
+	lowerb : THREE.Box3;
+	bb : THREE.Box3;
+
+	left : THREE.Object3D;
+	right : THREE.Object3D;
+	bone : THREE.Object3D;
+	mesh ;
+	
+	jump = 0;
+	jumping = 0;
+	moving = 1;
+	spectating = 0;
+	scoring = 0;
+	animleg = Math.PI / 7;
+	dir = 0;
+	inter = 0;
+	place = 0;
+
+	constructor (mesh : THREE.Object3D, collision : THREE.Mesh[]) {
 		this.rightb = new THREE.Box3().setFromObject(collision[0]);
 		this.upperb = new THREE.Box3().setFromObject(collision[1]);
 		this.leftb = new THREE.Box3().setFromObject(collision[2]);

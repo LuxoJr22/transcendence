@@ -1,44 +1,55 @@
 import * as THREE from 'three';
-import { SkeletonCollider } from "./skeletoncollider.js"
-import { equal } from "./utils.js"
+import { SkeletonCollider } from "./skeletoncollider"
+import { equal } from "./utils"
 
 export class Bot{
-	constructor(mesh, scene, name){
+	scene : THREE.Scene
+	name : string;
+	mesh : THREE.Object3D;
+	skeletoncollider : SkeletonCollider;
+	left : THREE.Object3D;
+	right : THREE.Object3D;
+	bone : THREE.Object3D;
+	target : THREE.Object3D[];
+	dest = [0, 0, 0]
+	iscalled = 0
+	gravity = -9.81
+	movements =  {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
+	lastmove = 0
+	isground = 1
+	rotation = 0
+	rotationy = 0
+	targetx = 0;
+	targetz = 0
+	dir = 0;
+	animleg = 0
+	ispicked = 0
+	throwed = 0
+	moving = 0
+
+	constructor(mesh : THREE.Object3D , scene : THREE.Scene, name : string){
 		this.scene = scene
 		this.name = name
 		this.mesh = mesh.scene
-		this.mesh.traverse(function(node) {
+		this.mesh.traverse(function(node : THREE.Object3D) {
             if (node.isMesh)
                 node.castShadow = true;
             if (node.isSkinnedMesh)
                 node.frustumCulled = false;
         })
-		const pick = []
+		const pick : THREE.Object3D[] = [];
 		this.skeletoncollider = new SkeletonCollider(this.mesh, this.scene, pick)
 		this.scene.add(this.mesh)
 		this.left = this.mesh.getObjectByName("Bone003L");
 		this.right = this.mesh.getObjectByName("Bone003R");
 		this.bone = this.mesh.getObjectByName("Bone");
 		this.target = this.mesh.getObjectByName("Bone001").children;
-		this.dest = [0, 0, 0]
-		this.iscalled = 0
+
 		this.target = this.target.concat(pick)
-		this.gravity = -9.81
-		this.movements =  {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
-		this.lastmove = 0
-		this.isground = 1
-		this.rotation = 0
-		this.rotationy = 0
-		this.targetx = 0;
-		this.targetz = 0
-		this.dir = 0;
-		this.animleg = 0
-		this.ispicked = 0
-		this.throwed = 0
-		this.moving = 0
+
 
 	}
-	update(dt, t)
+	update(dt : number, t : number)
 	{
 		this.skeletoncollider.update()
 		if (t > this.lastmove + 6)

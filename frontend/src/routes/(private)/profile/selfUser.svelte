@@ -16,7 +16,7 @@
     import History from '$lib/static/Profile/History/selfHistory.svelte';
     import Skin from '$lib/static/Profile/Skin.svelte';
 
-    let historyData : any;
+    let historyData : any = [];
     let fetchStatus = false;
 
     let state: AuthState;
@@ -59,7 +59,23 @@
         });
 
         if (response.ok) {
-            historyData = await response.json();
+            historyData = historyData.concat(await response.json());
+        }
+
+        const resp = await fetch("/api/shooter/history/" + state.user?.id, {
+            method: 'GET',
+            headers:{
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            }
+        });
+
+        if (resp.ok) {
+            historyData = historyData.concat(await resp.json());
+            
+            
+        }
+        if (resp.ok || response.ok)
+        {
             calcWinRate(historyData);
             fetchStatus = true;
         }

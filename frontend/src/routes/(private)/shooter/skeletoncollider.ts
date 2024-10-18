@@ -4,14 +4,14 @@ export class SkeletonCollider {
 	distance = 0
 	v1 = new THREE.Vector3()
 	v2 = new THREE.Vector3()
-	bones = []
+	bones : THREE.Object3D[] = []
 	material = new THREE.MeshBasicMaterial({
 		color: 0xff0000,
 		wireframe: true,
 		depthTest: false,
 	})
-	constructor(object, scene, pickables) {
-		object.traverse((child) => {
+	constructor(object : THREE.Object3D, scene : THREE.Scene, pickables: THREE.Object3D[]) {
+		object.traverse((child : THREE.Object3D) => {
 			if (child.isBone) {
 				if (child.parent && child.parent.type === 'Bone') {
 					this.bones.push(child)
