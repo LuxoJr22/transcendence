@@ -137,7 +137,7 @@
             </div>
             <h2 class="text-center p-3 title-profile">Skin</h2>
             <div class="d-flex justify-content-center">
-                <Skin />
+                <Skin self={true}/>
             </div>
         </div>
         <div class="justify-content-center flex-column col-5">

@@ -4,17 +4,25 @@
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
-	
-    let canvas;
+    import { profile, profileData, userData, type Profile } from '$lib/stores/user';
 
-	let state: AuthState;
-    $: state = $auth;
+    let canvas;
+	let skinName = '';
+	export let self;
+	export let userId = 0;
 
 	onMount(() => { (async () => {
-		await fetchUser(); 
-        auth.subscribe((value : AuthState) =>{
-            state = value;
-        });
+		if (self){
+			await fetchUser();
+			auth.subscribe((value : AuthState) =>{
+            	skinName = value.user?.skin;
+        	});
+		}
+		else {
+			const data = await userData(userId);
+            skinName = data.skin;
+		}
+		
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera( 90, 1, 0.1, 1000 );
 		scene.background = new THREE.Color(0x212529);
@@ -22,7 +30,7 @@
 		var t = 0;
 		const clock = new THREE.Clock();
 		const loader = new GLTFLoader()
-		const skin = await loader.loadAsync('/src/lib/assets/skins/' + state.user?.skin);
+		const skin = await loader.loadAsync('/src/lib/assets/skins/' + skinName);
         var rotating_skin : THREE.Object3D;
         rotating_skin = skin.scene;
 		rotating_skin.scale.set(0.3, 0.3, 0.3);

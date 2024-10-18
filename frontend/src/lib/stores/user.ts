@@ -6,6 +6,7 @@ export interface Profile {
    username: string;
    profile_picture: string;
    is_online:  boolean;
+   skin: string
 }
 
 export const profile = writable<Profile>();
