@@ -5,10 +5,16 @@
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 	
-    export let skinName = '';
     let canvas;
 
+	let state: AuthState;
+    $: state = $auth;
+
 	onMount(() => { (async () => {
+		await fetchUser(); 
+        auth.subscribe((value : AuthState) =>{
+            state = value;
+        });
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera( 90, 1, 0.1, 1000 );
 		scene.background = new THREE.Color(0x212529);
@@ -16,7 +22,7 @@
 		var t = 0;
 		const clock = new THREE.Clock();
 		const loader = new GLTFLoader()
-		const skin = await loader.loadAsync('/src/lib/assets/skins/' + skinName);
+		const skin = await loader.loadAsync('/src/lib/assets/skins/' + state.user?.skin);
         var rotating_skin : THREE.Object3D;
         rotating_skin = skin.scene;
 		rotating_skin.scale.set(0.3, 0.3, 0.3);
