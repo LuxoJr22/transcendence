@@ -17,7 +17,7 @@
 	let state: AuthState;
 	$: $auth, state = $auth;
     var chatSocket: WebSocket;
-    let i = false;
+    let isLoad : boolean = false;
 
 
     window.onbeforeunload = () => {
@@ -31,12 +31,10 @@
     // let canvas;
 
     afterNavigate(() => { (async () => {
-        if (!i){
-            i = true;
-        }
+        if (!isLoad)
+            isLoad = true;
         else
             return ;
-        console.log('a');
         await fetchUser();
         auth.subscribe((value : AuthState) =>{
             state = value;

@@ -35,9 +35,10 @@
 
     onMount(async () => {
         const status = await login42();
-        if (status == '2fa'){
+        if (status.is_2fa_enabled){
             displayModal();
             twoFaWith42 = true;
+            username = status.username;
         }
         if (status == 'success'){
             goto('/');
@@ -118,14 +119,8 @@
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form on:submit|preventDefault={handleTwoFA}>
-                    {#if twoFaWith42}
-                    <p class="h5 ms-4 mt-2">Username</p>
-                        <div class="ps-4 pe-5">
-                            <input type="text" bind:value="{username}" required class="form-control col-12 mb-2 " placeholder="Enter triplum's username">
-                        </div>
-                    {/if}
-                    <p class="h5 ms-4">2FA code</p>
-                    <div class="ps-4 pe-5">
+                    <p class="h5 ms-4 mt-2">2FA code</p>
+                    <div class="ps-4 pe-5 ">
                         <input type="text" bind:value="{otp_code}" required class="form-control col-12 mb-2" placeholder="Enter code">
                     </div>
                     {#if errorTwoFA.error}
