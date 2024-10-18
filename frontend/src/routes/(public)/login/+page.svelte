@@ -35,7 +35,7 @@
 
     onMount(async () => {
         const status = await login42();
-        if (status.is_2fa_enabled){
+        if (status?.is_2fa_enabled){
             displayModal();
             twoFaWith42 = true;
             username = status.username;
@@ -45,7 +45,7 @@
         }
         else{
             goto('/login');
-            error42Login = status.error.replaceAll('[', '').replaceAll('\'', '').replaceAll(']', '');
+            error42Login = status?.error.replaceAll('[', '').replaceAll('\'', '').replaceAll(']', '');
         }
     })
 
@@ -123,9 +123,9 @@
                     <div class="ps-4 pe-5 ">
                         <input type="text" bind:value="{otp_code}" required class="form-control col-12 mb-2" placeholder="Enter code">
                     </div>
-                    {#if errorTwoFA.error}
+                    {#if errorTwoFA?.error}
                         <div class="alert alert-danger mx-3" role="alert">
-                            {errorTwoFA.error}
+                            {errorTwoFA?.error}
                         </div>
                     {:else if errorTwoFA == 'success'}
                         <div class="alert alert-success mx-3" role="alert">

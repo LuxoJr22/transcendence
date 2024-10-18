@@ -4,7 +4,7 @@
     import {get} from 'svelte/store';
     import { auth, fetchUser, logout , refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
-    import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
+    import { acceptFriendRequest, declineFriendRequest, friendList } from '$lib/stores/friendship'
     import { fetchLatestDiscussion, messages } from '$lib/stores/chat';
     import Settings from '$lib/static/Profile/Settings/Settings.svelte';
     import { page } from '$app/stores'
@@ -35,7 +35,13 @@
         notifications.unshift(tmp);
     }
     function addNotifications(data : any){
-        navBarNotifications.push(data);
+        if (data.type != 'friend_request')
+            navBarNotifications.push(data);
+        return (navBarNotifications);
+    }
+
+    function deleteNotif(i : number){
+        navBarNotifications.splice(i, 1);
         return (navBarNotifications);
     }
 
@@ -141,7 +147,7 @@
                     <button class="btn" style="text-decoration:none; color:white;" type="button" data-bs-toggle="dropdown" aria-expanded="false" on:click={fetchFriendRequests}>
                     <i class="bi bi-bell"></i>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
+                    <ul class="dropdown-menu dropdown-menu-end notif-container">
                     {#each requestsList as request, i}
                         {#if request.receiver.id == state.user?.id}
                         <div class="d-flex align-items-center p-2 m-2 mt-1 border rounded">
@@ -155,9 +161,10 @@
                         </div>
                         {/if}
                     {/each}
-                    {#each navBarNotifications as notif}
-                        <div class="d-flex align-items-center p-2 m-2 mt-1 border rounded">
-                            <p class="text-center">{ notif?.message }</p>
+                    {#each navBarNotifications as notif, i}
+                        <div class="d-flex p-2 m-2 mt-1 border rounded navbar-notif">
+                            <p class="ms-3 p-0 m-0 text-start align-self-center text-truncate w-75">{ notif?.message }</p>
+                            <button class="w-25 btn text-end" on:click={() =>{navBarNotifications = deleteNotif(i)}}><i class="bi bi-x-lg" style="color:red;"></i></button>
                         </div>
                     {/each}
                     {#if !requestsList[0] && !navBarNotifications[0]}
@@ -269,6 +276,16 @@
 
     .dropdown-item:active {
         background-color: transparent;
+    }
+
+    .notif-container{
+        width: 360px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .navbar-notif {
+        max-width: 100%;
     }
 
 </style>
