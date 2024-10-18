@@ -102,11 +102,13 @@
             <ChatBox state={state} roomId={roomId} />
             <div>
                 {#if roomId != 'home'}
-                <div class="d-flex justify-content-end me-2">
+                <div class="d-flex justify-content-end">
                     <form class="sendBox" on:submit|preventDefault={sendMessage}>
-                        <textarea type="text" bind:this={messageInput} bind:value={newMessage} class=""></textarea>
-                        <button class="btn btn-primary btn-sm" type="submit">Send</button>
-                        <PlayButton ws={ws} />
+                        <div class="d-flex justify-content-end">
+                            <textarea placeholder="Enter a message" type="text" bind:this={messageInput} bind:value={newMessage} class="col-10 p-1 me-2"></textarea>
+                            <button class="btn btn-primary btn-sm me-1" type="submit">Send</button>
+                            <PlayButton ws={ws} />
+                        </div>
                     </form>
                 </div>
                 {/if}
@@ -129,8 +131,10 @@
 
     .sendBox textarea {
         border-radius: 10px;
-        height:90%;
+        width: 46.5vw;
+        height: 35px;
         resize: none;
         overflow: hidden;
     }
+    
 </style>
