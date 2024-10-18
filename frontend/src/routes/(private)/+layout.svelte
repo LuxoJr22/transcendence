@@ -10,9 +10,10 @@
     import { page } from '$app/stores'
 
     interface Notifications{
-        type: String;
-        message: String;
+        type: string;
+        message: string;
         date: number;
+        info: string;
     }
 
     let keyBinds = [{up: 90, down: 83, left:81, right:68, charge:32}, {up: 90, down: 83, left:81, right:68, jump:32}]
@@ -20,15 +21,16 @@
     let notifications = new Array<Notifications>();
     let navBarNotifications = new Array<Notifications>();
     $: currentUrl = $page.url.pathname;
-	let state: AuthState;
-	$: $auth, state = $auth;
+    let state: AuthState;
+    $: $auth, state = $auth;
 
     function parseNotifications(data : any){
         notifications = notifications.filter(notif => Date.now() - notif.date < 5001);
         let tmp : Notifications = {
             type : data.type,
             message: data.message,
-            date: Date.now()
+            date: Date.now(),
+            info: data.info
         };
         notifications.unshift(tmp);
     }
@@ -59,11 +61,12 @@
             wsOnline = new WebSocket('/ws/status/?token=' + localStorage.getItem('access_token'));
         
         wsOnline.onmessage = async function (event) {
-            parseNotifications(JSON.parse(event.data));
+            const data = JSON.parse(event.data);
+            parseNotifications(data);
             console.log(JSON.parse(event.data));
-            navBarNotifications = addNotifications(JSON.parse(event.data));
+            navBarNotifications = addNotifications(data);
             await fetchLatestDiscussion();
-            if (window.location.href.search('/chat/') == -1){
+            if (data.type !== 'chat' || window.location.href.search('/chat/') == -1){
                 const toastElList = document.querySelectorAll('.toast')
                 const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
                     animation: true,
@@ -76,12 +79,12 @@
         
     });
 
-	function handleLogout() {
+    function handleLogout() {
         if (wsOnline && wsOnline.readyState == WebSocket.OPEN)
             wsOnline.close(3000);
         logout();
         goto('/login');
-	};
+    };
 
     /******************Friendship********************/
     let requestsList = '' ;
@@ -109,22 +112,22 @@
 
     async function getKeyBinds(){
         const resp = await fetch('/api/pong/settings/' + state.user?.id + '/', {
-		    method: 'GET',
-		    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-		});
-		const dat = await resp.json();
-		if (resp.ok)
-		{
-			keyBinds[0] = dat.settings;
-		}
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+        });
+        const dat = await resp.json();
+        if (resp.ok)
+        {
+            keyBinds[0] = dat.settings;
+        }
         const resp1 = await fetch('/api/shooter/settings/' + state.user?.id + '/', {
-		    method: 'GET',
-		    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-		});
-		const dat1 = await resp1.json();
-		if (resp.ok){
-			keyBinds[1] = dat1.settings;
-		}
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+        });
+        const dat1 = await resp1.json();
+        if (resp.ok){
+            keyBinds[1] = dat1.settings;
+        }
     }
 
 </script>
@@ -188,9 +191,14 @@
                     <strong class="me-auto">Notifications</strong>
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
-                <div class="toast-body text-truncate" role="button" on:click={(event) => {handleGoto(event, '/chat/home')}}>
-                    {notif?.message}
-                </div>
+                <div class="toast-body text-truncate" role="button" on:click={(event) => {
+                    if (notif?.type === 'chat')
+                        handleGoto(event, `/chat/${notif?.info}/`);
+                    else if (notif?.type === 'tournament')
+                        handleGoto(event, `/tournament/${notif?.info}/`);
+                    else if (notif?.type === 'friend_request')
+                        handleGoto(event, `/profile/${notif?.info}/`);
+                }}>{notif?.message}</div>
             </div>
         {/each}
     </div>
