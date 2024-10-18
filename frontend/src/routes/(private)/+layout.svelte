@@ -13,7 +13,7 @@
         type: string;
         message: string;
         date: number;
-        tournament: string | null;
+        info: string;
     }
 
     let keyBinds = [{up: 90, down: 83, left:81, right:68, charge:32}, {up: 90, down: 83, left:81, right:68, jump:32}]
@@ -30,7 +30,7 @@
             type : data.type,
             message: data.message,
             date: Date.now(),
-            tournament: data.type === 'tournament' ? data.tournament : null
+            info: data.info
         };
         notifications.unshift(tmp);
     }
@@ -61,11 +61,12 @@
             wsOnline = new WebSocket('/ws/status/?token=' + localStorage.getItem('access_token'));
         
         wsOnline.onmessage = async function (event) {
-            parseNotifications(JSON.parse(event.data));
+            const data = JSON.parse(event.data);
+            parseNotifications(data);
             console.log(JSON.parse(event.data));
-            navBarNotifications = addNotifications(JSON.parse(event.data));
+            navBarNotifications = addNotifications(data);
             await fetchLatestDiscussion();
-            if (window.location.href.search('/chat/') == -1){
+            if (data.type !== 'chat' || window.location.href.search('/chat/') == -1){
                 const toastElList = document.querySelectorAll('.toast')
                 const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
                     animation: true,
@@ -191,14 +192,13 @@
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
                 <div class="toast-body text-truncate" role="button" on:click={(event) => {
-                    if (notif?.type === 'chat') {
-                        handleGoto(event, '/chat/home');
-                    } else if (notif?.type === 'tournament' && notif?.tournament) {
-                        handleGoto(event, `/tournament/${notif?.tournament}/`);
-                    }
-                }}>
-                    {notif?.message}
-                </div>
+                    if (notif?.type === 'chat')
+                        handleGoto(event, `/chat/${notif?.info}/`);
+                    else if (notif?.type === 'tournament')
+                        handleGoto(event, `/tournament/${notif?.info}/`);
+                    else if (notif?.type === 'friend_request')
+                        handleGoto(event, `/profile/${notif?.info}/`);
+                }}>{notif?.message}</div>
             </div>
         {/each}
     </div>
