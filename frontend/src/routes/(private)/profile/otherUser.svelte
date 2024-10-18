@@ -10,7 +10,7 @@
     import Skin from '$lib/static/Profile/Skin.svelte';
 
     export let userId : string;
-    let data : any;
+    let data : any = [];
 
     $: isFriendStatus = false;
 
@@ -238,18 +238,6 @@
 
     .container {
         height: 70%;
-    }
-
-    .my-bg-black {
-        background-color: rgba(0, 0, 0, 0.4);
-    }
-
-    .link{
-        text-decoration:none;
-    }
-
-    .link:hover {
-        text-decoration: underline;
     }
 
 </style>

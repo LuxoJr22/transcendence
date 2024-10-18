@@ -169,13 +169,6 @@
 
     @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
 
-    .img-circle {
-        width: 80%;
-        height: 80%;
-        object-fit: cover;
-        aspect-ratio: 1;
-    }
-
     .title-profile {
         font-family: "Luckiest Guy", sans-serif;
         font-size: 250%;

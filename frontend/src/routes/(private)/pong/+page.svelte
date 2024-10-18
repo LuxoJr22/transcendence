@@ -643,7 +643,7 @@
 	</div>
 	<div id="versus">
 		<div id="vs">
-			<img src="src/routes/(private)/pong/public/vers.png"/>
+			<img alt="versus_logo" src="src/routes/(private)/pong/public/vers.png"/>
 		</div>
 	</div>
 </div>

@@ -88,7 +88,7 @@
 <div class="container flex-fill justify-content-center mycontainer">
     <div class="d-flex border rounded chat-container">
         <div class="col-3 border-end">
-            <ModalUser roomId={roomId}/>
+            <ModalUser />
             <LatestDiscussion state={state} roomId={roomId}/>
         </div>
         <div class="col-9 container position-relative">

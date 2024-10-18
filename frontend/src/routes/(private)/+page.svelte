@@ -92,26 +92,6 @@
 </div>
 
 <style>
-	.container-game {
-		width: 100%;
-		display: flex;
-	}
-
-	.container-game img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.mycard {
-		width: 42%;
-	}
-
-	.play-button {
-		font-weight: 800;
-		font-size: 200%;
-	}
-
 	.title {
 		font-weight: 800;
 		font-size: 170%;
