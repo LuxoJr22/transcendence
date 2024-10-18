@@ -10,9 +10,10 @@
     import { page } from '$app/stores'
 
     interface Notifications{
-        type: String;
-        message: String;
+        type: string;
+        message: string;
         date: number;
+        tournament: string | null;
     }
 
     let keyBinds = [{up: 90, down: 83, left:81, right:68, charge:32}, {up: 90, down: 83, left:81, right:68, jump:32}]
@@ -20,15 +21,16 @@
     let notifications = new Array<Notifications>();
     let navBarNotifications = new Array<Notifications>();
     $: currentUrl = $page.url.pathname;
-	let state: AuthState;
-	$: $auth, state = $auth;
+    let state: AuthState;
+    $: $auth, state = $auth;
 
     function parseNotifications(data : any){
         notifications = notifications.filter(notif => Date.now() - notif.date < 5001);
         let tmp : Notifications = {
             type : data.type,
             message: data.message,
-            date: Date.now()
+            date: Date.now(),
+            tournament: data.type === 'tournament' ? data.tournament : null
         };
         notifications.unshift(tmp);
     }
@@ -76,12 +78,12 @@
         
     });
 
-	function handleLogout() {
+    function handleLogout() {
         if (wsOnline && wsOnline.readyState == WebSocket.OPEN)
             wsOnline.close(3000);
         logout();
         goto('/login');
-	};
+    };
 
     /******************Friendship********************/
     let requestsList = '' ;
@@ -109,22 +111,22 @@
 
     async function getKeyBinds(){
         const resp = await fetch('/api/pong/settings/' + state.user?.id + '/', {
-		    method: 'GET',
-		    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-		});
-		const dat = await resp.json();
-		if (resp.ok)
-		{
-			keyBinds[0] = dat.settings;
-		}
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+        });
+        const dat = await resp.json();
+        if (resp.ok)
+        {
+            keyBinds[0] = dat.settings;
+        }
         const resp1 = await fetch('/api/shooter/settings/' + state.user?.id + '/', {
-		    method: 'GET',
-		    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-		});
-		const dat1 = await resp1.json();
-		if (resp.ok){
-			keyBinds[1] = dat1.settings;
-		}
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+        });
+        const dat1 = await resp1.json();
+        if (resp.ok){
+            keyBinds[1] = dat1.settings;
+        }
     }
 
 </script>
@@ -188,7 +190,13 @@
                     <strong class="me-auto">Notifications</strong>
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
-                <div class="toast-body text-truncate" role="button" on:click={(event) => {handleGoto(event, '/chat/home')}}>
+                <div class="toast-body text-truncate" role="button" on:click={(event) => {
+                    if (notif?.type === 'chat') {
+                        handleGoto(event, '/chat/home');
+                    } else if (notif?.type === 'tournament' && notif?.tournament) {
+                        handleGoto(event, `/tournament/${notif?.tournament}/`);
+                    }
+                }}>
                     {notif?.message}
                 </div>
             </div>
