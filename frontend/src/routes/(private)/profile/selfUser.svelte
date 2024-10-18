@@ -1,8 +1,9 @@
 <script lang="ts">
     import { onMount } from 'svelte';
+    import { afterNavigate } from '$app/navigation'
     import { get } from 'svelte/store'
     import Pie from './pie.svelte';
-    import { auth, updatePassword} from '$lib/stores/auth';
+    import { auth, fetchUser, updatePassword} from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
     import type { friendInterface } from '$lib/stores/friendship';
@@ -19,7 +20,7 @@
     let fetchStatus = false;
 
     let state: AuthState;
-    state = $auth;
+    $: state = $auth;
 
     let listOfFriend : friendInterface[];
     listOfFriend = $friendList; 
@@ -152,7 +153,7 @@
             </div>
             <h2 class="text-center p-3 title-profile">Skin</h2>
             <div class="d-flex justify-content-center">
-                <Skin skinName={state.user?.skin}/>
+                <Skin self={true}/>
             </div>
         </div>
         <div class="justify-content-center flex-column col-5">

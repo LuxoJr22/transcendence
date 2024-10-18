@@ -7,6 +7,7 @@
     import Block from '$lib/static/Profile/Block.svelte';
     import { friendList, fetchFriendList, deleteFriend } from '$lib/stores/friendship';
     import type { friendInterface } from '$lib/stores/friendship';
+    import Skin from '$lib/static/Profile/Skin.svelte';
 
     export let userId : string;
     let data : any;
@@ -182,9 +183,9 @@
                 {/if}
             </div>
             <h2 class="text-center text-light p-3 title-profile">Skin</h2>
-            <!-- <div class="d-flex justify-content-center">
-                <Skin skinName={state.user?.skin}/>
-            </div> -->
+            <div class="d-flex justify-content-center">
+                <Skin self={false} userId={parseInt(userId)}/>
+            </div>
         </div>
         <div class="justify-content-center flex-column col-5">
             <h2 class="text-light text-center p-4 m-1 title-profile">History</h2>

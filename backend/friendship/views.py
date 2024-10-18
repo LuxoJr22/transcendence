@@ -15,7 +15,7 @@ class SendFriendRequestView(generics.CreateAPIView):
 	def perform_create(self, serializer):
 		friendship = serializer.save(requester=self.request.user)
 		receiver = friendship.receiver
-		sender = self.request.user.username
+		sender = self.request.user
 
 		channel_layer = get_channel_layer()
 		async_to_sync(channel_layer.group_send)(
@@ -23,7 +23,8 @@ class SendFriendRequestView(generics.CreateAPIView):
 			{
 				"type": "notify_user",
 				"notification_type": "friend_request",
-				"message": f"{sender} sent you a friend request",
+				"message": f"{sender.username} sent you a friend request",
+				"info": sender.id,
 			}
 		)
 

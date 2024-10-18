@@ -17,7 +17,6 @@
 	var type = ur[index + 2]
 
 	onMount(async () => {
-		
 		if (localStorage.getItem('access_token'))
 			await fetchUser();
 		if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "public") {

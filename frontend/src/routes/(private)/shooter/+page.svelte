@@ -13,7 +13,7 @@
 	let state: AuthState;
 	$: $auth, state = $auth;
     var chatSocket: WebSocket | null;
-    let i = false;
+    let isLoad : boolean = false;
 
 
     window.onbeforeunload = () => {
@@ -26,9 +26,8 @@
 
 
     afterNavigate(() => { (async () => {
-        if (!i){
-            i = true;
-        }
+        if (!isLoad)
+            isLoad = true;
         else
             return ;
         await fetchUser();

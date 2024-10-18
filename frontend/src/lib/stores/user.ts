@@ -6,6 +6,7 @@ export interface Profile {
    username: string;
    profile_picture: string;
    is_online:  boolean;
+   skin: string
 }
 
 export const profile = writable<Profile>();
@@ -24,7 +25,8 @@ export async function profileData(id: number): Promise<void> {
          id: profileData.id,
          username: profileData.username,
          profile_picture: profileData.profile_picture_url,
-         is_online: profileData.is_online
+         is_online: profileData.is_online,
+         skin: profileData.skin
       });
    } else {
       console.error('Failed to fetch profile data:');
