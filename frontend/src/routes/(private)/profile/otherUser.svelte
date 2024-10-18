@@ -56,7 +56,23 @@
         });
 
         if (response.ok) {
-            data = await response.json();
+            data = data.concat(await response.json());
+        }
+
+        const resp = await fetch("/api/shooter/history/" + user?.id, {
+            method: 'GET',
+            headers:{
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            }
+        });
+
+        if (resp.ok) {
+            data = data.concat(await resp.json());
+            
+            
+        }
+        if (resp.ok || response.ok)
+        {
             calcWinRate(data);
             finish = true;
         }
