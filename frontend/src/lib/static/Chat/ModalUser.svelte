@@ -7,7 +7,6 @@
     
     let allUser = new Array<Profile>();
     let userSearch : string;
-    export let roomId;
     
     function resetFriendSearch (){
         userSearch = '';

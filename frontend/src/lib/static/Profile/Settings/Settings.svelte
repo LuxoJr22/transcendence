@@ -198,7 +198,7 @@
                         </div>
                     {:else if twoFA_data}
                         <div class="d-flex justify-content-center">
-                            <img class="" src="data:image/png;base64,{twoFA_data.qr_code}" style="width:50%; height:50%">
+                            <img class="" alt="2fe_qr_code" src="data:image/png;base64,{twoFA_data.qr_code}" style="width:50%; height:50%">
                         </div>
                         <ol class="list-group text-center">
                             <li class="list-group-item">

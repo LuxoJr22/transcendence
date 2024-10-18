@@ -205,12 +205,12 @@
                 <div class="">
 					{#if allOnline.some(actuser => actuser.id == user.id)}
 						<div class="d-flex text-light rounded position-relative" style="left:45%;">
-							<img src={"/media/" + user.profile_picture} width=3% height=auto class="rounded-circle" style="object-fit:cover; aspect-ratio:1">
+							<img alt="profile_picture" src={"/media/" + user.profile_picture} width=3% height=auto class="rounded-circle" style="object-fit:cover; aspect-ratio:1">
 							<p class="m-0 p-0 mt-1 ms-2">{user.username}</p>
 						</div>
 					{:else}
 						<div class="d-flex rounded position-relative " style="color:grey; left:45%;">
-							<img src={"/media/" + user.profile_picture} width=3% height=auto class="rounded-circle" style="object-fit:cover; aspect-ratio:1">
+							<img alt="profile_picture" src={"/media/" + user.profile_picture} width=3% height=auto class="rounded-circle" style="object-fit:cover; aspect-ratio:1">
 							<p class="m-0 p-0 mt-1 ms-2">{user.username}</p>
 						</div>
 					{/if}
@@ -226,14 +226,6 @@
 
 
 <style>
-	/* .theme {
-		height: 100%;
-		width: 100%;
-		position: absolute;
-	} */
-	/* .text-decoration-underline {
-		color: white !important ;
-	} */
 	:global(.bracket) {
 		padding: 40px;
 		margin: 5px;
@@ -321,9 +313,6 @@
 	}
 	:global(.column:nth-child(3) .match-lines .line.two) {
 	  height: 175px;
-	}
-	.disable-image .image {
-		display: none !important;
 	}
 	:global(.theme-dark .team) {
 		background: #182026;

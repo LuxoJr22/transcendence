@@ -5,7 +5,6 @@
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 	
-    export let skinName = '';
     let canvas : HTMLCanvasElement;
 	let state: AuthState;
 	$: $auth, state = $auth;
@@ -315,13 +314,13 @@
 <div id="ui">
 	<div id=gloves_ui>
 		<div id="gloves">
-			<img class="glove" id="left_def" src="/src/lib/assets/left_def_glove.png"/>
-			<img class="glove" id="right_def" src="/src/lib/assets/right_def_glove.png"/>
+			<img alt="left_def_glove" class="glove" id="left_def" src="/src/lib/assets/left_def_glove.png"/>
+			<img alt="right_def_glove" class="glove" id="right_def" src="/src/lib/assets/right_def_glove.png"/>
 		</div>
 	</div>
 	<div id=att_gloves_ui>
-		<img class="att_glove" id="left_att" src="/src/lib/assets/left_att_glove.png"/>
-		<img class="att_glove" id="right_att" src="/src/lib/assets/right_att_glove.png"/>
+		<img alt="left_att_glove" class="att_glove" id="left_att" src="/src/lib/assets/left_att_glove.png"/>
+		<img alt="right_att_glove" class="att_glove" id="right_att" src="/src/lib/assets/right_att_glove.png"/>
 	</div>
 </div>
 

@@ -164,10 +164,6 @@
     .h4 {
         font-size: 0.90vw;
     }
-    
-    .h3 {
-        font-size: 1.3vw;
-    }
 
     .game-title {
         font-weight: 800;
