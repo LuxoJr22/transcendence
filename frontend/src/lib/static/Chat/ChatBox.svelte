@@ -48,7 +48,7 @@
         {#each chatMessages as msg}
             <div class="d-flex justify-content-{msg.sender == state.user?.id ? 'end' : 'start'} text-center">
                 <p class="col-auto border rounded bg-light p-2 m-2 msgBox">
-                    {msg.content}
+                    {@html msg.content}
                     {#if msg.is_invitation && msg.is_over == false}
                         <button class="ms-2 btn btn-success btn-sm" on:click={() => joinPrivateGame(msg.gamemode, msg.match_id)}>Play</button>
                     {/if}

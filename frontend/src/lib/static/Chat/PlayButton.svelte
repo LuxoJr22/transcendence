@@ -26,14 +26,12 @@
     }
 </script>
 
-<div class="btn-group p-0">
-    <button type="button" class="btn btn-success btn-sm dropdown-toggle " data-bs-toggle="dropdown" aria-expanded="false">Play</button>
-    <ul class="dropdown-menu">
-        <li>
-            <button class="dropdown-item" on:click={inviteToPong}>Pong Invitation</button>                                
-        </li>
-        <li>
-            <button class="dropdown-item" on:click={inviteToPongRetro}>Pong Retro Invitation</button>
-        </li>
-    </ul>
-</div>
+<button class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Play</button>
+<ul class="dropdown-menu">
+    <li>
+        <button class="dropdown-item" on:click={inviteToPong}>Pong Invitation</button>                                
+    </li>
+    <li>
+        <button class="dropdown-item" on:click={inviteToPongRetro}>Pong Retro Invitation</button>
+    </li>
+</ul>
