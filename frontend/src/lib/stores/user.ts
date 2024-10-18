@@ -25,7 +25,8 @@ export async function profileData(id: number): Promise<void> {
          id: profileData.id,
          username: profileData.username,
          profile_picture: profileData.profile_picture_url,
-         is_online: profileData.is_online
+         is_online: profileData.is_online,
+         skin: profileData.skin
       });
    } else {
       console.error('Failed to fetch profile data:');

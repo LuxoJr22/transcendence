@@ -68,7 +68,7 @@ export async function login42(){
 
         data = await response.json();
         if (data.is_2fa_enabled){
-            return ('2fa');
+            return (data);
         }
     }
 
