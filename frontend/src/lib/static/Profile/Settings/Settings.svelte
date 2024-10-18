@@ -114,7 +114,6 @@
 
     function onDocumentKeyDown(event : KeyboardEvent){
         var keycode = event.which;
-        console.log(event)
         if (waitingForKey){
             keyBinds[keySelected[0]][keySelected[1]] = keycode;
             waitingForKey = false;
