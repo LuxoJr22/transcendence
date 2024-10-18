@@ -2,10 +2,10 @@
 	import { onDestroy, onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-	import { Player } from "./player.js";
-	import { Bot } from "./bot.js";
+	import { Player } from "./player";
+	import { Bot } from "./bot";
 	import { shade } from "./watershader";
-	import { Firework } from './firework.js';
+	import { Firework } from './firework';
 	import { auth } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
@@ -14,7 +14,7 @@
 	$: $auth, state = $auth;
 
 	var pongSocket: WebSocket;
-	let canvas;
+	let canvas : HTMLCanvasElement;
 	var scoring = 0;
 
 	onMount(() => { (async () => {
@@ -45,10 +45,6 @@
 			bind = dat.settings
 		}
 		
-
-
-
-
 		var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 16 * 9}
 		var winner = 0
 
@@ -68,9 +64,11 @@
 		var limit = {px: 0, py:8, nx:-18, ny:-8}
 		var limit2 = {px: 18, py:8, nx: 0, ny:-8}
 		var scores = [0, 0];
-		var bots = [];
+		var bots : Bot[];
+		bots = []
 		var id = 0;
-		var fireworks = [];
+		var fireworks: Firework [];
+		fireworks = []
 		var ui = document.getElementById("ui");
 		var versus = document.getElementById("versus")
 		var score1 = document.getElementById("player1")
@@ -88,7 +86,7 @@
 				eye: [ -78, -2.5, 12.3 ],
 				rotation : [1.26109338225244, 0.6510985849711179, 0.19156132032912654],
 				background: new THREE.Color().setRGB( 0.3, 0.3, 0.9, THREE.SRGBColorSpace ),
-				camera: null,
+				camera: THREE.PerspectiveCamera,
 			},
 			{
 				left: 0.5,
@@ -98,7 +96,7 @@
 				eye: [ 78, -2.5, 12.3 ],
 				rotation : [1.26109338225244, -0.6510985849711179, -0.19156132032912654],
 				background: new THREE.Color().setRGB( 0.9, 0.2, 0.2, THREE.SRGBColorSpace ),
-				camera: null,
+				camera:  THREE.PerspectiveCamera,
 			}
 		]
 
@@ -168,8 +166,8 @@
 		var er = new Player(gl, bind, limit2, 0.15, -1);
 		scene.add(er.mesh);
 
-		name1.textContent = skins["player1"]["username"]
-		name2.textContent = skins["player2"]["username"]
+		name1!.textContent = skins["player1"]["username"]
+		name2!.textContent = skins["player2"]["username"]
 
 
 		const lig = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -225,15 +223,15 @@
 
 		const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
 		renderer.setSize( canvasSize.width, canvasSize.height);
-        ui.style.width = canvasSize.width + "px";
-        ui.style.height = canvasSize.height + "px";
-        ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
-        ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
-		score1.style.fontSize = canvasSize.height / 10 + "px"
-		score2.style.fontSize = canvasSize.height / 10 + "px"
-		name1.style.fontSize = canvasSize.height / 15 + "px"
-		name2.style.fontSize = canvasSize.height / 15 + "px"
-		ui.style.display = 'block'
+        ui!.style.width = canvasSize.width + "px";
+        ui!.style.height = canvasSize.height + "px";
+        ui!.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+        ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+		score1!.style.fontSize = canvasSize.height / 10 + "px"
+		score2!.style.fontSize = canvasSize.height / 10 + "px"
+		name1!.style.fontSize = canvasSize.height / 15 + "px"
+		name2!.style.fontSize = canvasSize.height / 15 + "px"
+		ui!.style.display = 'block'
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
 
@@ -254,19 +252,19 @@
 		document.addEventListener("keydown", onDocumentKeyDown, false);
 		document.addEventListener("keyup", onDocumentKeyUp, false);
 
-		const gamepads = {};
+		const gamepads : { [id: number]: Gamepad} = {}
 
-		function gamepadHandler(event, connected) {
-		const gamepad = event.gamepad;
+		function gamepadHandler(event : GamepadEvent, connected : boolean) {
+			const gamepad = event.gamepad;
 
-		if (connected) {
-			gamepads[gamepad.index] = gamepad;
-		} else {
-			delete gamepads[gamepad.index];
+			if (connected) {
+				gamepads[gamepad.index] = gamepad;
+			} else {
+				delete gamepads[gamepad.index];
+			}
 		}
-		}
 
-		function handlebuttons(buttons)
+		function handlebuttons(buttons : Gamepad["buttons"])
 		{
 			if (id == 1)
 			{
@@ -286,7 +284,7 @@
 
 		var xSpeed = 0.15, ySpeed = 0.15;
 
-		function handlesticks(axes)
+		function handlesticks(axes : Gamepad["axes"])
 		{
 			if (id == 1)
 			{				
@@ -349,23 +347,23 @@
 			canvasSize.width = window.innerWidth * 0.7
 			canvasSize.height = window.innerWidth * 0.7 / 16 * 9
 			renderer.setSize( canvasSize.width, canvasSize.height);
-			ui.style.width = canvasSize.width + "px";
-			ui.style.height = canvasSize.height + "px";
-			ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
-			ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
-			score1.style.fontSize = canvasSize.height / 10 + "px"
-			score2.style.fontSize = canvasSize.height / 10 + "px"
-			name1.style.fontSize = canvasSize.height / 15 + "px"
-			name2.style.fontSize = canvasSize.height / 15 + "px"
+			ui!.style.width = canvasSize.width + "px";
+			ui!.style.height = canvasSize.height + "px";
+			ui!.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+			ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+			score1!.style.fontSize = canvasSize.height / 10 + "px"
+			score2!.style.fontSize = canvasSize.height / 10 + "px"
+			name1!.style.fontSize = canvasSize.height / 15 + "px"
+			name2!.style.fontSize = canvasSize.height / 15 + "px"
 		}
 
-		function onDocumentKeyDown(event) {
+		function onDocumentKeyDown(event : KeyboardEvent) {
 			var keyCode = event.which;
 			play.keydown(keyCode)
 			er.keydown(keyCode)
 		};
 
-		function onDocumentKeyUp(event) {
+		function onDocumentKeyUp(event : KeyboardEvent) {
 			var keyCode = event.which;
 			play.keyup(keyCode)
 			er.keyup(keyCode)
@@ -414,11 +412,11 @@
 			}
 			else if (data.event == 'start_game')
 			{
-				score1.style.display = 'block'
-				score2.style.display = 'block'
-				name1.style.display = 'block'
-				name2.style.display = 'block'
-				versus.style.display = 'none'
+				score1!.style.display = 'block'
+				score2!.style.display = 'block'
+				name1!.style.display = 'block'
+				name2!.style.display = 'block'
+				versus!.style.display = 'none'
 				renderer.setScissorTest( false );
 				renderer.setViewport(0, 0, window.innerWidth * 0.7, (window.innerWidth * 0.70) / 16 * 9)
 				renderer.setClearColor( new THREE.Color(0xAAAAFF ) );
@@ -454,12 +452,12 @@
 				if (data.player1[2] != scores[0])
 				{
 					scores[0] = data.player1[2]
-					score1.textContent = scores[0].toString()
+					score1!.textContent = scores[0].toString()
 				}
 				if (data.player2[2] != scores[1])
 				{
 					scores[1] = data.player2[2]
-					score2.textContent = scores[1].toString()
+					score2!.textContent = scores[1].toString()
 				}
 				play.controllanims = data.player1[3]
 				er.controllanims = data.player2[3]
@@ -496,7 +494,9 @@
 				t += dt;
 				if (gamepads[0])
 				{
-					gamepads[0] = navigator.getGamepads()[0]
+					let pad = navigator.getGamepads()[0]
+					if (pad)
+						gamepads[0] = pad
 					handlebuttons(gamepads[0].buttons)
 					handlesticks(gamepads[0].axes)
 				}
@@ -517,7 +517,7 @@
 						pongSocket.close()
 					if( THREE.MathUtils.randInt( 1, 50 ) === 10)
     				{
-    				    fireworks.push( new Firework( scene, [20 * Math.pow(-1, winner)] ) ); 
+    				    fireworks.push( new Firework( scene, 20 * Math.pow(-1, winner) ) ); 
     				}
     				for( var i = 0; i < fireworks.length; i++ )
     				{
@@ -643,7 +643,7 @@
 	</div>
 	<div id="versus">
 		<div id="vs">
-			<img src="src/routes/(private)/pong/public/vers.png"/>
+			<img alt="versus_logo" src="src/routes/(private)/pong/public/vers.png"/>
 		</div>
 	</div>
 </div>

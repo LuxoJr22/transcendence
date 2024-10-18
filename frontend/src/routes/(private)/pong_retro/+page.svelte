@@ -7,19 +7,40 @@
 	import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 	import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 	import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
-	import { Player } from "./player.js";
+	import { Player } from "./player";
 	import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-	import {CrtShader} from "./crtShader.js";
+	import {CrtShader} from "./crtShader";
+	import { auth, fetchUser } from '$lib/stores/auth';
+	import type { AuthState } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 
 	var pongSocket: WebSocket;
-	let canvas;
+	let canvas : HTMLCanvasElement;
 	var scoring = 0;
+	let state: AuthState;
+	$: $auth, state = $auth;
 
 	onMount(() => { (async () => {
+		await fetchUser()
+		auth.subscribe((value : AuthState) =>{
+            state = value;
+        });
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
 		scene.background = new THREE.Color(0x000000);
+
+
+		var skins
+		const response = await fetch('/api/pong/skins/' + localStorage.getItem('game_id'), {
+		method: 'GET',
+		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		});
+		const data = await response.json();
+		if (response.ok)
+		{
+			skins = data
+		}
+
 
 		
 		var bind = {up: 90, down: 83, left:81, right:68, charge:32}
@@ -27,13 +48,19 @@
 		var limit = {px: 0, py:8, nx:-18, ny:-8}
 		var limit2 = {px: 18, py:8, nx: 0, ny:-8}
 		var scores = [0, 0];
-		var endtext;
+		var endtext : THREE.Object3D;
 		var startend = 0;
 		var id = 0;
 		var ui = document.getElementById("ui");
 		var score1 = document.getElementById("player1")
 		var score2 = document.getElementById("player2")
+		var name1 = document.getElementById("player1_name")
+		var name2 = document.getElementById("player2_name")
 		var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 16 * 9}
+
+
+		name1!.textContent = skins["player1"]["username"]
+		name2!.textContent = skins["player2"]["username"]
 
 		//#region LoadModel
 
@@ -46,7 +73,7 @@
 		WinMesh.scene.position.x = -2.25
 		WinMesh.scene.scale.y = 0.1
 		const winMat = new THREE.MeshStandardMaterial( { color: 0x0000FF } ); 
-		WinMesh.scene.traverse(function(node) {
+		WinMesh.scene.traverse(function(node : THREE.Object3D) {
             if (node.isMesh)
 				node.material = winMat;
                 node.layers.toggle(1);
@@ -58,7 +85,7 @@
 		LoseMesh.scene.position.x = -2.25
 		LoseMesh.scene.scale.y = 0.1
 		const loseMat = new THREE.MeshStandardMaterial( { color: 0xFF0000 } ); 
-		LoseMesh.scene.traverse(function(node) {
+		LoseMesh.scene.traverse(function(node : THREE.Object3D) {
             if (node.isMesh)
                 node.layers.toggle(1);
 				node.material = loseMat;
@@ -90,11 +117,11 @@
 		var er = new Player(gl, bind, limit2, 0.15, -1);
 		scene.add(er.mesh);
 
-		er.mesh.traverse(function(node) {
+		er.mesh.traverse(function(node : THREE.Object3D) {
             if (node.isMesh)
                 node.layers.toggle(1);
         })
-		play.mesh.traverse(function(node) {
+		play.mesh.traverse(function(node : THREE.Object3D) {
             if (node.isMesh)
                 node.layers.toggle(1);
         })
@@ -142,12 +169,14 @@
 
 		const renderer = new THREE.WebGLRenderer({canvas, antialias: false});
 		renderer.setSize( canvasSize.width, canvasSize.height);
-        ui.style.width = canvasSize.width + "px";
-        ui.style.height = canvasSize.height + "px";
-        ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
-        ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
-		score1.style.fontSize = canvasSize.height / 10 + "px"
-		score2.style.fontSize = canvasSize.height / 10 + "px"
+        ui!.style.width = canvasSize.width + "px";
+        ui!.style.height = canvasSize.height + "px";
+        ui!.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+        ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+		score1!.style.fontSize = canvasSize.height / 10 + "px"
+		score2!.style.fontSize = canvasSize.height / 10 + "px"
+		name1!.style.fontSize = canvasSize.height / 15 + "px"
+		name2!.style.fontSize = canvasSize.height / 15 + "px"
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
 
@@ -165,9 +194,9 @@
 		document.addEventListener("keydown", onDocumentKeyDown, false);
 		document.addEventListener("keyup", onDocumentKeyUp, false);
 
-		const gamepads = {};
+		const gamepads : { [id: number]: Gamepad} = {}
 
-		function gamepadHandler(event, connected) {
+		function gamepadHandler(event : GamepadEvent, connected :boolean) {
 		const gamepad = event.gamepad;
 
 		if (connected) {
@@ -177,7 +206,7 @@
 		}
 		}
 
-		function handlebuttons(buttons)
+		function handlebuttons(buttons : Gamepad["buttons"])
 		{
 			if (buttons[0].value > 0)
 				play.controller.charge = 1;
@@ -187,7 +216,7 @@
 
 		var xSpeed = 0.15, ySpeed = 0.15;
 
-		function handlesticks(axes)
+		function handlesticks(axes : Gamepad["axes"])
 		{
 			if (axes[0] < -0.2)
 				play.controller.xn = axes[0] * xSpeed;
@@ -230,21 +259,23 @@
 			renderer.setSize( canvasSize.width, canvasSize.height);
 			composer.setSize( canvasSize.width, canvasSize.height );
 			finalComposer.setSize( canvasSize.width, canvasSize.height );
-            ui.style.width = canvasSize.width + "px";
-            ui.style.height = canvasSize.height + "px";
-            ui.style.top = renderer.domElement.getBoundingClientRect().top + "px"
-            ui.style.left = renderer.domElement.getBoundingClientRect().left + "px"
-			score1.style.fontSize = canvasSize.height / 10 + "px"
-			score2.style.fontSize = canvasSize.height / 10 + "px"
+            ui!.style.width = canvasSize.width + "px";
+            ui!.style.height = canvasSize.height + "px";
+            ui!.style.top = renderer.domElement.getBoundingClientRect().top + "px"
+            ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
+			score1!.style.fontSize = canvasSize.height / 10 + "px"
+			score2!.style.fontSize = canvasSize.height / 10 + "px"
+			name1!.style.fontSize = canvasSize.height / 15 + "px"
+			name2!.style.fontSize = canvasSize.height / 15 + "px"
 		}
 
-		function onDocumentKeyDown(event) {
+		function onDocumentKeyDown(event : KeyboardEvent) {
 			var keyCode = event.which;
 			play.keydown(keyCode)
 			er.keydown(keyCode)
 		};
 
-		function onDocumentKeyUp(event) {
+		function onDocumentKeyUp(event : KeyboardEvent) {
 			var keyCode = event.which;
 			play.keyup(keyCode)
 			er.keyup(keyCode)
@@ -305,12 +336,12 @@
 				if (data.player1[2] != scores[0])
 				{
 					scores[0] = data.player1[2]
-					score1.textContent = scores[0].toString()
+					score1!.textContent = scores[0].toString()
 				}
 				if (data.player2[2] != scores[1])
 				{
 					scores[1] = data.player2[2]
-					score2.textContent = scores[1].toString()
+					score2!.textContent = scores[1].toString()
 				}
 				play.controllanims = data.player1[3]
 				er.controllanims = data.player2[3]
@@ -401,9 +432,9 @@
 		const bloomLayer = new THREE.Layers();
 		bloomLayer.set(BLOOM_SCENE);
 		const darkMaterial = new THREE.MeshBasicMaterial({color: 0x000000})
-		const materials = {}
+		const materials : { [id: number]: THREE.material} = {}
 
-		function nonBloomed(obj) {
+		function nonBloomed(obj : THREE.Object3D) {
 			if(obj.isMesh && bloomLayer.test(obj.layers) == false) 
 			{
 				materials[obj.uuid] = obj.material;
@@ -411,7 +442,7 @@
 			}
 		}
 
-		function restoreMaterial(obj) {
+		function restoreMaterial(obj : THREE.Object3D) {
 			if (materials[obj.uuid])
 			{
 				obj.material = materials[obj.uuid];
@@ -432,7 +463,9 @@
 			t += dt;
 			if (gamepads[0])
 			{
-				gamepads[0] = navigator.getGamepads()[0]
+				let pad = navigator.getGamepads()[0]
+				if (pad)
+					gamepads[0] = pad
 				handlebuttons(gamepads[0].buttons)
 				handlesticks(gamepads[0].axes)
 			}
@@ -450,8 +483,6 @@
 			composer.render();
 			scene.traverse(restoreMaterial)
 			finalComposer.render()
-			play.update(dt)
-			er.update(dt)
 			
 		}
 		animate();
@@ -504,8 +535,10 @@
 
 <div id="ui">
 	<div id="score">
+		<span class="text" id="player1_name"></span>
 		<span class="text" id="player1">0</span>
 		<span class="text" id="player2">0</span>
+		<span class="text" id="player2_name"></span>
 	</div>
 </div>
 

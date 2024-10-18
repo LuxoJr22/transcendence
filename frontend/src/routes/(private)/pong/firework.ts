@@ -1,28 +1,28 @@
 import * as THREE from 'three';
 
-
-
 export class Firework{
-	constructor(scene, spawn ) {
+    spawn : number;
+    scene : THREE.Scene; 
+    dest : THREE.Vector3[] = []; 
+    colors : THREE.Color[] = []; 
+    geometry : THREE.BufferGeometry;
+    points : THREE.Points;
+    material = new THREE.PointsMaterial({
+        size: 0.2,
+        color: 0xffffff,
+        opacity: 1,
+        vertexColors: true,
+        transparent: true,
+    });
+    done = false; 
+    speed = 0.5;
+
+	constructor(scene : THREE.Scene, spawn : number ) {
         this.spawn = spawn
-        this.scene    = scene; 
-        this.done     = false; 
-        this.speed = 0.5;
-        this.dest     = []; 
-        this.colors   = []; 
-        this.geometry = null;
-        this.points   = null;
-        this.material = new THREE.PointsMaterial({
-            size: 0.2,
-            color: 0xffffff,
-            opacity: 1,
-            vertexColors: true,
-            transparent: true,
-            //depthTest: false,
-        });
+        this.scene = scene;
         this.launch(); 
     }
-	explode( vector ) {
+	explode( vector : THREE.Vector3) {
         this.scene.remove( this.points );  
         this.dest     = []; 
         this.colors   = []; 
@@ -59,7 +59,7 @@ export class Firework{
         this.geometry = null;
         this.points   = null;
     }
-	update(dt) {
+	update(dt : number) {
         if( this.points && this.geometry )
         {
 
@@ -91,7 +91,7 @@ export class Firework{
         }
     }
     launch() {
-        var x = THREE.MathUtils.randInt( this.spawn[0], this.spawn[0] * 1.5); 
+        var x = THREE.MathUtils.randInt( this.spawn, this.spawn * 1.5); 
         var y = THREE.MathUtils.randInt( -10, 10);
         var z = THREE.MathUtils.randInt( 7,  13); 
         

@@ -6,7 +6,7 @@
     import type { AuthState } from '$lib/stores/auth';
     import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
     import { fetchLatestDiscussion, messages } from '$lib/stores/chat';
-    import Settings from '$lib/static/Profile/Settings.svelte';
+    import Settings from '$lib/static/Profile/Settings/Settings.svelte';
     import { page } from '$app/stores'
 
     interface Notifications{
@@ -168,7 +168,7 @@
                     </ul>
                 </div>
                 <div class="dropdown col-4">
-                    <a href="/" class="navbar-item navbar-brand text-primary-subtle opacity dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a href="/" class="navbar-item navbar-brand text-primary-subtle opacity dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         <img src={state.user?.profile_picture} alt="User profile" class="border rounded-circle mb-1 me-1 responsive-img" width="30" height="30">{state.user?.username}
                     </a>
                     <ul class="dropdown-menu ms-2" style="min-width: 0;">
@@ -191,7 +191,7 @@
                     <strong class="me-auto">Notifications</strong>
                     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
-                <div class="toast-body text-truncate" role="button" on:click={(event) => {
+                <div class="toast-body text-truncate" on:click={(event) => {
                     if (notif?.type === 'chat')
                         handleGoto(event, `/chat/${notif?.info}/`);
                     else if (notif?.type === 'tournament')

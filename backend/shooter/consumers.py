@@ -120,6 +120,7 @@ class ShooterConsumer(WebsocketConsumer):
 				usr.shooter_elo += gain
 				gain -= 5
 				usr.save()
+			self.game.game_state = QUIT
 		if (self.game.game_state == QUIT and self.shootermatch.winner != None):
 			self.send(text_data=json.dumps({
 			'type':'Shooter',

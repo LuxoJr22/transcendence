@@ -1,7 +1,35 @@
 import * as THREE from 'three';
 
+interface Dictionary<T> {
+	[Key: string]: T;
+}
+
 export class Player {
-	constructor (mesh, bind, limit, speed, side) {
+	mesh : THREE.Object3D;
+	left : THREE.Object3D;
+	right : THREE.Object3D;
+	bone : THREE.Object3D;
+
+	ySpeed : number;
+	xSpeed : number;
+	side : number;
+	
+	gamepad = 0;
+	point = 0;
+	dir = 0;
+	animleg = 0
+	canmove = 1;
+	charging = 1;
+	knockback = 0;
+	charge = 0;
+
+	limit : Dictionary<number>;
+	bind :  Dictionary<number>;
+
+	controller = {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
+	controllanims = {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
+
+	constructor (mesh : THREE.Object3D, bind : Dictionary<number>, limit : Dictionary<number>, speed : number, side : number) {
 		this.ySpeed = speed;
 		this.xSpeed = speed;
 		this.mesh = mesh.scene;
@@ -9,22 +37,9 @@ export class Player {
 		this.left = this.mesh.getObjectByName("Bone003L");
 		this.right = this.mesh.getObjectByName("Bone003R");
 		this.bone = this.mesh.getObjectByName("Bone");
-		this.gamepad = 0;
-		this.point = 0;
-		this.dir = 0;
-
-		this.animleg = 0
-
-		this.canmove = 1;
-		this.charging = 1;
-		this.knockback = 0;
 	
 		this.limit = limit;
 		this.bind = bind;
-		this.charge = 0;
-
-		this.controller = {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
-		this.controllanims = {xp: 0, xn: 0, yp: 0, yn: 0, charge: 0}
 	}
 	update () {
 		this.knockback = THREE.MathUtils.lerp(this.knockback, 0, 0.1)
@@ -84,7 +99,7 @@ export class Player {
 			this.bone.rotation.x = THREE.MathUtils.lerp(this.bone.rotation.x , -Math.PI / 2 , 0.5)
 		}
 	}
-	keydown (keyCode) {
+	keydown (keyCode : number) {
 		if (keyCode == this.bind.up)
 			this.controller.yp = this.ySpeed;
 		if (keyCode == this.bind.down)
@@ -98,7 +113,7 @@ export class Player {
 			this.controller.charge = 1;
 		}
 	}
-	keyup (keyCode) {
+	keyup (keyCode : number) {
 		if (keyCode == this.bind.up)
 			this.controller.yp = 0;
 		if (keyCode == this.bind.down)

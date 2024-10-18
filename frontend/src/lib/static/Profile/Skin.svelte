@@ -2,11 +2,9 @@
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-	import { auth, fetchUser } from '$lib/stores/auth';
-	import type { AuthState } from '$lib/stores/auth';
     import { profile, profileData, userData, type Profile } from '$lib/stores/user';
 
-    let canvas;
+    let canvas : HTMLCanvasElement;
 	let skinName = '';
 	export let self;
 	export let userId = 0;

@@ -10,7 +10,7 @@
     import Skin from '$lib/static/Profile/Skin.svelte';
 
     export let userId : string;
-    let data : any;
+    let data : any = [];
 
     $: isFriendStatus = false;
 
@@ -57,7 +57,23 @@
         });
 
         if (response.ok) {
-            data = await response.json();
+            data = data.concat(await response.json());
+        }
+
+        const resp = await fetch("/api/shooter/history/" + user?.id, {
+            method: 'GET',
+            headers:{
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            }
+        });
+
+        if (resp.ok) {
+            data = data.concat(await resp.json());
+            
+            
+        }
+        if (resp.ok || response.ok)
+        {
             calcWinRate(data);
             finish = true;
         }
@@ -222,18 +238,6 @@
 
     .container {
         height: 70%;
-    }
-
-    .my-bg-black {
-        background-color: rgba(0, 0, 0, 0.4);
-    }
-
-    .link{
-        text-decoration:none;
-    }
-
-    .link:hover {
-        text-decoration: underline;
     }
 
 </style>

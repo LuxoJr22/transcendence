@@ -2,14 +2,21 @@
     import ImgOnline from "$lib/static/imgOnline.svelte";
 	import { onDestroy } from "svelte";
 	import {beforeNavigate, goto } from '$app/navigation';
+    import ChatBox from "$lib/static/Chat/ChatBox.svelte";
 
+	interface Dictionary<T> {
+        [Key: string]: T;
+    }
+	interface Dict<T, C> {
+		[Key: string]: T | C;
+	}
 
 	let currentUrl : string = window.location.href;
 	var tournament_name = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
-	var allUsers = []
-	var allGames = []
-	var allOnline = []
-	var Users = []
+	var allUsers : Dictionary<string>[] = []
+	var allGames : Dictionary<string>[]  = []
+	var allOnline : Dictionary<string>[]  = []
+	var Users : string[] = []
 	var capacity = 0
 
 	let url = '/ws/tournament/pong/' + tournament_name + '/?token=' + localStorage.getItem('access_token');
@@ -17,16 +24,18 @@
 
 
 	chatSocket.onmessage = function(e) {
-	
+		
 		let data = JSON.parse(e.data)
 		if (data.event == "Connection")
 		{
+			console.log(data.players)
 			allUsers = data.players;
 			allGames = data.games;
 			allOnline = data.online;
 			capacity = data.capacity;
-			data.players.forEach(element => {
-				Users[element.id] = element.username
+			data.players.forEach((element : Dict<number, string>) => {
+				if (typeof element.id == "number" && typeof element.username == "string")
+					Users[element.id] = element.username
 			});
 			document.getElementById("bracket")?.replaceChildren(create_bracket(capacity, allGames, allUsers))
 		}
@@ -38,45 +47,50 @@
 	}
 
 	chatSocket.onclose = function(e) {
+		if (e.code != 1000)
 			goto('/tournament');
-		}
+	}
 
 
 	function start_match() {
 		chatSocket.send(JSON.stringify({
-				'event':'Match_button',
-			}))
+			'event':'Match_button',
+		}))
 	}
 
-	function create_match(position : string, name, score)
+	function create_match(position : string, name : number | null | string, score : number | null)
 	{
 		var match = document.createElement("div");
 		match.className = `match-${position} team`;
 		var name_span = document.createElement("span");
 		name_span.className = "name"
-		if (Users[name])
+		if (typeof name == "number" && Users[name])
 			name_span.textContent = Users[name]
-		else
+		else if (typeof name == "string" || name == null)
 			name_span.textContent = name
 		match.appendChild(name_span)
 		var score_span = document.createElement("span");
 		score_span.className = "score"
-		score_span.textContent = score
+		if (score)
+			score_span.textContent = `${score}`
 		match.appendChild(score_span)
 		return (match)
 	}
 
-	function create_versus(game)
+	function create_versus(game : Dict<string | null, number>)
 	{
-		if (!game)
+		console.log(game)
+		if (game && (typeof game.score1 == "number" || game.score1 == null) && (typeof game.score2 == "number" || game.score2 == null))
 		{
-			var match1 = create_match("top", null, null)
-			var match2 = create_match("bottom", null, null)
-		}
-		else 
-		{
+			console.log("oui")
 			var match1 = create_match("top", game.player1, game.score1)
 			var match2 = create_match("bottom", game.player2, game.score2)
+		}
+		else
+		{
+			console.log("non")
+			var match1 = create_match("top", null, null)
+			var match2 = create_match("bottom", null, null)
 		}
 		var versus = document.createElement("div");
 		
@@ -111,7 +125,7 @@
 		return (versus)
 	}
 
-	function create_column(i : number, allgames, act_game)
+	function create_column(i : number, allgames  : Dictionary<string | null>[], act_game : number)
 	{
 		var column = document.createElement("div");
 		column.className = "column";
@@ -124,7 +138,7 @@
 		return (column)
 	}
 
-	function create_bracket(capacity : number, allgames, allusers)
+	function create_bracket(capacity : number, allgames : Dictionary<string | null>[], allusers :  Dictionary<string>[])
 	{
 		var bracket = document.createElement("div");
 		var act_game = 0
@@ -191,12 +205,12 @@
                 <div class="">
 					{#if allOnline.some(actuser => actuser.id == user.id)}
 						<div class="d-flex text-light rounded position-relative" style="left:45%;">
-							<img src={"/media/" + user.profile_picture} width=3% height=auto class="rounded-circle" style="object-fit:cover; aspect-ratio:1">
+							<img alt="profile_picture" src={"/media/" + user.profile_picture} width=3% height=auto class="rounded-circle" style="object-fit:cover; aspect-ratio:1">
 							<p class="m-0 p-0 mt-1 ms-2">{user.username}</p>
 						</div>
 					{:else}
 						<div class="d-flex rounded position-relative " style="color:grey; left:45%;">
-							<img src={"/media/" + user.profile_picture} width=3% height=auto class="rounded-circle" style="object-fit:cover; aspect-ratio:1">
+							<img alt="profile_picture" src={"/media/" + user.profile_picture} width=3% height=auto class="rounded-circle" style="object-fit:cover; aspect-ratio:1">
 							<p class="m-0 p-0 mt-1 ms-2">{user.username}</p>
 						</div>
 					{/if}
@@ -212,14 +226,6 @@
 
 
 <style>
-	/* .theme {
-		height: 100%;
-		width: 100%;
-		position: absolute;
-	} */
-	/* .text-decoration-underline {
-		color: white !important ;
-	} */
 	:global(.bracket) {
 		padding: 40px;
 		margin: 5px;
@@ -307,9 +313,6 @@
 	}
 	:global(.column:nth-child(3) .match-lines .line.two) {
 	  height: 175px;
-	}
-	.disable-image .image {
-		display: none !important;
 	}
 	:global(.theme-dark .team) {
 		background: #182026;
