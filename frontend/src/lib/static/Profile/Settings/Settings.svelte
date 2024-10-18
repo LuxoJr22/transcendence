@@ -1,6 +1,7 @@
 <script lang="ts">
     import { auth, fetchUser, type AuthState } from "$lib/stores/auth";
     import { onMount, tick } from "svelte";
+    import { keyboardMap } from "./keyMap"
 
     interface twoFA {
 		success: '',
@@ -111,8 +112,9 @@
     
     document.addEventListener("keydown", onDocumentKeyDown, false);
 
-    function onDocumentKeyDown(event){
+    function onDocumentKeyDown(event : KeyboardEvent){
         var keycode = event.which;
+        console.log(event)
         if (waitingForKey){
             keyBinds[keySelected[0]][keySelected[1]] = keycode;
             waitingForKey = false;
@@ -154,21 +156,21 @@
                     <div class="col-6 mb-1 border-end">
                         <h5 class="text-center mb-3">Pong</h5>
                         <ul>
-                            <li class="h5">Forward: <button class="kbc-button" on:click={() => updateBinds(0, 'up')}>{String.fromCharCode(keyBinds[0].up)}</button></li>
-                            <li class="h5">Back: <button class="kbc-button" on:click={() => updateBinds(0, 'down')}>{String.fromCharCode(keyBinds[0].down)}</button></li>
-                            <li class="h5">Left: <button class="kbc-button" on:click={() => updateBinds(0, 'left')}>{String.fromCharCode(keyBinds[0].left)}</button></li>
-                            <li class="h5">Right: <button class="kbc-button" on:click={() => updateBinds(0, 'right')}>{String.fromCharCode(keyBinds[0].right)}</button></li>
-                            <li class="h5">Dash: <button class="kbc-button" on:click={() => updateBinds(0, 'charge')}>{String.fromCharCode(keyBinds[0].charge)}</button></li>
+                            <li class="h5">Forward: <button class="kbc-button" on:click={() => updateBinds(0, 'up')}>{keyboardMap[keyBinds[0].up]}</button></li>
+                            <li class="h5">Back: <button class="kbc-button" on:click={() => updateBinds(0, 'down')}>{keyboardMap[keyBinds[0].down]}</button></li>
+                            <li class="h5">Left: <button class="kbc-button" on:click={() => updateBinds(0, 'left')}>{keyboardMap[keyBinds[0].left]}</button></li>
+                            <li class="h5">Right: <button class="kbc-button" on:click={() => updateBinds(0, 'right')}>{keyboardMap[keyBinds[0].right]}</button></li>
+                            <li class="h5">Dash: <button class="kbc-button" on:click={() => updateBinds(0, 'charge')}>{keyboardMap[keyBinds[0].charge]}</button></li>
                         </ul>
                     </div>
                     <div class="col-6 mb-1">
                         <h5 class="text-center mb-3">Shooter</h5>
                         <ul>
-                            <li class="h5">Forward: <button class="kbc-button" on:click={() => updateBinds(1, 'up')}>{String.fromCharCode(keyBinds[1].up)}</button></li>
-                            <li class="h5">Back: <button class="kbc-button" on:click={() => updateBinds(1, 'down')}>{String.fromCharCode(keyBinds[1].down)}</button></li>
-                            <li class="h5">Left: <button class="kbc-button" on:click={() => updateBinds(1, 'left')}>{String.fromCharCode(keyBinds[1].left)}</button></li>
-                            <li class="h5">Right: <button class="kbc-button" on:click={() => updateBinds(1, 'right')}>{String.fromCharCode(keyBinds[1].right)}</button></li>
-                            <li class="h5">Jump: <button class="kbc-button" on:click={() => updateBinds(1, 'jump')}>{String.fromCharCode(keyBinds[1].jump)}</button></li>
+                            <li class="h5">Forward: <button class="kbc-button" on:click={() => updateBinds(1, 'up')}>{keyboardMap[keyBinds[1].up]}</button></li>
+                            <li class="h5">Back: <button class="kbc-button" on:click={() => updateBinds(1, 'down')}>{keyboardMap[keyBinds[1].down]}</button></li>
+                            <li class="h5">Left: <button class="kbc-button" on:click={() => updateBinds(1, 'left')}>{keyboardMap[keyBinds[1].left]}</button></li>
+                            <li class="h5">Right: <button class="kbc-button" on:click={() => updateBinds(1, 'right')}>{keyboardMap[keyBinds[1].right]}</button></li>
+                            <li class="h5">Jump: <button class="kbc-button" on:click={() => updateBinds(1, 'jump')}>{keyboardMap[keyBinds[1].jump]}</button></li>
                         </ul>
                     </div>
                 </div>
