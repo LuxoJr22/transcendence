@@ -18,6 +18,7 @@
     
     state = $auth;
     let newMessage = '';
+    let messageInput: HTMLInputElement;
 
     $: {
         roomId;
@@ -71,6 +72,7 @@
             let message = newMessage;
             ws.send(JSON.stringify({message}));
             newMessage = '';
+            messageInput.focus();
         }
         await fetchLatestDiscussion();
     }
@@ -94,9 +96,9 @@
             <div>
                 {#if roomId != 'home'}
                 <div class="d-flex justify-content-bottom justify-content-end me-2">
-                    <form class="sendBox mb-2">
-                        <input type="text" bind:value={newMessage} class="">
-                        <button class="btn btn-primary btn-sm" on:click={sendMessage}>Send</button>
+                    <form class="sendBox mb-2" on:submit|preventDefault={sendMessage}>
+                        <input type="text" bind:this={messageInput} bind:value={newMessage} class="">
+                        <button class="btn btn-primary btn-sm" type="submit">Send</button>
                         <PlayButton ws={ws} />
                     </form>
                 </div>
