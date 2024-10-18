@@ -17,7 +17,7 @@
     let state: AuthState;
     
     state = $auth;
-    let newMessage = '';
+    let newMessage : String = '';
     let messageInput: HTMLInputElement;
 
     $: {
@@ -69,13 +69,20 @@
     async function sendMessage(){
         if (ws && ws.readyState === WebSocket.OPEN && newMessage.trim() !== '')
         {
-            let message = newMessage;
+            let message = newMessage.replaceAll('\n', '<br>');
             ws.send(JSON.stringify({message}));
             newMessage = '';
             messageInput.focus();
         }
         await fetchLatestDiscussion();
     }
+
+    document.addEventListener('keydown', async (event:KeyboardEvent) => {
+        if (event.code == 'Enter' && !event.shiftKey){
+            await sendMessage();
+            newMessage = '';
+        }
+    });
 
     onDestroy(() => {
         if (ws && ws.readyState == WebSocket.OPEN){
@@ -95,11 +102,13 @@
             <ChatBox state={state} roomId={roomId} />
             <div>
                 {#if roomId != 'home'}
-                <div class="d-flex justify-content-bottom justify-content-end me-2">
-                    <form class="sendBox mb-2" on:submit|preventDefault={sendMessage}>
-                        <input type="text" bind:this={messageInput} bind:value={newMessage} class="">
-                        <button class="btn btn-primary btn-sm" type="submit">Send</button>
-                        <PlayButton ws={ws} />
+                <div class="d-flex justify-content-end">
+                    <form class="sendBox" on:submit|preventDefault={sendMessage}>
+                        <div class="d-flex justify-content-end">
+                            <textarea placeholder="Enter a message" type="text" bind:this={messageInput} bind:value={newMessage} class="col-10 p-1 me-2"></textarea>
+                            <button class="btn btn-primary btn-sm me-1" type="submit">Send</button>
+                            <PlayButton ws={ws} />
+                        </div>
                     </form>
                 </div>
                 {/if}
@@ -120,8 +129,12 @@
         height: 80vh;
     }
 
-    .sendBox input {
+    .sendBox textarea {
         border-radius: 10px;
-        height:110%;
+        width: 46.5vw;
+        height: 35px;
+        resize: none;
+        overflow: hidden;
     }
+    
 </style>
