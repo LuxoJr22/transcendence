@@ -14,14 +14,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		if not self.sender.is_authenticated:
 			await self.close()
 			return
-		if await sync_to_async(lambda: Block.objects.filter(blocker=self.sender, blocked__id=self.receiver_id).exists())():
-			await self.close()
-			return
-		if await sync_to_async(lambda: Block.objects.filter(blocker__id=self.receiver_id, blocked=self.sender).exists())():
-			await self.close()
-			return
 
 		self.room_group_name = f'chat_{min(self.sender.id, int(self.receiver_id))}_{max(self.sender.id, int(self.receiver_id))}'
+
+		if await sync_to_async(lambda: Block.objects.filter(blocker=self.sender, blocked__id=self.receiver_id).exists())() or \
+			await sync_to_async(lambda: Block.objects.filter(blocker__id=self.receiver_id, blocked=self.sender).exists())():
+			await self.close()
+			return
 
 		await self.channel_layer.group_add(
 			self.room_group_name,
@@ -36,6 +35,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 		)
 
 	async def receive(self, text_data):
+		if await sync_to_async(lambda: Block.objects.filter(blocker=self.sender, blocked__id=self.receiver_id).exists())() or \
+			await sync_to_async(lambda: Block.objects.filter(blocker__id=self.receiver_id, blocked=self.sender).exists())():
+			await self.close()
+			return
+
 		text_data_json = json.loads(text_data)
 
 		if 'invite_pong' in text_data_json:
