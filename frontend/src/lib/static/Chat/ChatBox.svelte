@@ -11,9 +11,11 @@
     let chatMessages : Messages[];
     chatMessages = $messages;
 
-    function joinPrivateGame(gamemode: string, match_id: string) {
-        localStorage.setItem('game_id', match_id);
-        goto(`/matchmaking/${gamemode}/private/`);
+    function joinPrivateGame(gamemode: string | null, match_id: string | null) {
+        if (match_id != null){
+            localStorage.setItem('game_id', match_id);
+            goto(`/matchmaking/${gamemode}/private/`);
+        }
     }
 
     onMount(async () => {
@@ -23,7 +25,7 @@
         });
     })
 
-    let div : HTMLDivElement = 0;
+    let div : HTMLDivElement | null = null;
     let autoscroll = false;
     beforeUpdate(() => {
         if (div){
@@ -46,7 +48,7 @@
 {:else}
     <div class="m-5 chat-box border rounded" bind:this={div}>
         {#each chatMessages as msg}
-            <div class="d-flex justify-content-{msg.sender == state.user?.id ? 'end' : 'start'} text-center">
+            <div class="d-flex justify-content-{parseInt(msg.sender) == state.user?.id ? 'end' : 'start'} text-center">
                 <p class="col-auto border rounded bg-light p-2 m-2 msgBox">
                     {@html msg.content}
                     {#if msg.is_invitation && msg.is_over == false}

@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import Pie from './pie.svelte';
     import type { Profile } from '$lib/stores/user';
-    import { profileData, userData, profile } from '$lib/stores/user';
+    import { profileData, profile } from '$lib/stores/user';
     import History from '$lib/static/Profile/History/History.svelte';
     import Block from '$lib/static/Profile/Block.svelte';
     import { friendList, fetchFriendList, deleteFriend } from '$lib/stores/friendship';
@@ -148,12 +148,12 @@
                 <div class="border-bottom mx-3 me-4 pb-3">
                     {#if user?.is_online}
                     <div class="d-flex justify-content-center align-items-end">
-                        <img alt="user profile" src={user?.profile_picture} class="img-circle rounded-circle ms-2">
+                        <img alt="user profile" src={user?.profile_picture_url} class="img-circle rounded-circle ms-2">
                         <span class="mt-2 badge rounded-pill bg-success">Online</span>
                     </div>
                     {:else}
                     <div class="d-flex justify-content-center align-items-end">
-                        <img alt="user profile" src={user?.profile_picture} class="img-circle rounded-circle ms-2">
+                        <img alt="user profile" src={user?.profile_picture_url} class="img-circle rounded-circle ms-2">
                         <span class="mt-2 badge rounded-pill bg-secondary">Offline</span>
                     </div>
                     {/if}
@@ -190,7 +190,7 @@
         <div class="justify-content-center flex-column col-5">
             <h2 class="text-light text-center p-4 m-1 title-profile">History</h2>
             {#if finish}
-                <History data={data}/>
+                <History data={data} state={null}/>
             {/if}
         </div>
     </div>

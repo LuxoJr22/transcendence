@@ -8,7 +8,6 @@
     import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
     import { goto, beforeNavigate, afterNavigate } from '$app/navigation';
-    import Block from '$lib/static/Profile/Block.svelte';
 
 	let state: AuthState;
 	$: $auth, state = $auth;

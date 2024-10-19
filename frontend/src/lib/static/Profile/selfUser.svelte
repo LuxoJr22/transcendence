@@ -1,13 +1,10 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { afterNavigate } from '$app/navigation'
-    import { get } from 'svelte/store'
     import Pie from './pie.svelte';
-    import { auth, fetchUser, updatePassword} from '$lib/stores/auth';
+    import { auth } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
     import type { friendInterface } from '$lib/stores/friendship';
-    import { userData } from '$lib/stores/user';
     import ImgOnline from '$lib/static/imgOnline.svelte';
     import ProfilePicture from '$lib/static/Profile/UpdateUserInformation/profilePicture.svelte';
     import Username from '$lib/static/Profile/UpdateUserInformation/username.svelte';
@@ -99,12 +96,12 @@
                     {#each listOfFriend as friend}
                         <div class="border rounded d-flex align-items-center me-2 mb-2 my-bg-black">
                             <div class="d-flex ms-2 align-items-center">
-                                <ImgOnline path={friend?.profile_picture_url} status={friend?.is_online} width=30% height=30% />
+                                <ImgOnline path={friend?.profile_picture_url} status={friend?.is_online} width=25% height=25% />
                                 <a class="text-light ms-3 mb-3 mt-3 link" style="font-size:100%;" role="button" href={"/profile/" + friend.id}>{friend.username}</a>
                             </div>
                             <div class="d-flex">
                                 <a class="btn" href="/chat/{friend.id}"><i class="bi bi-chat" style="color:white;"></i></a>
-                                <button class="btn" on:click={deleteFriend(friend.id)}><i class="bi bi-x-lg" style="color:red;"></i></button>
+                                <button class="btn" on:click={() => deleteFriend(friend.id)}><i class="bi bi-x-lg" style="color:red;"></i></button>
                             </div>
                         </div>
                     {/each}

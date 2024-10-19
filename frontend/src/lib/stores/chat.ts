@@ -18,6 +18,7 @@ export interface History{
     last_message:{
         sender: number;
         timestamp: string;
+        content: string;
     }
     profile_picture_url: string;
     username: string;

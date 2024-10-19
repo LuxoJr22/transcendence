@@ -28,7 +28,7 @@
     }
 
     let gamesHistory = new Array<Game>();
-    export let state : AuthState;
+    export let state : AuthState | null;
 
     onMount(async () => {
         auth.subscribe((value) => {
@@ -126,7 +126,7 @@
         <div class="row border  rounded match my-1 bg-dark text-truncate {game.winner == userId ? 'border-primary' : 'border-danger'}">
 
             {#if game.gamemode != "Shooter"}
-                <p class="col-4 text-center text-light h4 mt-1">{state.user?.id == userId ? 'Me' : game.me.username}</p>
+                <p class="col-4 text-center text-light h4 mt-1">{state?.user?.id == userId ? 'Me' : game.me.username}</p>
                 <p class="col-4 text-center h4 {game.winner == userId ? 'text-primary' : 'text-danger'} mt-1">{game.me.score} / {game.opponent.score}</p>
                 <a class="col-4 text-center text-light h4 link mt-1" href={"/profile/" + game.opponent.id}>{game.opponent.username}</a>
             {:else}

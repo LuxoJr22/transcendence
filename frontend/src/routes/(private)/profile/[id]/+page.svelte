@@ -1,6 +1,5 @@
 <script lang='ts'>
     import { onMount } from 'svelte';
-    import { beforeNavigate } from '$app/navigation';
     import { page } from '$app/stores';
     import { auth, fetchUser } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
@@ -38,7 +37,7 @@
 {#if parseInt(currentUser) == state.user?.id}
     <SelfUser />
 {:else if user?.id == parseInt(currentUser)}
-    <OtherUser userId={parseInt(currentUser)} />
+    <OtherUser userId={currentUser} />
 {:else}
     <div class="col-12 h-100 d-flex justify-content-center" style="color:grey;">
         <h2 class='p-5'>Error<br>Profile not found</h2>

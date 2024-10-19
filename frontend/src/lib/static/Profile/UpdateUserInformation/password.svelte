@@ -1,6 +1,6 @@
 <script lang="ts">
 
-import { updatePassword } from "$lib/stores/auth";
+    import { updatePassword } from "$lib/stores/auth";
 
     let newPassword : string = '';
     let currentPassword : string = '';

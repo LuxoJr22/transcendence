@@ -2,10 +2,8 @@
     import { Bot } from "./bot";
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
-	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
-	import { SkeletonCollider } from "./skeletoncollider"
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 

@@ -2,19 +2,12 @@
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-	import { profileData, userData, profile } from '$lib/stores/user';
+	import { profileData, profile, type Profile } from '$lib/stores/user';
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 	
     let canvas : HTMLCanvasElement;
 	let state: AuthState;
-	interface Profile {
-		id: number;
-		username: string;
-		profile_picture: string;
-		is_online:  boolean;
-		skin: string
-	}
 	let user : Profile;
 
 	let users = []
@@ -45,7 +38,7 @@
 		while (historyData[i])
 		{
 			console.log(historyData[i].winner)
-			if (historyData[i].winner != state.user.id)
+			if (historyData[i].winner != state.user!.id)
 			{
 				await profileData(parseInt(historyData[i].winner));
 				profile.subscribe((value : Profile) =>{

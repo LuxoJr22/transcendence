@@ -16,7 +16,7 @@
 			state = value;
 		});
 
-		let temp = document.querySelectorAll(".btn_text");
+		let temp : NodeListOf<HTMLButtonElement> = document.querySelectorAll(".btn_text");
 		var canvasSize = {width: window.innerWidth,  height: window.innerHeight}
 		let i = 0
 		while (temp[i])
@@ -46,7 +46,7 @@
 	})
 
 	function gameHref() {
-		let games : NodeListOf<HTMLInputElement> = document.getElementsByName('gameRadio');
+		let games : NodeListOf<HTMLInputElement> = document.getElementsByName('gameRadio') as NodeListOf<HTMLInputElement>;
 		let tmp = null;
 		for (let game of games){
 			if (game.checked){
@@ -111,22 +111,6 @@
 	.card:hover {
 		cursor: pointer;
 		transform: scale(1.1);
-		/* animation-name: rotate;
-		animation-duration: 1s;
-		animation-iteration-count: infinite;
-		animation-delay: 0s; */
 	}
-
-	/* @keyframes rotate {
-
-		0% {
-			transform: rotateZ(0deg);
-		}
-
-		100%
-		 {
-			transform: rotateZ(360deg);
-		}
-	} */
 
 </style>

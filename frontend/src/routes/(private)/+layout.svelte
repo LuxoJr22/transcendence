@@ -1,13 +1,14 @@
-<script lang='ts' >
+<script lang='ts'>
     import { goto, afterNavigate } from '$app/navigation';
     import { onMount } from 'svelte';
     import {get} from 'svelte/store';
     import { auth, fetchUser, logout , refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
-    import { acceptFriendRequest, declineFriendRequest, friendList } from '$lib/stores/friendship'
-    import { fetchLatestDiscussion, messages } from '$lib/stores/chat';
+    import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
+    import { fetchLatestDiscussion } from '$lib/stores/chat';
     import Settings from '$lib/static/Profile/Settings/Settings.svelte';
     import { page } from '$app/stores'
+    import type { Profile } from '$lib/stores/user';
 
     interface Notifications{
         type: string;
@@ -16,7 +17,11 @@
         info: string;
     }
 
-    let keyBinds = [{up: 90, down: 83, left:81, right:68, charge:32}, {up: 90, down: 83, left:81, right:68, jump:32}]
+    interface Dictionary<T> {
+        [Key: string]: T;
+    }
+
+    let keyBinds : Array<Dictionary<number>> = [{up: 90, down: 83, left:81, right:68, charge:32}, {up: 90, down: 83, left:81, right:68, jump:32}]
 
     let notifications = new Array<Notifications>();
     let navBarNotifications = new Array<Notifications>();
@@ -93,7 +98,16 @@
     };
 
     /******************Friendship********************/
-    let requestsList = '' ;
+
+    interface Request {
+        accepted: boolean,
+        created_at: Date,
+        id: number,
+        receiver: Profile
+        requester: Profile;
+    }
+
+    let requestsList = new Array<Request>();
     async function fetchFriendRequests(){
         const { accessToken } = get(auth);
 
@@ -138,7 +152,7 @@
 
 </script>
 
- {#if $page.url.pathname != "/shooter"}
+{#if $page.url.pathname != "/shooter"}
     <nav class="navbar">
         <div class="container-fluid container-size">
             <a href="/" class="navbar-item navbar-brand fs-1 layout-title text-warning-subtle ms-4 opacity">t r i p l u m</a>
@@ -184,7 +198,8 @@
                         <li class="border border-2 rounded m-2 button-dropdown"><button class="dropdown-item text-start py-1 px-3" data-bs-toggle="modal" data-bs-target="#settingsModal" on:click={async () => await getKeyBinds()}><i class="bi bi-gear pe-2" style="font-size: 1.3rem; color: grey;"></i>settings</button></li>
                         <li class="border border-2 rounded m-2 button-dropdown"><a class="dropdown-item text-danger text-start py-1 px-3" href='/login' on:click={handleLogout}><i class="bi-box-arrow-right pe-2" style="font-size: 1.3rem; color: red;"></i>logout</a></li>
                     </ul>
-                    <Settings state={state} twoFA_data={0} otp_code={''} keyBinds={keyBinds}/>
+                    <Settings state={state} twoFA_data={null} otp_code={''} keyBinds={keyBinds}/>
+                </div>
             </div>
         </div>
     </nav>
@@ -205,7 +220,8 @@
                         handleGoto(event, `/tournament/${notif?.info}/`);
                     else if (notif?.type === 'friend_request')
                         handleGoto(event, `/profile/${notif?.info}/`);
-                }}>{notif?.message}</div>
+                }}>{notif?.message}
+                </div>
             </div>
         {/each}
     </div>

@@ -1,8 +1,8 @@
-<script>
+<script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { Chart } from 'chart.js/auto';
 
-    let chart;
+    let chart : any;
 
     export let victories = 0;
     export let defeats = 0;
@@ -36,7 +36,8 @@
     onMount(() => {
         if (victories != 0 || defeats != 0)
         {
-            const ctx = document.getElementById('myChart').getContext('2d');
+            const canvas : any = document.getElementById('myChart');
+            const ctx = canvas.getContext('2d');
             chart = new Chart(ctx, {
                 type: 'pie',
                 data,

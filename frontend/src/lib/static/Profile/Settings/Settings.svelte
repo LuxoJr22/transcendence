@@ -1,6 +1,6 @@
 <script lang="ts">
     import { auth, fetchUser, type AuthState } from "$lib/stores/auth";
-    import { onMount, tick } from "svelte";
+    import { onMount } from "svelte";
     import { keyboardMap } from "./keyMap"
 
     interface twoFA {
@@ -10,25 +10,25 @@
 		qr_code: ''
 	}
 
-    interface binds {
-        up : number;
-        down : number;
-        left : number;
-        right: number;
-        jump: number;
-        charge: number; 
+    interface Dictionary<T> {
+        [Key: string]: T;
+    }
+
+    interface keySelected {
+        index: number,
+        key: string
     }
 
     export let state : AuthState;
 
     state = $auth;
 
-    export let twoFA_data : twoFA;
+    export let twoFA_data : twoFA | null;
     export let otp_code : string;
     let waitingForKey = false;
-    let keySelected = [];
+    let keySelected : keySelected = {index: 0, key: ''};
 	let displayInput = false;
-    export let keyBinds = [{}, {}]
+    export let keyBinds : Array<Dictionary<number>> = [];
 
     onMount(async () => {
         await fetchUser();
@@ -63,7 +63,7 @@
 		}
 		else{
 			let data = await response.json();
-            twoFA_data.error = data.error;
+            twoFA_data!.error = data.error;
         }
     }
 
@@ -77,8 +77,8 @@
 
 		if (response.ok){
 			twoFA_data = await response.json();
-            if (twoFA_data.success != '')
-                twoFA_data = 0;
+            if (twoFA_data?.success != null)
+                twoFA_data = null;
 			await fetchUser();
 		}
 		else
@@ -115,13 +115,14 @@
     function onDocumentKeyDown(event : KeyboardEvent){
         var keycode = event.which;
         if (waitingForKey){
-            keyBinds[keySelected[0]][keySelected[1]] = keycode;
+            keyBinds[keySelected.index][keySelected.key] = keycode;
             waitingForKey = false;
         }
     }
 
     function updateBinds(i : number, name : string){
-        keySelected = [i, name];
+        keySelected.index = i;
+        keySelected.key = name;
         waitingForKey = true;
     }
 

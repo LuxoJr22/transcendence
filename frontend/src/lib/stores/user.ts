@@ -1,10 +1,9 @@
 import { writable } from 'svelte/store';
-import { refresh_token } from './auth';
 
 export interface Profile {
    id: number;
    username: string;
-   profile_picture: string;
+   profile_picture_url: string;
    is_online:  boolean;
    skin: string
 }
@@ -24,7 +23,7 @@ export async function profileData(id: number): Promise<void> {
       profile.set({
          id: profileData.id,
          username: profileData.username,
-         profile_picture: profileData.profile_picture_url,
+         profile_picture_url: profileData.profile_picture_url,
          is_online: profileData.is_online,
          skin: profileData.skin
       });
