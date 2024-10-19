@@ -68,5 +68,5 @@
 	<p style="color: white">WAITING FOR OPONENT</p>
 </div>
 <div class="d-flex justify-content-center">
-	<Waiting skinName={state.user?.skin}/>
+	<Waiting />
 </div>

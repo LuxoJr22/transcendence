@@ -481,7 +481,8 @@
 		}
 
 		pongSocket.onclose = function(e) {
-			goto('/');
+			if (e.code != 1000)
+				goto('/');
 		}
 
 
