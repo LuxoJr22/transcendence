@@ -73,12 +73,12 @@
                     {#if !viewablePassword}
                         <div class="d-flex input-group">
                             <input type="password" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
-                            <a class="hover-effect input-group-text" type="button" on:click={viewPassword}><i class="bi bi-eye" style="color:grey;"></i></a>
+                            <div class="hover-effect input-group-text" type="button" on:click={viewPassword}><i class="bi bi-eye" style="color:grey;"></i></div>
                         </div>
                     {:else}
                         <div class="d-flex input-group">
                             <input type="text" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
-                            <a class="hover-effect input-group-text" type="button" on:click={viewPassword} ><i class="bi bi-eye-slash" style="color:grey;"></i></a>
+                            <div class="hover-effect input-group-text" type="button" on:click={viewPassword} ><i class="bi bi-eye-slash" style="color:grey;"></i></div>
                         </div>
                     {/if}
                 </li>

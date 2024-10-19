@@ -429,8 +429,8 @@
                 var row = table_body!.insertRow()
                 var usercell = row.insertCell(0)
                 var scorecell = row.insertCell(1)
-                usercell.innerHTML = data.players[id].username
-                scorecell.innerHTML = `${Math.round(data.players[id].score)}`
+                usercell.innerHTML = data.players[data.id - 1].username
+                scorecell.innerHTML = `${Math.round(data.players[data.id - 1].score)}`
                 score_cells.push(scorecell)
             }
             if (data.event == 'Flag_picked')
