@@ -487,8 +487,11 @@
                 play.cam.getObject().rotation.z = data.rotation.z
             }
             if (data.event == "Quit")
+            {
+                play.cam.unlock()
                 goto('/');
-		}
+            }
+        }
 
         function timer_update(totalSeconds : number)
         {
