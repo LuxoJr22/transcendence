@@ -273,7 +273,7 @@
         position: absolute;
 		width: 10px;
 		height: 10px;
-		cursor: url("src/routes/(private)/selection/public/hand.png"), auto;
+		cursor: url("src/routes/\(private\)/selection/public/hand.png"), auto;
     }
 
 
@@ -299,7 +299,7 @@
 
 	    }
 	#gameCanvas {
-		cursor: url("src/routes/(private)/selection/public/hand.png"), auto;
+		cursor: url("src/routes/\(private\)/selection/public/hand.png"), auto;
 	}
 </style>
 
