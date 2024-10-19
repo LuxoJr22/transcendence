@@ -19,6 +19,8 @@
     state = $auth;
     let newMessage : String = '';
     let messageInput: HTMLInputElement;
+    var input: HTMLElement
+    var box: HTMLElement 
 
     $: {
         roomId;
@@ -32,8 +34,21 @@
         }
     }
 
+    
+    
+    window.onresize = function(event){
+        let wid = box?.getBoundingClientRect().width
+        if (wid && input)
+            input.style.width = (wid -  185) + "px"
+	}
+
     onMount(async () => {
         await fetchLatestDiscussion();
+        input = document.getElementById("input")!
+        box = document.getElementById("box")!
+        let wid = box!.getBoundingClientRect().width
+        
+        input!.style.width = (wid -  185) + "px"
         roomId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
         auth.subscribe((value : AuthState) =>{
             state = value;
@@ -44,6 +59,8 @@
             createRoom(parseInt(roomId));
         }
     });
+
+
 
     async function createRoom(id : number){
         await fetchChatMessages(id);
@@ -98,14 +115,14 @@
             <ModalUser />
             <LatestDiscussion state={state} roomId={roomId}/>
         </div>
-        <div class="col-9 container position-relative">
+        <div id="box" class="col-9 container position-relative">
             <ChatBox state={state} roomId={roomId} />
             <div>
                 {#if roomId != 'home'}
                 <div class="d-flex justify-content-end">
                     <form class="sendBox" on:submit|preventDefault={sendMessage}>
                         <div class="d-flex justify-content-end">
-                            <textarea placeholder="Enter a message" type="text" bind:this={messageInput} bind:value={newMessage} class="col-10 p-1 me-2"></textarea>
+                            <textarea id="input" placeholder="Enter a message" type="text" bind:this={messageInput} bind:value={newMessage} class="col-10 p-1 me-2"></textarea>
                             <button class="btn btn-primary btn-sm me-1" type="submit">Send</button>
                             <PlayButton ws={ws} />
                         </div>
