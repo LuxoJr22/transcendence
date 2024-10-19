@@ -2,11 +2,24 @@
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+	import { profileData, userData, profile } from '$lib/stores/user';
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 	
     let canvas : HTMLCanvasElement;
 	let state: AuthState;
+	interface Profile {
+		id: number;
+		username: string;
+		profile_picture: string;
+		is_online:  boolean;
+		skin: string
+	}
+	let user : Profile;
+
+	let users = []
+    $: user = $profile;
+
 	$: $auth, state = $auth;
 
 	onMount(() => { (async () => {
@@ -14,16 +27,50 @@
 		auth.subscribe((value : AuthState) =>{
             state = value;
         });
+
+
+		
+        const response = await fetch("/api/pong/history/" + state.user?.id, {
+            method: 'GET',
+            headers:{
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            }
+        });
+
+        if (response.ok) {
+            var historyData = await response.json();
+        }
+		
+		let i = 0;
+		while (historyData[i])
+		{
+			console.log(historyData[i].winner)
+			if (historyData[i].winner != state.user.id)
+			{
+				await profileData(parseInt(historyData[i].winner));
+				profile.subscribe((value : Profile) =>{
+					user = value;
+				})
+				users.push(user)
+			}
+			i++
+		};
+
+		var nb_hit = 0
+
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera( 90, 2, 0.1, 1000 );
-		scene.background = new THREE.Color(0x111111);
+		scene.background = new THREE.Color(0x212529);
 		var hit = 0
 
 		var canvasSize = {width: window.innerWidth * 0.7,  height: window.innerWidth * 0.7 / 2 * 1}
 		var t = 0;
 		const clock = new THREE.Clock();
 		const loader = new GLTFLoader()
-		const skin = await loader.loadAsync('/src/lib/assets/skins/gilles.glb');
+		if (users[0])
+			var skin = await loader.loadAsync('/src/lib/assets/skins/' + users[0].skin);
+		else
+			var skin = await loader.loadAsync('/src/lib/assets/skins/gilles.glb');
         var rotating_skin = skin.scene;
 		rotating_skin.scale.set(0.3, 0.3, 0.3);
 		scene.add(rotating_skin)
@@ -47,7 +94,7 @@
 		var	l = renderer.domElement.getBoundingClientRect().left
 
 		camera.position.x = 0;
-		camera.position.y = 0.8;
+		camera.position.y = 0.9;
 		camera.position.z = 1.7;
 
 		var gloves = document.getElementById("gloves_ui");
@@ -68,7 +115,10 @@
 
 
 		
+		const ring = await loader.loadAsync('/src/lib/assets/maps/waiting/boxing_ring.glb');
+		ring.scene.position.set(0, -3, 0)
 
+		scene.add(ring.scene)
 
 		var left = rotating_skin.getObjectByName("Bone003L");
 		var right = rotating_skin.getObjectByName("Bone003R");
@@ -112,16 +162,17 @@
 				const found = raycaster.intersectObjects(scene.children);
 				if (found[0])
 				{
+					
+					hit = 0.5;
+					var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.1 , 5, 5), new THREE.MeshBasicMaterial( { color: 0xffcccc} ))
+					sphere.scale.z = 0.5
+					sphere.position.set(found[0].point.x, found[0].point.y ,found[0].point.z );
+					bone.attach(sphere)
+					nb_hit ++;
 					if (clickmouse.x < 0)
 						hit_pose(-1)
 					else
 						hit_pose(1)
-					hit = 0.5;
-					var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.15 , 5, 5), new THREE.MeshBasicMaterial( { color: 0xffcccc} ))
-					sphere.position.set(found[0].point.x, found[0].point.y ,found[0].point.z );
-					//rotating_skin.attach(sphere)
-					//bone.attach(sphere)
-					//sphere.applyMatrix4(new THREE.Matrix4(sphere.Matrix4));
 				}
 			}
 		});
@@ -139,51 +190,6 @@
 					skinned = node
 			}
 		})
-
-		// var box = new THREE.Box3().setFromObject(rotating_skin);
-		// var size = new THREE.Vector3();
-		// box.getSize(size);
-		// rotating_skin.children[0].children[0].material = new THREE.MeshBasicMaterial({color: 0xffddff, skinning: true});
-		// rotating_skin.children[0].children[0].material.color.set(0xffffff);
-		// rotating_skin.children[0].children[0].material.onBeforeCompile = function ( shader ) {
-		// 	shader.uniforms.time = { value: 0 };
-		// 	shader.uniforms.size = { value: size};
-		// 	shader.uniforms.color1 = {value: new THREE.Color(0xff00ff)};
-		// 	shader.uniforms.color2 = {value: new THREE.Color(0xffff00)};
-		// 	shader.vertexShader = 'varying vec4 vWorldPosition;\n' + shader.vertexShader;
-		// 	shader.vertexShader = shader.vertexShader.replace(
-		// 	'#include <worldpos_vertex>',
-		// 	[
-		// 		'#include <worldpos_vertex>',
-		// 		'vWorldPosition = modelMatrix * vec4( transformed, 1.0 );'
-		// 	].join( '\n' )
-		// 	);
-		// 	shader.fragmentShader = 'uniform float time;\nuniform vec3 size;\nuniform vec3 color1;\nuniform vec3 color2;\nvarying vec4 vWorldPosition;\n' + shader.fragmentShader;
-		// 	// shader.fragmentShader = shader.fragmentShader.replace(
-		// 	// '#include <map_fragment>',
-		// 	// [
-		// 	// 	'#include <map_fragment>',
-		// 	// 	'vec4 sampledDiffuseColor = texture2D( map, vMapUv );',
-		// 	// 	'diffuseColor *= sampledDiffuseColor;',
-		// 	// ].join( '\n' )
-		// 	// );
-		// 	shader.fragmentShader = shader.fragmentShader.replace(
-		// 	'#include <dithering_fragment>',
-		// 	[
-		// 		'#include <dithering_fragment>',
-		// 		'float gridRatio = sin( time ) * 0.1875 + 0.3125;', // 0.125 .. 0.5
-		// 		'vec3 m = abs( sin( vWorldPosition.xyz * gridRatio ) );',
-		// 		'vec3 gridColor = mix(color1, color2, vWorldPosition.y / size.y);',
-				
-		// 		'gl_FragColor = vec4( mix( gridColor, diffuseColor.rgb, m.x * m.y * m.z ), diffuseColor.a );',
-		// 		// 'diffuseColor = vec4( mix( gridColor, diffuseColor.rgb, m.x * m.y * m.z ), diffuseColor.a );',
-		// 	].join( '\n' )
-		// 	);
-
-		// 	rotating_skin.ShaderMaterial = shader
-		// };
-
-
 
 
 		function hit_pose(sign : number)

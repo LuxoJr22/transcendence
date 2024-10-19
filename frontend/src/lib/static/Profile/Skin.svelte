@@ -3,6 +3,8 @@
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import { profile, profileData, userData, type Profile } from '$lib/stores/user';
+	import { auth, fetchUser } from '$lib/stores/auth';
+	import type { AuthState } from '$lib/stores/auth';
 
     let canvas : HTMLCanvasElement;
 	let skinName = '';
@@ -13,7 +15,7 @@
 		if (self){
 			await fetchUser();
 			auth.subscribe((value : AuthState) =>{
-            	skinName = value.user?.skin;
+            	skinName = value.user!.skin;
         	});
 		}
 		else {
