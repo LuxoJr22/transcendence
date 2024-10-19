@@ -2,9 +2,9 @@
 	import { auth, type AuthState } from "$lib/stores/auth";
 	import { onMount } from "svelte";
 	import { goto } from '$app/navigation';
-	const imgPong = new URL('$lib/assets/Super-Pong.png', import.meta.url).href
-	const imgRetro = new URL('$lib/assets/Pong-Retro.png', import.meta.url).href
-	const imgShooter = new URL('$lib/assets/shooter.png', import.meta.url).href
+	const imgPong = new URL('/assets/Super-Pong.png', import.meta.url).href
+	const imgRetro = new URL('/assets/Pong-Retro.png', import.meta.url).href
+	const imgShooter = new URL('/assets/shooter.png', import.meta.url).href
 
 	let linkGame = '';
 	let state: AuthState;

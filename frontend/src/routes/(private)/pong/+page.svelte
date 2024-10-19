@@ -130,7 +130,7 @@
 		const loader = new GLTFLoader()
 
 
-		const g = await loader.loadAsync('src/lib/assets/skins/vazy.glb');
+		const g = await loader.loadAsync('/assets/skins/vazy.glb');
 
 		let i = 0;
 		g.scene.scale.set(0.5, 0.5, 0.5);
@@ -142,7 +142,7 @@
 		}
 
 		
-		const gltf = await loader.loadAsync('src/lib/assets/skins/' + skins["player1"]["skin"]);
+		const gltf = await loader.loadAsync('/assets/skins/' + skins["player1"]["skin"]);
 
 
 		gltf.scene.position.set(-10, 0, -1.5);
@@ -156,7 +156,7 @@
 
 
 
-		const gl = await loader.loadAsync('src/lib/assets/skins/' + skins["player2"]["skin"]);
+		const gl = await loader.loadAsync('/assets/skins/' + skins["player2"]["skin"]);
 
 		gl.scene.position.set(10, 0, -1.5);
 		gl.scene.scale.set(0.5, 0.5, 0.5);
@@ -182,7 +182,7 @@
 
 
 	
-		const bouee = await loader.loadAsync('src/routes/(private)/pong/public/bue.glb');
+		const bouee = await loader.loadAsync('/assets/maps/pong/bouee.glb');
 		bouee.scene.position.set(0, -9, -0.8);
 		bouee.scene.rotation.x = Math.PI / 2
 		bouee.scene.rotation.y = Math.PI / 2
@@ -515,7 +515,10 @@
 					cam.position.z = THREE.MathUtils.lerp(cam.position.z, 2, 0.1)
 					startend += dt
 					if (startend >= 20)
+					{
 						pongSocket.close()
+						//goto('/');
+					}
 					if( THREE.MathUtils.randInt( 1, 50 ) === 10)
     				{
     				    fireworks.push( new Firework( scene, 20 * Math.pow(-1, winner) ) ); 
@@ -644,7 +647,7 @@
 	</div>
 	<div id="versus">
 		<div id="vs">
-			<img alt="versus_logo" src="src/routes/(private)/pong/public/vers.png"/>
+			<img alt="versus_logo" src="/assets/ui/pong/vers.png"/>
 		</div>
 	</div>
 </div>

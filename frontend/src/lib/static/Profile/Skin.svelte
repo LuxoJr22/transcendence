@@ -30,7 +30,7 @@
 		var t = 0;
 		const clock = new THREE.Clock();
 		const loader = new GLTFLoader()
-		const skin = await loader.loadAsync('/src/lib/assets/skins/' + skinName);
+		const skin = await loader.loadAsync('/assets/skins/' + skinName);
         var rotating_skin : THREE.Object3D;
         rotating_skin = skin.scene;
 		rotating_skin.scale.set(0.3, 0.3, 0.3);

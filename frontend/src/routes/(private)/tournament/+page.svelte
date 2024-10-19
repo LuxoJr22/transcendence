@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    const img = new URL('$lib/assets/pong.png', import.meta.url).href
-    const img1 = new URL('$lib/assets/game2.png', import.meta.url).href
+    const img = new URL('/assets/pong.png', import.meta.url).href
+    const img1 = new URL('/assets/game2.png', import.meta.url).href
     import { refresh_token } from '$lib/stores/auth';
     import { goto } from '$app/navigation';
 

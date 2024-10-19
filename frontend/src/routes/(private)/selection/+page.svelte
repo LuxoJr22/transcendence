@@ -33,24 +33,24 @@
 
 		var bots : Bot[] = [];
 
-		const pop = await loader.loadAsync('src/lib/assets/skins/vazy.glb');
+		const pop = await loader.loadAsync('/assets/skins/vazy.glb');
 		pop.scene.scale.set(0.5, 0.5, 0.5);
 		pop.scene.position.set(0, 0, 8)
 		bots.push(new Bot(pop, scene, 'vazy.glb'))
 
 
-		const gentleman = await loader.loadAsync('src/lib/assets/skins/gentleman.glb');
+		const gentleman = await loader.loadAsync('/assets/skins/gentleman.glb');
 		gentleman.scene.scale.set(0.5, 0.5, 0.5);
 		gentleman.scene.position.set(5, 0, 8)
 		bots.push(new Bot(gentleman, scene, 'gentleman.glb'))
 
-		const pirate = await loader.loadAsync('src/lib/assets/skins/pirate.glb');
+		const pirate = await loader.loadAsync('/assets/skins/pirate.glb');
 		pirate.scene.scale.set(0.5, 0.5, 0.5);
 		pirate.scene.position.set(-5, 0, 8)
 		bots.push(new Bot(pirate, scene, 'pirate.glb'))
 		
 
-		const def = await loader.loadAsync('src/lib/assets/skins/default.glb');
+		const def = await loader.loadAsync('/assets/skins/default.glb');
 		def.scene.scale.set(0.5, 0.5, 0.5);
 		def.scene.position.set(-10, 0, 8)
 		bots.push(new Bot(def, scene, 'default.glb'))
@@ -72,7 +72,7 @@
 		
 		
 
-		var texture = new THREE.TextureLoader().load( 'src/routes/(private)/selection/public/floor.png' );
+		var texture = new THREE.TextureLoader().load( 'assets/ui/selection/floor.png' );
 		texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
 		texture.repeat.set( 4, 4 );
@@ -181,7 +181,7 @@
 					draggable.targetx = found[i].point.x 
 					draggable.targetz = found[i].point.z
 					draggable.moving = 0;
-					ui!.style.cursor = "url('src/routes/(private)/selection/public/hand.png'), auto";
+					ui!.style.cursor = "url('assets/ui/selection/hand.png'), auto";
 
 					draggable = null
 				}
@@ -204,7 +204,7 @@
 					{
 						
 						draggable = bots[i]
-						ui!.style.cursor = "url('src/routes/(private)/selection/public/closedHand.png'), auto";
+						ui!.style.cursor = "url('assets/ui/selection/closedHand.png'), auto";
 						draggable.throwed = 0 
 						bots[i].ispicked = 1
 						const response = await fetch('/api/user/skin/update/', {
@@ -273,7 +273,7 @@
         position: absolute;
 		width: 10px;
 		height: 10px;
-		cursor: url("src/routes/\(private\)/selection/public/hand.png"), auto;
+		cursor: url("/assets/ui/selection/hand.png"), auto;
     }
 
 
@@ -299,13 +299,13 @@
 
 	    }
 	#gameCanvas {
-		cursor: url("src/routes/\(private\)/selection/public/hand.png"), auto;
+		cursor: url("/assets/ui/selection/hand.png"), auto;
 	}
 </style>
 
 <div id="ui">
 	<div id="whistle">
-		<img alt="whistle logo" src="src/routes/(private)/selection/public/whistle4.png"/>
+		<img alt="whistle logo" src="assets/ui/selection/whistle.png"/>
 	</div>
 </div>
 
