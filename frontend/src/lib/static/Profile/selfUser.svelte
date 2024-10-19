@@ -13,7 +13,7 @@
     import Username from '$lib/static/Profile/UpdateUserInformation/username.svelte';
     import Email from '$lib/static/Profile/UpdateUserInformation/email.svelte';
     import Password from '$lib/static/Profile/UpdateUserInformation/password.svelte';
-    import History from '$lib/static/Profile/History/selfHistory.svelte';
+    import History from '$lib/static/Profile/History/History.svelte';
     import Skin from '$lib/static/Profile/Skin.svelte';
 
     let historyData : any = [];

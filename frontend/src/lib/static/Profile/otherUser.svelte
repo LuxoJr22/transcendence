@@ -3,7 +3,7 @@
     import Pie from './pie.svelte';
     import type { Profile } from '$lib/stores/user';
     import { profileData, userData, profile } from '$lib/stores/user';
-    import History from '$lib/static/Profile/History/otherHistory.svelte';
+    import History from '$lib/static/Profile/History/History.svelte';
     import Block from '$lib/static/Profile/Block.svelte';
     import { friendList, fetchFriendList, deleteFriend } from '$lib/stores/friendship';
     import type { friendInterface } from '$lib/stores/friendship';
@@ -190,7 +190,7 @@
         <div class="justify-content-center flex-column col-5">
             <h2 class="text-light text-center p-4 m-1 title-profile">History</h2>
             {#if finish}
-                <History data={data} user={user}/>
+                <History data={data}/>
             {/if}
         </div>
     </div>

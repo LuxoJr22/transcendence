@@ -1,7 +1,13 @@
 <script lang="ts">
-    import { userData, type Profile } from "$lib/stores/user";
+    import { auth, type AuthState } from "$lib/stores/auth";
+    import { userData } from "$lib/stores/user";
     import { onMount } from "svelte";
+    import { page } from '$app/stores';
 
+    export let data;
+
+    $: userId = $page.params.id;
+    console.log(userId);
 
     interface User {
         id: number,
@@ -22,12 +28,15 @@
     }
 
     let gamesHistory = new Array<Game>();
-    export let data : any;
-    export let user : Profile;
+    export let state : AuthState;
 
     onMount(async () => {
+        auth.subscribe((value) => {
+            state = value;
+        })
         gamesHistory = await parseHistoryMatches(data);
     })
+
 
     async function parseHistoryMatches(data : any[]){
         for (let i = 0; data[i] ; i ++)
@@ -41,11 +50,11 @@
     }
 
     async function ParsePongGame(data : any) {
-        let player1 : any = await userData(data.player1 == user.id ? data.player1 : data.player2);
-        let player2 : any = await userData(data.player1 != user.id ? data.player1 : data.player2);
+        let player1 : any = await userData(data.player1 == userId ? data.player1 : data.player2);
+        let player2 : any = await userData(data.player1 != userId ? data.player1 : data.player2);
         let scoreMe = 0;
         let scoreOpponent = 0;
-        if (data.player1 == user.id){
+        if (data.player1 == userId){
             scoreMe = data.score1;
             scoreOpponent = data.score2;
         }
@@ -77,8 +86,8 @@
     }
 
     async function ParseShooterGame(data : any) {
-        let player1 : any = await userData(data.players[0] == user.id ? data.players[0] : data.players[2]);
-        let player2 : any = await userData(data.players[0] != user.id ? data.players[0] : data.players[2]);
+        let player1 : any = await userData(data.players[0] == userId ? data.players[0] : data.players[2]);
+        let player2 : any = await userData(data.players[0] != userId ? data.players[0] : data.players[2]);
         var players = new Array<any>();
         let scores = data.scores;
         players[0] = [await userData(data.players[0]), scores[0]]
@@ -88,7 +97,7 @@
         
         let game = {
             me: {
-                id: user.id,
+                id: userId,
                 username: player1.username,
                 score: scores[0],
                 profile_picture_url : player2.profile_picture_url
@@ -111,26 +120,31 @@
 
 </script>
 
-<div class="flex-column history-container mb-5 justify-content-top">
+<div class="flex-column history-container justify-content-top">
     {#if gamesHistory[0] != null}
         {#each gamesHistory as game}
-        <div class="row border  rounded match my-1 bg-dark text-truncate {game.winner == game.me.id ? 'border-primary' : 'border-danger'}">
+        <div class="row border  rounded match my-1 bg-dark text-truncate {game.winner == userId ? 'border-primary' : 'border-danger'}">
+
             {#if game.gamemode != "Shooter"}
-                <p class="col-4 text-center text-light h4 mt-1">Me</p>
-                <p class="col-4 text-center h4 {game.winner == game.me.id ? 'text-primary' : 'text-danger'} mt-1">{game.me.score} / {game.opponent.score}</p>
+                <p class="col-4 text-center text-light h4 mt-1">{state.user?.id == userId ? 'Me' : game.me.username}</p>
+                <p class="col-4 text-center h4 {game.winner == userId ? 'text-primary' : 'text-danger'} mt-1">{game.me.score} / {game.opponent.score}</p>
                 <a class="col-4 text-center text-light h4 link mt-1" href={"/profile/" + game.opponent.id}>{game.opponent.username}</a>
             {:else}
-                {#each game.players as player}
-                    <p class="col-1 text-center h4 {game.winner == game.me.id ? 'text-primary' : 'text-danger'} mt-1">{player[1]}</p>
-                    <a class="col-1 text-center text-light h4 link mt-1" href={"/profile/" + player[0].id}>{player[0].username}</a>
+                {#each game.players as player, i}
+                    {#if player[0].id == userId}
+                    <div class="d-flex justify-content-center">
+                        <p class="text-center text-light h4 link mt-1 me-2">Score :</p>
+                        <p class="text-center h4 {game.winner == userId ? 'text-primary' : 'text-danger'} mt-1">{player[1]}</p>
+                    </div>
+                    {/if}
                 {/each}
             {/if}
-                <div class="d-flex">
-                    <p class="col-4" style="color:grey;">{game.date}</p>
-                    <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
-                    <p class="col-4 text-end" style="color:grey;">{game.hours}</p>
-                </div>
+            <div class="d-flex">
+                <p class="col-4" style="color:grey;">{game.date}</p>
+                <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
+                <p class="col-4 text-end" style="color:grey;">{game.hours}</p>
             </div>
+        </div>
         {/each}
     {:else}
         <div class="d-flex history-container justify-content-center align-items-center">
@@ -140,7 +154,7 @@
 </div>
 
 <style>
-    .history-container{
+     .history-container{
         width: 22vw;
         height: 45vh;
         margin: 0 auto;

@@ -4,10 +4,10 @@
     import { page } from '$app/stores';
     import { auth, fetchUser } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
-    import SelfUser from '../selfUser.svelte';
+    import SelfUser from '$lib/static/Profile/selfUser.svelte';
     import type { Profile } from '$lib/stores/user';
     import { profileData, profile } from '$lib/stores/user';
-    import OtherUser from '../otherUser.svelte';
+    import OtherUser from '$lib/static/Profile/otherUser.svelte';
 
     $: currentUser = $page.params.id;
 
