@@ -106,26 +106,25 @@ class ShooterConsumer(WebsocketConsumer):
 		if (self.game.game_state == FINISHED and self.shootermatch.winner == None):
 			newlist = sorted(self.game.players, key=operator.itemgetter('score', 'kill', 'death', 'id'), reverse=True)
 			self.shootermatch.winner = newlist[0]['id']
-			player = list(self.shootermatch.players.all())
-			for play in player:
-				score = list(filter(lambda p: p['id'] == play.id, self.game.players))
-				if (self.shootermatch.scores == None):
-					self.shootermatch.scores = [score[0]['score']]
-				else:
-					self.shootermatch.scores.append(score[0]['score'])
-			self.shootermatch.save()
 			gain = 10
 			for play in newlist:
+				if (self.shootermatch.scores == None):
+					self.shootermatch.scores = [play['score']]
+				else:
+					self.shootermatch.scores.append(play['score'])
 				usr = User.objects.filter(id=play["id"]).all().first()
 				usr.shooter_elo += gain
 				gain -= 5
 				usr.save()
+			self.shootermatch.save()
 			self.game.game_state = QUIT
-		if (self.game.game_state == QUIT and self.shootermatch.winner != None):
-			self.send(text_data=json.dumps({
-			'type':'Shooter',
-			'event':'Quit',
-		}))
+			async_to_sync(self.channel_layer.group_send)(
+				self.room_group_name,
+				{
+					'type':'Quit',
+					'event':'Quit',
+				}
+			)
 
 		event = text_data_json['event']
 		id = text_data_json['id'] - 1
@@ -181,7 +180,7 @@ class ShooterConsumer(WebsocketConsumer):
 			
 		self.game.players[id]["direction"] = text_data_json['player'][1]
 		self.game.players[id]["controller"] = text_data_json['controller']
-		if self.id == id + 1 and event == "frame":
+		if self.id == id + 1 and event == "frame" and self.game.game_state != QUIT:
 			self.Shooter_event(event)
 
 	def Connected(self, event):
@@ -201,6 +200,12 @@ class ShooterConsumer(WebsocketConsumer):
 			'type':'Shooter',
 			'event':'Flag_' + event["event"],
 			'id':event['id'],
+		}))
+
+	def Quit(self, event):
+		self.send(text_data=json.dumps({
+			'type':'Shooter',
+			'event':'Quit',
 		}))
 
 	def Shooter_event(self, event):
