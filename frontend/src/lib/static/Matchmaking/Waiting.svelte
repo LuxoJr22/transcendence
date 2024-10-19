@@ -61,9 +61,9 @@
 		const clock = new THREE.Clock();
 		const loader = new GLTFLoader()
 		if (users[0])
-			var skin = await loader.loadAsync('/src/lib/assets/skins/' + users[0].skin);
+			var skin = await loader.loadAsync('/assets/skins/' + users[0].skin);
 		else
-			var skin = await loader.loadAsync('/src/lib/assets/skins/gilles.glb');
+			var skin = await loader.loadAsync('/assets/skins/gilles.glb');
         var rotating_skin = skin.scene;
 		rotating_skin.scale.set(0.3, 0.3, 0.3);
 		scene.add(rotating_skin)
@@ -108,7 +108,7 @@
 
 
 		
-		const ring = await loader.loadAsync('/src/lib/assets/maps/waiting/boxing_ring.glb');
+		const ring = await loader.loadAsync('/assets/maps/waiting/boxing_ring.glb');
 		ring.scene.position.set(0, -3, 0)
 
 		scene.add(ring.scene)
@@ -313,13 +313,13 @@
 <div id="ui">
 	<div id=gloves_ui>
 		<div id="gloves">
-			<img alt="left_def_glove" class="glove" id="left_def" src="/src/lib/assets/left_def_glove.png"/>
-			<img alt="right_def_glove" class="glove" id="right_def" src="/src/lib/assets/right_def_glove.png"/>
+			<img alt="left_def_glove" class="glove" id="left_def" src="/assets/ui/waiting/left_def_glove.png"/>
+			<img alt="right_def_glove" class="glove" id="right_def" src="/assets/ui/waiting/right_def_glove.png"/>
 		</div>
 	</div>
 	<div id=att_gloves_ui>
-		<img alt="left_att_glove" class="att_glove" id="left_att" src="/src/lib/assets/left_att_glove.png"/>
-		<img alt="right_att_glove" class="att_glove" id="right_att" src="/src/lib/assets/right_att_glove.png"/>
+		<img alt="left_att_glove" class="att_glove" id="left_att" src="/assets/ui/waiting/left_att_glove.png"/>
+		<img alt="right_att_glove" class="att_glove" id="right_att" src="/assets/ui/waiting/right_att_glove.png"/>
 	</div>
 </div>
 

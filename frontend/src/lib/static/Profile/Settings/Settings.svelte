@@ -77,7 +77,7 @@
 
 		if (response.ok){
 			twoFA_data = await response.json();
-            if (twoFA_data?.success != null)
+            if (twoFA_data?.success != '')
                 twoFA_data = null;
 			await fetchUser();
 		}

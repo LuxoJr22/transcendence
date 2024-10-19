@@ -113,7 +113,7 @@
 
         
 
-        const flag = await loader.loadAsync('src/routes/(private)/shooter/public/f.glb');
+        const flag = await loader.loadAsync('/assets/maps/shooter/f.glb');
         flag.scene.name = 'flag'
         flag.scene.position.set(0, 5, -5);
 
@@ -361,7 +361,7 @@
         }
 
         async function createPlayer(play_id : number, skin : string) {
-            const gl = await loader.loadAsync('src/lib/assets/skins/' + skin);
+            const gl = await loader.loadAsync('/assets/skins/' + skin);
             gl.scene.position.set(10, 0, -1.5);
             gl.scene.scale.set(0.5, 0.5, 0.5);
             let pl = new Player(gl, 0.15, scene, play_id)
@@ -714,12 +714,12 @@
         <button class="btn btn-dark btn-lg border m-0 p-0 mb-1 position-relative text_menu" style="top:45%" id="menu_btn">BACK TO MENU</button>
     </div>
     <div>
-        <img id="flagicon" alt="flag" src="src/routes/(private)/shooter/public/flag.png"/>
+        <img id="flagicon" alt="flag" src="assets/ui/shooter/flag.png"/>
         <span class="text" id="timer"></span>
     </div>
     <div id="crosshair">
         <div id="circular"></div>
-        <img id="crossimg" alt="ch" src="src/routes/(private)/shooter/public/dotcrosshair.png"/>
+        <img id="crossimg" alt="ch" src="assets/ui/shooter/dotcrosshair.png"/>
     </div>
     <div id="scoreboard">
         <table id="score_table">

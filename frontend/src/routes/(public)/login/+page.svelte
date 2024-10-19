@@ -2,7 +2,7 @@
     import { goto } from '$app/navigation';
     import { login , login42, loginWithTwoFA} from '$lib/stores/auth';
     import { onDestroy, onMount } from 'svelte';
-    const logo42 = new URL('$lib/assets/42_Logo.svg', import.meta.url).href
+    const logo42 = new URL('/assets/42_Logo.svg', import.meta.url).href
 
     let username = '';
     let password = '';

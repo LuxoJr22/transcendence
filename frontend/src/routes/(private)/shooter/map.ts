@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 export async function createmap(scene : THREE.Object3D, loader : GLTFLoader)
 {
-	const map = await loader.loadAsync('src/lib/assets/maps/shooter/map.glb');
+	const map = await loader.loadAsync('/assets/maps/shooter/map.glb');
 	map.scene.rotation.y = Math.PI / 2
 	map.scene.scale.set(8, 8, 8)
 
