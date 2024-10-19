@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { profile, profileData, userData, type Profile } from '$lib/stores/user';
+    import {  userData } from '$lib/stores/user';
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 
@@ -19,7 +19,7 @@
         	});
 		}
 		else {
-			const data = await userData(userId);
+			const data : any = await userData(userId);
             skinName = data.skin;
 		}
 		

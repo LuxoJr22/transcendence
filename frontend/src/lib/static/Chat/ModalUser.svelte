@@ -52,7 +52,7 @@
                 {#each allUser as user}
                     {#if user.username.includes(userSearch) || !userSearch}
                         <div class="col text-center p-0 m-2" role="button">
-                            <button class="text-center btn text-light border rounded" on:click={resetFriendSearch} on:click={loadRoom(user.id)} data-bs-dismiss="modal" aria-label="Close" style="width:100%; height:100%;">
+                            <button class="text-center btn text-light border rounded" on:click={() => resetFriendSearch} on:click={() => loadRoom(user.id)} data-bs-dismiss="modal" aria-label="Close" style="width:100%; height:100%;">
                                 <div class="d-flex justify-content-center">
                                     <ImgOnline path={user?.profile_picture_url} status={user?.is_online} width=50% height=50% />
                                 </div>

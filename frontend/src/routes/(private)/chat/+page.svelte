@@ -1,5 +1,5 @@
 <script>
-    import { onDestroy, onMount } from 'svelte';
+    import { onMount } from 'svelte';
     import { goto } from '$app/navigation'
 
     onMount(() => {

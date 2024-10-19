@@ -1,8 +1,5 @@
 <script lang="ts">
-    import ImgOnline from "$lib/static/imgOnline.svelte";
-	import { onDestroy } from "svelte";
 	import {beforeNavigate, goto } from '$app/navigation';
-    import ChatBox from "$lib/static/Chat/ChatBox.svelte";
 
 	interface Dictionary<T> {
         [Key: string]: T;

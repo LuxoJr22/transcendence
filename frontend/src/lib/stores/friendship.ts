@@ -1,10 +1,9 @@
 import { writable } from 'svelte/store';
-import { refresh_token } from './auth';
 
 export interface friendInterface {
     id: number;
     username: string;
-    profile_picture: string;
+    profile_picture_url: string;
     is_online: boolean;
 }
 

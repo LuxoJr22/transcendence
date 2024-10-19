@@ -9,7 +9,7 @@
     }
 
     async function update(){
-        const data = await updateEmail(newEmail);
+        const data : any = await updateEmail(newEmail);
         if (!data){
             errorsMessage = 'success';
         }

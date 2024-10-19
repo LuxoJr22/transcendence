@@ -5,8 +5,6 @@
     import { auth} from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchChatMessages, fetchLatestDiscussion } from '$lib/stores/chat';
-    import { profileData, profile } from '$lib/stores/user';
-    import type { Profile } from '$lib/stores/user';
     import ModalUser from '$lib/static/Chat/ModalUser.svelte';
     import LatestDiscussion from '$lib/static/Chat/LatestDiscussion.svelte';
     import PlayButton from '$lib/static/Chat/PlayButton.svelte';
@@ -18,7 +16,7 @@
     
     state = $auth;
     let newMessage : String = '';
-    let messageInput: HTMLInputElement;
+    let messageInput: HTMLTextAreaElement;
     var input: HTMLElement
     var box: HTMLElement 
 
@@ -122,7 +120,7 @@
                 <div class="d-flex justify-content-end">
                     <form class="sendBox" on:submit|preventDefault={sendMessage}>
                         <div class="d-flex justify-content-end">
-                            <textarea id="input" placeholder="Enter a message" type="text" bind:this={messageInput} bind:value={newMessage} class="col-10 p-1 me-2"></textarea>
+                            <textarea id="input" placeholder="Enter a message" bind:this={messageInput} bind:value={newMessage} class="col-10 p-1 me-2"></textarea>
                             <button class="btn btn-primary btn-sm me-1" type="submit">Send</button>
                             <PlayButton ws={ws} />
                         </div>

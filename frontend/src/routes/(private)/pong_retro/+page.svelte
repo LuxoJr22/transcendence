@@ -3,7 +3,6 @@
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
-	import { RenderPixelatedPass } from  'three/examples/jsm/postprocessing/RenderPixelatedPass';
 	import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 	import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 	import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'

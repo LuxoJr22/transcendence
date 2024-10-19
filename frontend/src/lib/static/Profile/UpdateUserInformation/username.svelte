@@ -9,7 +9,7 @@
     }
 
     async function update(){
-        const data = await updateUsername(newUsername);
+        const data : any = await updateUsername(newUsername);
         if (!data)
             errorsMessage = 'success';
         else

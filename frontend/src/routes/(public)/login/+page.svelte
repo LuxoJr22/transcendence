@@ -2,13 +2,14 @@
     import { goto } from '$app/navigation';
     import { login , login42, loginWithTwoFA} from '$lib/stores/auth';
     import { onDestroy, onMount } from 'svelte';
+    const logo42 = new URL('$lib/assets/42_Logo.svg', import.meta.url).href
 
     let username = '';
     let password = '';
     let errorsLogin = false;
     let otp_code = '';
-    let myModal = null;
-    let errorTwoFA = ''
+    let myModal : any = null;
+    let errorTwoFA : any = ''
     let error42Login : any;
     let twoFaWith42 = false;
 
@@ -65,8 +66,6 @@
     function viewPassword(){
         viewablePassword ? viewablePassword = false : viewablePassword = true;
     }
-
-    const logo42 = new URL('$lib/assets/42_Logo.svg', import.meta.url).href
 </script>
 
 <div class="container-fluid" style="height:100vh;">

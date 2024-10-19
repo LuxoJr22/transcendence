@@ -5,7 +5,7 @@
 
     let newProfilePicture : File;
     let error : any;
-    function handleFileChange(event: Event) {
+    function handleFileChange(event: any) {
         newProfilePicture = event.target.files[0];
     }
 

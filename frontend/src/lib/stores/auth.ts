@@ -25,7 +25,7 @@ const initialState: AuthState = {
 
 export const auth = writable<AuthState>(initialState);
 
-export async function login(username: string, password: string): Promise<void> {
+export async function login(username: string, password: string): Promise<any> {
     const response = await fetch('/api/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -119,7 +119,7 @@ export async function loginWithTwoFA(username: string, password: string, otp_cod
     }
 }
 
-export async function updateUsername(username: string): Promise<void> {
+export async function updateUsername(username: string): Promise<any> {
     const accessToken = localStorage.getItem('access_token');
 
     const response = await fetch('/api/user/update/', {
@@ -137,7 +137,7 @@ export async function updateUsername(username: string): Promise<void> {
     }
 }
 
-export async function updateEmail(email: string): Promise<void> {
+export async function updateEmail(email: string): Promise<any> {
     const accessToken = localStorage.getItem('access_token');
 
     const response = await fetch('/api/user/update/', {
@@ -155,7 +155,7 @@ export async function updateEmail(email: string): Promise<void> {
     }
 }
 
-export async function updatePassword(password: string, current_password: string): Promise<void> {
+export async function updatePassword(password: string, current_password: string): Promise<any> {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken)
         throw new Error('Username update failed');
@@ -204,7 +204,7 @@ export async function updateProfilePicture(profile_picture: File) {
     }
 }
 
-export async function fetchUser(): Promise<void> {
+export async function fetchUser(): Promise<any> {
     await refresh_token();
     const accessToken = localStorage.getItem('access_token');
 
@@ -220,7 +220,7 @@ export async function fetchUser(): Promise<void> {
 
     if (response.ok) {
         const user = await response.json();
-        auth.update(state => ({
+        auth.update((state : any) => ({
             ...state,
             isAuthenticated: true,
             user: {
@@ -244,8 +244,8 @@ export async function fetchUser(): Promise<void> {
 
 function AccessTokenExpirated(){
 
-    let token : string;
-    let refresh_token : string;
+    let token : string | null;
+    let refresh_token : string | null;
     token = localStorage.getItem('access_token')
     refresh_token = localStorage.getItem('refresh_token')
     if (token == null || token == '')
@@ -255,7 +255,7 @@ function AccessTokenExpirated(){
     return ((JSON.parse(expiration).exp - 5) <= (Math.floor(Date.now() / 1000)));
 }
 
-export async function refresh_token(): Promise<void> {
+export async function refresh_token(): Promise<any> {
     if (!AccessTokenExpirated())
         return ;
     const refreshToken = localStorage.getItem('refresh_token');
@@ -271,7 +271,7 @@ export async function refresh_token(): Promise<void> {
 
     if (response.ok && refreshToken != null) {
         const data = await response.json();
-        auth.update(state => ({
+        auth.update((state : any) => ({
             ...state,
             accessToken: data.access,
         }));

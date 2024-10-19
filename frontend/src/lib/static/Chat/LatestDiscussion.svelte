@@ -26,7 +26,7 @@
 {#if latestDiscussion && latestDiscussion[0]}
     <div class="mx-3 my-2 discussions-container">
         {#each latestDiscussion as msg}
-                <div type="button" class="d-flex border {(parseInt(roomId) != msg.id && roomId != 'home') ? 'opacity-50' : ''} rounded p-2 container my-2 user-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2);" on:click={loadRoom(msg.id)}>
+                <div role="button" tabindex='0' class="d-flex border {(parseInt(roomId) != msg.id && roomId != 'home') ? 'opacity-50' : ''} rounded p-2 container my-2 user-container" style="width:100%; background-color: rgba(0, 0, 0, 0.2);" on:click={() => loadRoom(msg.id)}>
                     <div class="d-flex align-items-center" style="flex-shrink: 0; width: 20%; height: 15%;">
                         <ImgOnline path={msg?.profile_picture_url} status={msg?.is_online} width=100% height=100%/>
                     </div>
