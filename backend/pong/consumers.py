@@ -16,7 +16,7 @@ WAITING = 0
 LAUNCHED = 1
 
 dictio = {}
-in_game = 0
+
 
 class PrivateMatchmakingConsumer(WebsocketConsumer):
 	def connect(self):
@@ -191,6 +191,7 @@ class PongConsumer(WebsocketConsumer):
 		self.user = self.scope['user']
 		self.id = 0
 		self.winner = 0
+		self.in_game = 0
 
 		try:
 			self.pongroom = get_object_or_404(PongGroup, group_name=self.room_group_name)
@@ -221,7 +222,7 @@ class PongConsumer(WebsocketConsumer):
 		except:
 			self.disconnect(0)
 		self.accept()
-		in_game = 1
+		self.in_game = 1
 		self.send(text_data=json.dumps({
 			'type':'Pong',
 			'event':'Connected',
@@ -233,7 +234,7 @@ class PongConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-		if self.user in self.pongroom.users_online.all() and in_game == 1:
+		if self.user in self.pongroom.users_online.all() and self.in_game == 1:
 			self.pongroom.users_online.remove(self.user)
 		if self.pongroom.users_online.count() == 0:
 			del self.pong_match.winner

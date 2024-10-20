@@ -553,7 +553,8 @@
         
         
         function animate() {
-            requestAnimationFrame( animate );
+            if (isLoad)
+                requestAnimationFrame( animate );
             const dt = clock.getDelta();
             t += dt;
             if (gamepads[0])
@@ -596,6 +597,7 @@
     });
 
     beforeNavigate(() => {
+        isLoad = false
 		if (chatSocket)
             chatSocket.close()
 	})

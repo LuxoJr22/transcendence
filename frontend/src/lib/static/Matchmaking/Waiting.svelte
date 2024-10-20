@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import { profileData, profile, type Profile } from '$lib/stores/user';
@@ -9,6 +9,7 @@
     let canvas : HTMLCanvasElement;
 	let state: AuthState;
 	let user : Profile;
+	let isLoad : boolean = false;
 
 	let users = []
     $: user = $profile;
@@ -20,7 +21,7 @@
 		auth.subscribe((value : AuthState) =>{
             state = value;
         });
-
+		isLoad = true
 
 		
         const response = await fetch("/api/pong/history/" + state.user?.id, {
@@ -238,7 +239,8 @@
 		}
 
 		function animate() {
-			requestAnimationFrame( animate );
+			if (isLoad)
+				requestAnimationFrame( animate );
 			const dt = clock.getDelta();
 			t += dt;
 			if (hit > 0)
@@ -255,8 +257,14 @@
 			renderer.render( scene, camera );
 		}
 		animate();
+
 	})();
 	});
+
+	onDestroy(() => {
+		isLoad = false;
+	})
+
 </script>
 
 <style>

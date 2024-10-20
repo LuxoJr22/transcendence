@@ -16,13 +16,13 @@ LAUNCHING = 1
 LAUNCHED = 2 
 FINISHED = 3
 QUIT = 4
-in_game = 0
 
 
 class ShooterConsumer(WebsocketConsumer):
 	def connect(self):
 		self.room_group_name = self.scope['url_route']['kwargs']['room_name']
 		self.user = self.scope['user']
+		self.in_game = 0
 
 		try:
 			self.shooter_room = get_object_or_404(Shooter, group_name=self.room_group_name)
@@ -53,7 +53,7 @@ class ShooterConsumer(WebsocketConsumer):
 			self.id = self.game.ids[self.user]
 			self.game.players[self.id - 1]["skin"] = self.user.skin
 
-		in_game = 1
+		self.in_game = 1
 		self.accept()
 
 		async_to_sync(self.channel_layer.group_send)(
@@ -72,7 +72,7 @@ class ShooterConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-		if self.user in self.shooter_room.users_online.all() and in_game == 1:
+		if self.user in self.shooter_room.users_online.all() and self.in_game == 1:
 			self.shooter_room.users_online.remove(self.user)
 		if self.shooter_room.users_online.count() == 0:
 			if (self.room_group_name in dictio):

@@ -16,11 +16,14 @@
 	var pongSocket: WebSocket;
 	let canvas : HTMLCanvasElement;
 	var scoring = 0;
+	let isLoad : boolean = false;
 
 	onMount(() => { (async () => {
 		auth.subscribe((value : AuthState) =>{
             state = value;
         });
+
+		isLoad = true;
 
 		var skins
 		const response = await fetch('/api/pong/skins/' + localStorage.getItem('game_id'), {
@@ -471,7 +474,8 @@
 
 
 		function animate() {
-			requestAnimationFrame( animate );
+			if (isLoad)
+				requestAnimationFrame( animate );
 			if (in_game == 1)
 			{
 				const dt = clock.getDelta();
@@ -501,7 +505,7 @@
 					if (startend >= 20)
 					{
 						pongSocket.close()
-						//goto('/');
+						goto('/');
 					}
 					if( THREE.MathUtils.randInt( 1, 50 ) === 10)
     				{
@@ -534,6 +538,7 @@
 	});
 
 	onDestroy(() => {
+		isLoad = false;
 		if (pongSocket)
 			pongSocket.close();
 	})
