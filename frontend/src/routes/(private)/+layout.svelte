@@ -6,7 +6,7 @@
     import type { AuthState } from '$lib/stores/auth';
     import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
     import { fetchLatestDiscussion } from '$lib/stores/chat';
-    import Settings from '$lib/static/Profile/Settings/Settings.svelte';
+    import Settings from '$lib/components/Profile/Settings/Settings.svelte';
     import { page } from '$app/stores'
     import type { Profile } from '$lib/stores/user';
 

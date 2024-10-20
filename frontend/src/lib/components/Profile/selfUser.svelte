@@ -5,13 +5,13 @@
     import type { AuthState } from '$lib/stores/auth';
     import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
     import type { friendInterface } from '$lib/stores/friendship';
-    import ImgOnline from '$lib/static/imgOnline.svelte';
-    import ProfilePicture from '$lib/static/Profile/UpdateUserInformation/profilePicture.svelte';
-    import Username from '$lib/static/Profile/UpdateUserInformation/username.svelte';
-    import Email from '$lib/static/Profile/UpdateUserInformation/email.svelte';
-    import Password from '$lib/static/Profile/UpdateUserInformation/password.svelte';
-    import History from '$lib/static/Profile/History/History.svelte';
-    import Skin from '$lib/static/Profile/Skin.svelte';
+    import ImgOnline from '$lib/components/imgOnline.svelte';
+    import ProfilePicture from '$lib/components/Profile/UpdateUserInformation/profilePicture.svelte';
+    import Username from '$lib/components/Profile/UpdateUserInformation/username.svelte';
+    import Email from '$lib/components/Profile/UpdateUserInformation/email.svelte';
+    import Password from '$lib/components/Profile/UpdateUserInformation/password.svelte';
+    import History from '$lib/components/Profile/History/History.svelte';
+    import Skin from '$lib/components/Profile/Skin.svelte';
 
     let historyData : any = [];
     let fetchStatus = false;
