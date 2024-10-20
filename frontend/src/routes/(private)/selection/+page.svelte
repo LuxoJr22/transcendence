@@ -103,6 +103,7 @@
 		var left = renderer.domElement.getBoundingClientRect().left
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
+		ui!.style.display = 'block'
 		
 
 
@@ -271,6 +272,7 @@
 <style>
 	#ui {
         position: absolute;
+		display: none;
 		width: 10px;
 		height: 10px;
 		cursor: url("/assets/ui/selection/hand.png"), auto;

@@ -177,6 +177,7 @@
 		name2!.style.fontSize = canvasSize.height / 15 + "px"
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
+		ui!.style.display = 'flex'
 
 		camera.position.z = 18;
 
@@ -501,6 +502,7 @@
 	@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
 	/*@import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');*/
     #ui {
+		display: none;
         position: absolute;
 		width: 10px;
 		height: 10px;
