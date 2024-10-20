@@ -184,6 +184,7 @@
         menu_btn!.style.height = canvasSize.height / 10 + "px"
         renderer.shadowMap.enabled = true;
         document.body.appendChild( renderer.domElement );
+        ui!.style.display = 'flex'
 
         var xSpeed = 0.15;
         var ySpeed = 0.15;
@@ -599,6 +600,7 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
     #ui {
+        display: none;
         position: absolute;
 		width: 10px;
 		height: 10px;

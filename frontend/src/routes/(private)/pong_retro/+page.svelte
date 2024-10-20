@@ -173,10 +173,11 @@
         ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		score1!.style.fontSize = canvasSize.height / 10 + "px"
 		score2!.style.fontSize = canvasSize.height / 10 + "px"
-		name1!.style.fontSize = canvasSize.height / 15 + "px"
-		name2!.style.fontSize = canvasSize.height / 15 + "px"
+		name1!.style.fontSize = canvasSize.height / 12 + "px"
+		name2!.style.fontSize = canvasSize.height / 12 + "px"
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
+		ui!.style.display = 'flex'
 
 		camera.position.z = 18;
 
@@ -263,8 +264,8 @@
             ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 			score1!.style.fontSize = canvasSize.height / 10 + "px"
 			score2!.style.fontSize = canvasSize.height / 10 + "px"
-			name1!.style.fontSize = canvasSize.height / 15 + "px"
-			name2!.style.fontSize = canvasSize.height / 15 + "px"
+			name1!.style.fontSize = canvasSize.height / 12 + "px"
+			name2!.style.fontSize = canvasSize.height / 12 + "px"
 		}
 
 		function onDocumentKeyDown(event : KeyboardEvent) {
@@ -501,6 +502,7 @@
 	@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
 	/*@import url('https://fonts.googleapis.com/css2?family=Tiny5&display=swap');*/
     #ui {
+		display: none;
         position: absolute;
 		width: 10px;
 		height: 10px;
@@ -528,6 +530,10 @@
   		font-style: normal;
 		color:white;
 		font-size: 70px;
+	}
+
+	#player1_name, #player2_name {
+		margin-top: 4%;
 	}
 
 

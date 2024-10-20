@@ -51,7 +51,6 @@
 
 
 		const scene = new THREE.Scene();
-		const cam = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
 		var end = 0
 		
 
@@ -75,40 +74,8 @@
 		var score2 = document.getElementById("player2")
 		var name1 = document.getElementById("player1_name")
 		var name2 = document.getElementById("player2_name")
-		
-
-		const views = [
-			{
-				left: 0,
-				bottom: 0,
-				width: 0.5,
-				height: 1.0,
-				eye: [ -78, -2.5, 12.3 ],
-				rotation : [1.26109338225244, 0.6510985849711179, 0.19156132032912654],
-				background: new THREE.Color().setRGB( 0.3, 0.3, 0.9, THREE.SRGBColorSpace ),
-				camera: THREE.PerspectiveCamera,
-			},
-			{
-				left: 0.5,
-				bottom: 0,
-				width: 0.5,
-				height: 1.0,
-				eye: [ 78, -2.5, 12.3 ],
-				rotation : [1.26109338225244, -0.6510985849711179, -0.19156132032912654],
-				background: new THREE.Color().setRGB( 0.9, 0.2, 0.2, THREE.SRGBColorSpace ),
-				camera:  THREE.PerspectiveCamera,
-			}
-		]
-
-		for ( let i = 0; i < views.length; ++ i ) {
-
-			const view = views[ i ];
-			const camera = new THREE.PerspectiveCamera( 50, 16 / 9, 1, 1000 );
-			camera.position.fromArray( view.eye );
-			camera.up.fromArray( [0, 0, 1]);
-			camera.rotation.fromArray( view.rotation)
-			view.camera = camera;
-		}
+		var vs_name1 = document.getElementById("vs_name1")
+		var vs_name2 = document.getElementById("vs_name2")
 
 
 
@@ -168,6 +135,8 @@
 
 		name1!.textContent = skins["player1"]["username"]
 		name2!.textContent = skins["player2"]["username"]
+		vs_name1!.textContent = skins["player1"]["username"]
+		vs_name2!.textContent = skins["player2"]["username"]
 
 
 		const lig = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -231,14 +200,17 @@
 		score2!.style.fontSize = canvasSize.height / 10 + "px"
 		name1!.style.fontSize = canvasSize.height / 15 + "px"
 		name2!.style.fontSize = canvasSize.height / 15 + "px"
+		vs_name1!.style.fontSize = canvasSize.height / 15 + "px"
+		vs_name2!.style.fontSize = canvasSize.height / 15 + "px"
 		ui!.style.display = 'block'
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
 
 		
-
-
-		cam.position.z = 20;
+		const text = new THREE.TextureLoader().load('/assets/ui/pong/pp.jpg')
+		text.colorSpace = "srgb";
+		scene.background = text
+		
 
 		var xSpeed = 0.15;
 		var ySpeed = 0.15;
@@ -355,6 +327,8 @@
 			score2!.style.fontSize = canvasSize.height / 10 + "px"
 			name1!.style.fontSize = canvasSize.height / 15 + "px"
 			name2!.style.fontSize = canvasSize.height / 15 + "px"
+			vs_name1!.style.fontSize = canvasSize.height / 15 + "px"
+			vs_name2!.style.fontSize = canvasSize.height / 15 + "px"
 		}
 
 		function onDocumentKeyDown(event : KeyboardEvent) {
@@ -380,6 +354,9 @@
 		//#endregion
 
 		//#region Collision
+		const cam = new THREE.PerspectiveCamera( 50, 16 / 9, 0.1, 1000 );
+		cam.position.set(0, -3.5, 82.3);
+		cam.rotation.x = 1.26109338225244
 
 
 		var frames = 0
@@ -396,8 +373,10 @@
 					'event':'ready',
 					'id':id,
 				}))
-				play.mesh.position.set(-80 ,0, 10)
-				er.mesh.position.set(80, 0, 10)
+				play.mesh.position.set(-1.5, 0, 80)
+				er.mesh.position.set(1.5, 0, 80)
+				er.mesh.rotation.y += 0.25
+				play.mesh.rotation.y -= 0.25
 				play.mesh.translateZ(-10)
 				er.mesh.translateZ(-10)
 				er.controllanims.xp = 0.15
@@ -412,13 +391,18 @@
 			}
 			else if (data.event == 'start_game')
 			{
+				cam.position.set(0, 0, 20);
+				cam.rotation.x = 0
+				cam.fov = 70
+				cam.updateProjectionMatrix ();
+				play.mesh.rotation.y += 0.25
+				er.mesh.rotation.y -= 0.25
+				scene.background = null
 				score1!.style.display = 'block'
 				score2!.style.display = 'block'
 				name1!.style.display = 'block'
 				name2!.style.display = 'block'
 				versus!.style.display = 'none'
-				renderer.setScissorTest( false );
-				renderer.setViewport(0, 0, window.innerWidth * 0.7, (window.innerWidth * 0.70) / 16 * 9)
 				renderer.setClearColor( new THREE.Color(0xAAAAFF ) );
 				er.controllanims.xp = 0
 				play.controllanims.xp = 0
@@ -533,38 +517,17 @@
     				    fireworks[ i ].update(dt);
     				}
 				}
-				renderer.render( scene, cam );
 			}
 			else
 			{
-				for ( let ii = 0; ii < views.length; ++ ii ) {
-
-					const view = views[ ii ];
-					const camera = view.camera;
-
-					const left = Math.floor(window.innerWidth * 0.7 * view.left);
-					const bottom = Math.floor((window.innerWidth * 0.70) / 16 * 9 * view.bottom);
-					const width = Math.floor(window.innerWidth * 0.7 * view.width );
-					const height = Math.floor((window.innerWidth * 0.70) / 16 * 9 *  view.height );
-
-
-					renderer.setViewport( left, bottom, width, height );
-					renderer.setScissor( left, bottom, width, height );
-					renderer.setScissorTest( true );
-					renderer.setClearColor( view.background );
-
-					camera.aspect = width / height;
-					camera.updateProjectionMatrix();
-
-					renderer.render( scene, camera );
-				}
-				if (play.mesh.position.x < -80)
+				if (play.mesh.position.x < -1.5)
 					play.mesh.translateZ(0.1)
-				if (er.mesh.position.x > 80)
-					er.mesh.translateZ(0.1)
+				if (er.mesh.position.x > 1.5)
+				 	er.mesh.translateZ(0.1)
 				play.update()
 				er.update()
 			}
+			renderer.render( scene, cam );
 		}
 		animate();
 	})();
@@ -617,22 +580,40 @@
 		pointer-events: none;
 		display:flex;
 		position: absolute;
-		top: 45%;
-		left: 50%;
+		width: 100%;
+		height: 100%;
 	}
 
 	#player1, #player2, #player1_name, #player2_name {
 		display: none;
 	}
 	
+	#vs_name1, #vs_name2 {
+		bottom: 3%;
+		position: absolute;
+		text-shadow: none;
+	}
+
+	#vs_name1 {
+		transform: translate(-50%);
+		left: 19%
+	}
+
+	#vs_name2 {
+		transform: translate(50%);
+		right: 19%
+	}
+
 	#vs {
-		position: relative;
+		position: absolute;
+		top: 49%;
+		left:50.7%
 	}
 
 	#vs >img {
 		position: relative;
 		height: auto;
-		width: 50%;
+		width: 68.7%;
 		transform: translate(-50%, -50%);
 	}
 
@@ -647,8 +628,10 @@
 	</div>
 	<div id="versus">
 		<div id="vs">
-			<img alt="versus_logo" src="/assets/ui/pong/vers.png"/>
+			<img alt="versus_logo" src="/assets/ui/pong/vzs.png"/>
 		</div>
+		<span class="text" id="vs_name1"></span>
+		<span class="text" id="vs_name2"></span>
 	</div>
 </div>
 
