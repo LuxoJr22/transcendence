@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Bot } from "./bot";
+    import { Bot } from "$lib/stores/selection/bot";
 	import { onMount, onDestroy } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';

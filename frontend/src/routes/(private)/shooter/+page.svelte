@@ -1,10 +1,10 @@
 <script lang="ts">
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { Shooter } from "./shooter";
-    import { Player } from "./player";
-    import { flagshader } from "./flagshader";
-    import { createmap } from "./map"
+    import { Shooter } from "$lib/stores/shooter/shooter";
+    import { Player } from "$lib/stores/shooter/player";
+    import { flagshader } from "$lib/stores/shooter/flagshader";
+    import { createmap } from "$lib/stores/shooter/map"
     import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
     import { goto, beforeNavigate, afterNavigate } from '$app/navigation';

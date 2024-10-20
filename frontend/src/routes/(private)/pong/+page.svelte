@@ -2,10 +2,10 @@
 	import { onDestroy, onMount } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-	import { Player } from "./player";
-	import { Bot } from "./bot";
-	import { shade } from "./watershader";
-	import { Firework } from './firework';
+	import { Player } from "$lib/stores/pong/player";
+	import { Bot } from "$lib/stores/pong/bot";
+	import { shade } from "$lib/stores/pong/watershader";
+	import { Firework } from '$lib/stores/pong/firework';
 	import { auth } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
