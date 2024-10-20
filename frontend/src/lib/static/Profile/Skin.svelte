@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import {  userData } from '$lib/stores/user';
@@ -8,6 +8,7 @@
 
     let canvas : HTMLCanvasElement;
 	let skinName = '';
+	let isLoad : boolean = false;
 	export let self;
 	export let userId = 0;
 
@@ -22,7 +23,7 @@
 			const data : any = await userData(userId);
             skinName = data.skin;
 		}
-		
+		isLoad = true
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera( 90, 1, 0.1, 1000 );
 		scene.background = new THREE.Color(0x212529);
@@ -52,7 +53,8 @@
 			renderer.setSize( canvasSize.width, canvasSize.height);
 		}
 		function animate() {
-			requestAnimationFrame( animate );
+			if (isLoad)
+				requestAnimationFrame( animate );
 			const dt = clock.getDelta();
 			t += dt;
 			if (rotating_skin)
@@ -62,6 +64,11 @@
 		animate();
 	})();
 	});
+
+	onDestroy(() => {
+		isLoad = false;
+	})
+
 </script>
 
 <canvas bind:this={canvas} class=""></canvas>

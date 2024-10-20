@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Bot } from "./bot";
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
@@ -11,8 +11,10 @@
 	$: $auth, state = $auth;
 
 	let canvas : HTMLCanvasElement;
+	var is_game_loaded = false
 
 	onMount(() => { (async () => {
+		is_game_loaded = true 
 		await fetchUser()
 		auth.subscribe((value : AuthState) =>{
             state = value;
@@ -254,7 +256,8 @@
 		}
 		function animate() {
 			dragObject()
-			requestAnimationFrame( animate );
+			if (is_game_loaded)
+				requestAnimationFrame( animate );
 			const dt = clock.getDelta();
 			t += dt;
 			bots.forEach(element => {
@@ -267,6 +270,10 @@
 		animate();
 	})();
 	});
+
+	onDestroy(() => {
+		is_game_loaded = false
+	})
 </script>
 
 <style>
