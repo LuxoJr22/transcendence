@@ -173,8 +173,8 @@
         ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		score1!.style.fontSize = canvasSize.height / 10 + "px"
 		score2!.style.fontSize = canvasSize.height / 10 + "px"
-		name1!.style.fontSize = canvasSize.height / 15 + "px"
-		name2!.style.fontSize = canvasSize.height / 15 + "px"
+		name1!.style.fontSize = canvasSize.height / 12 + "px"
+		name2!.style.fontSize = canvasSize.height / 12 + "px"
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
 		ui!.style.display = 'flex'
@@ -264,8 +264,8 @@
             ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 			score1!.style.fontSize = canvasSize.height / 10 + "px"
 			score2!.style.fontSize = canvasSize.height / 10 + "px"
-			name1!.style.fontSize = canvasSize.height / 15 + "px"
-			name2!.style.fontSize = canvasSize.height / 15 + "px"
+			name1!.style.fontSize = canvasSize.height / 12 + "px"
+			name2!.style.fontSize = canvasSize.height / 12 + "px"
 		}
 
 		function onDocumentKeyDown(event : KeyboardEvent) {
@@ -530,6 +530,10 @@
   		font-style: normal;
 		color:white;
 		font-size: 70px;
+	}
+
+	#player1_name, #player2_name {
+		margin-top: 4%;
 	}
 
 

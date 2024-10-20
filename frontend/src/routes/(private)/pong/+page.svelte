@@ -74,6 +74,8 @@
 		var score2 = document.getElementById("player2")
 		var name1 = document.getElementById("player1_name")
 		var name2 = document.getElementById("player2_name")
+		var vs_name1 = document.getElementById("vs_name1")
+		var vs_name2 = document.getElementById("vs_name2")
 
 
 
@@ -133,6 +135,8 @@
 
 		name1!.textContent = skins["player1"]["username"]
 		name2!.textContent = skins["player2"]["username"]
+		vs_name1!.textContent = skins["player1"]["username"]
+		vs_name2!.textContent = skins["player2"]["username"]
 
 
 		const lig = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -196,12 +200,14 @@
 		score2!.style.fontSize = canvasSize.height / 10 + "px"
 		name1!.style.fontSize = canvasSize.height / 15 + "px"
 		name2!.style.fontSize = canvasSize.height / 15 + "px"
+		vs_name1!.style.fontSize = canvasSize.height / 15 + "px"
+		vs_name2!.style.fontSize = canvasSize.height / 15 + "px"
 		ui!.style.display = 'block'
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
 
 		
-		const text = new THREE.TextureLoader().load('/assets/ui/pong/pve.jpg')
+		const text = new THREE.TextureLoader().load('/assets/ui/pong/pp.jpg')
 		text.colorSpace = "srgb";
 		scene.background = text
 		
@@ -321,6 +327,8 @@
 			score2!.style.fontSize = canvasSize.height / 10 + "px"
 			name1!.style.fontSize = canvasSize.height / 15 + "px"
 			name2!.style.fontSize = canvasSize.height / 15 + "px"
+			vs_name1!.style.fontSize = canvasSize.height / 15 + "px"
+			vs_name2!.style.fontSize = canvasSize.height / 15 + "px"
 		}
 
 		function onDocumentKeyDown(event : KeyboardEvent) {
@@ -572,23 +580,40 @@
 		pointer-events: none;
 		display:flex;
 		position: absolute;
-		top: 45%;
-		left: 50%;
+		width: 100%;
+		height: 100%;
 	}
 
 	#player1, #player2, #player1_name, #player2_name {
 		display: none;
 	}
 	
+	#vs_name1, #vs_name2 {
+		bottom: 3%;
+		position: absolute;
+		text-shadow: none;
+	}
+
+	#vs_name1 {
+		transform: translate(-50%);
+		left: 19%
+	}
+
+	#vs_name2 {
+		transform: translate(50%);
+		right: 19%
+	}
+
 	#vs {
-		display: none;
-		position: relative;
+		position: absolute;
+		top: 49%;
+		left:50.7%
 	}
 
 	#vs >img {
 		position: relative;
 		height: auto;
-		width: 50%;
+		width: 68.7%;
 		transform: translate(-50%, -50%);
 	}
 
@@ -603,8 +628,10 @@
 	</div>
 	<div id="versus">
 		<div id="vs">
-			<img alt="versus_logo" src="/assets/ui/pong/vers.png"/>
+			<img alt="versus_logo" src="/assets/ui/pong/vzs.png"/>
 		</div>
+		<span class="text" id="vs_name1"></span>
+		<span class="text" id="vs_name2"></span>
 	</div>
 </div>
 
