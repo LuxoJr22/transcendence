@@ -184,7 +184,7 @@
         menu_btn!.style.height = canvasSize.height / 10 + "px"
         renderer.shadowMap.enabled = true;
         document.body.appendChild( renderer.domElement );
-        ui!.style.display = 'flex'
+        ui!.style.display = 'block'
 
         var xSpeed = 0.15;
         var ySpeed = 0.15;
@@ -541,6 +541,11 @@
                     }
                 }
             }
+        }
+
+        chatSocket.onclose = function(e) {
+			if (e.code != 1000)
+				goto('/');
         }
 
 
