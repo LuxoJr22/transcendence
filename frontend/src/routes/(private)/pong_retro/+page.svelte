@@ -18,8 +18,10 @@
 	var scoring = 0;
 	let state: AuthState;
 	$: $auth, state = $auth;
+	let isLoad : boolean = false;
 
 	onMount(() => { (async () => {
+		isLoad = true
 		await fetchUser()
 		auth.subscribe((value : AuthState) =>{
             state = value;
@@ -458,7 +460,8 @@
 		// composer.addPass( renderPixelatedPass );
 
 		function animate() {
-			requestAnimationFrame( animate );
+			if (isLoad)
+				requestAnimationFrame( animate );
 			const dt = clock.getDelta();
 			t += dt;
 			if (gamepads[0])
@@ -479,7 +482,7 @@
 				if (startend >= 5)
 				{
 					pongSocket.close()
-					//goto('/');
+					goto('/');
 				}
 			}
 			scene.traverse(nonBloomed)
@@ -493,6 +496,7 @@
 	});
 
 	onDestroy(() => {
+		isLoad = false
 		if (pongSocket)
 			pongSocket.close()
 	})
