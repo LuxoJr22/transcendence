@@ -5,10 +5,10 @@
     import { auth} from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchChatMessages, fetchLatestDiscussion } from '$lib/stores/chat';
-    import ModalUser from '$lib/static/Chat/ModalUser.svelte';
-    import LatestDiscussion from '$lib/static/Chat/LatestDiscussion.svelte';
-    import PlayButton from '$lib/static/Chat/PlayButton.svelte';
-    import ChatBox from '$lib/static/Chat/ChatBox.svelte';
+    import ModalUser from '$lib/components/Chat/ModalUser.svelte';
+    import LatestDiscussion from '$lib/components/Chat/LatestDiscussion.svelte';
+    import PlayButton from '$lib/components/Chat/PlayButton.svelte';
+    import ChatBox from '$lib/components/Chat/ChatBox.svelte';
 
     $: roomId = $page.params.room;
     let ws : WebSocket;

@@ -3,11 +3,11 @@
     import Pie from './pie.svelte';
     import type { Profile } from '$lib/stores/user';
     import { profileData, profile } from '$lib/stores/user';
-    import History from '$lib/static/Profile/History/History.svelte';
-    import Block from '$lib/static/Profile/Block.svelte';
+    import History from '$lib/components/Profile/History/History.svelte';
+    import Block from '$lib/components/Profile/Block.svelte';
     import { friendList, fetchFriendList, deleteFriend } from '$lib/stores/friendship';
     import type { friendInterface } from '$lib/stores/friendship';
-    import Skin from '$lib/static/Profile/Skin.svelte';
+    import Skin from '$lib/components/Profile/Skin.svelte';
 
     export let userId : string;
     let data : any = [];

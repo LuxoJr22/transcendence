@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
-	import Waiting from '$lib/static/Matchmaking/Waiting.svelte';
+	import Waiting from '$lib/components/Matchmaking/Waiting.svelte';
 	import { goto } from '$app/navigation'
 
 	let state: AuthState;
