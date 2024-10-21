@@ -153,6 +153,11 @@
             el!.style.display = '';
         } );
 
+        const gg = await loader.loadAsync('/assets/ui/shooter/nerf_gun.glb');
+        gg.scene.scale.set(0.005, 0.005, 0.005)
+        gg.scene.position.set(1, -0.5, 0)
+        play.cam.getObject().attach(gg.scene)
+
         scene.add(play.cam.getObject());
 
 
@@ -367,6 +372,11 @@
             gl.scene.scale.set(0.5, 0.5, 0.5);
             let pl = new Player(gl, 0.15, scene, play_id)
             play.target = play.target.concat(pl.target)
+            const gun = await loader.loadAsync('/assets/ui/shooter/nerf_gun.glb');
+            gun.scene.scale.set(0.005, 0.005, 0.005)
+            gun.scene.rotation.y = Math.PI
+            gun.scene.position.set(8.5, 1.5, -1)
+            pl.bone.attach(gun.scene)
             players.push(pl);
         }
 
@@ -564,16 +574,23 @@
                 handlesticks(gamepads[0].axes)
             }
             if (boostreload > 0)
+            {
                 boostreload -= dt * 400;
+                gg.scene.position.z = boostreload / 300
+            }
             else
+            {
                 boostreload = 0
+            }
             if (reload > 0)
             {
                 reload -= dt * 400;
+                gg.scene.rotation.x = reload / 400
                 circle!.style.background = `conic-gradient(#cccccc ${360 - reload}deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
             }
             else
             {
+                gg.scene.rotation.x = 0;
                 reload = 0;
                 circle!.style.background = `conic-gradient(#cccccc 0deg, rgba(1.0, 1.0, 1.0, 0.0) 0deg)`
             }
