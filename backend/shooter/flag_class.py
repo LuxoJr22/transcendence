@@ -3,7 +3,7 @@ import time
 class Flag:
 	def __init__(self):
 		self.last = 0
-		self.position = {'x':0, 'y':5, 'z':-5}
+		self.position = {'x':0, 'y':8, 'z':-5}
 		self.ispicked = 0
 		self.isdropped = 0
 		self.player_id = 0

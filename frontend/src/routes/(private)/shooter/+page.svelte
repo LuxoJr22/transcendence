@@ -97,17 +97,17 @@
 
         const sh = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.1, 20), flagshader)
         sh.rotation.x = Math.PI / 2;
-        sh.position.set(0, 6, -5)
+        sh.position.set(0, 9, -5)
         scene.add(sh)
 
         const tor = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.1, 20), flagshader.clone())
         tor.rotation.x = Math.PI / 2;
-        tor.position.set(0, 6, -5)
+        tor.position.set(0, 9, -5)
         scene.add(tor)
 
         const toru = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.1, 20), flagshader.clone())
         toru.rotation.x = Math.PI / 2;
-        toru.position.set(0, 6, -5)
+        toru.position.set(0, 9, -5)
         scene.add(toru)
 
 
@@ -115,7 +115,7 @@
 
         const flag = await loader.loadAsync('/assets/maps/shooter/f.glb');
         flag.scene.name = 'flag'
-        flag.scene.position.set(0, 5, -5);
+        flag.scene.position.set(0, 8, -5);
 
 
 
