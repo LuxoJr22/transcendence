@@ -22,8 +22,8 @@ class Game:
 		self.balldiry = 0
 		self.ballspeed = 1
 		if (self.gamemode == "pong"):
-			self.player1 = Player(-10, 0, {"px": 0, "py":8, "nx":-18, "ny":-8}, 1, player1)
-			self.player2 = Player(10, 0, {"px": 18, "py":8, "nx": 0, "ny":-8}, -1, player2)
+			self.player1 = Player(-10, 0, {"px": -1, "py":8, "nx":-17, "ny":-8}, 1, player1)
+			self.player2 = Player(10, 0, {"px": 17, "py":8, "nx": 1, "ny":-8}, -1, player2)
 		else :
 			self.player1 = Player(-17, 0, {"px": 0, "py":8, "nx":-18, "ny":-8}, 1, player1)
 			self.player2 = Player(17, 0, {"px": 18, "py":8, "nx": 0, "ny":-8}, -1, player2)
