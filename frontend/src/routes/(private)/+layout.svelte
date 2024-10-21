@@ -41,7 +41,7 @@
     }
     function addNotifications(data : any){
         if (data.type != 'friend_request')
-            navBarNotifications.push(data);
+            navBarNotifications.unshift(data);
         return (navBarNotifications);
     }
 
@@ -158,7 +158,7 @@
             <a href="/" class="navbar-item navbar-brand fs-1 layout-title text-warning-subtle ms-4 opacity">t r i p l u m</a>
             <div class="row">
                 <div class="dropdown col-3">
-                    <button class="btn" style="text-decoration:none; color:white;" type="button" data-bs-toggle="dropdown" aria-expanded="false" on:click={fetchFriendRequests}>
+                    <button class="btn" style="text-decoration:none; color:white;" type="button" data-bs-auto-close="outside" data-bs-toggle="dropdown"  aria-expanded="false" on:click={async () => await fetchFriendRequests()}>
                     <i class="bi bi-bell"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end notif-container">
@@ -166,10 +166,10 @@
                         {#if request.receiver.id == state.user?.id}
                         <div class="d-flex align-items-center p-2 m-2 mt-1 border rounded">
                             <p class="dropdown-item mb-0" style="">{request.requester.username} sent you a friend request</p>
-                            <button class="btn p-0 m-0" style="" on:click={() => acceptFriendRequest(request.id)}>
+                            <button class="btn p-0 m-0" style="" on:click={async () => {await acceptFriendRequest(request.id); await fetchFriendRequests()}}>
                                 <i class="bi bi-person-check-fill p-2" style="color:green; font-size:1.3rem;"></i>
                             </button>
-                            <button class="btn p-0 m-0" on:click={() => declineFriendRequest(request.id)}>
+                            <button class="btn p-0 m-0" on:click={async () => {await declineFriendRequest(request.id); await fetchFriendRequests()}}>
                                 <i class="bi bi-person-fill-x p-2" style="color:red; font-size:1.3rem;"></i>
                             </button>
                         </div>
@@ -183,7 +183,7 @@
                     {/each}
                     {#if !requestsList[0] && !navBarNotifications[0]}
                         <div class="d-flex justify-content-center">
-                            <p class="mt-2"style="color:grey;">No notifications</p>
+                            <p class="mt-3"style="color:grey;">No notifications</p>
                         </div>
                     {/if}
                     </ul>
