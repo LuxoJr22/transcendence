@@ -6,9 +6,9 @@
 	import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 	import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 	import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
-	import { Player } from "./player";
+	import { Player } from "$lib/stores/pong_retro/player";
 	import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-	import {CrtShader} from "./crtShader";
+	import {CrtShader} from "$lib/stores/pong_retro/crtShader";
 	import { auth, fetchUser } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';

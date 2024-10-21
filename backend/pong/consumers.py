@@ -35,10 +35,10 @@ class PrivateMatchmakingConsumer(WebsocketConsumer):
 		try:
 			self.pongmatch = get_object_or_404(PongMatch, id=self.game_id)
 		except:
-			self.disconnect(0)
+			return self.close(3000)
 
 		if self.user.id != self.pongmatch.player1 and self.user.id != self.pongmatch.player2:
-			self.disconnect(0)
+			return self.close(3000)
 
 		async_to_sync(self.channel_layer.group_add)(
 			self.room_group_name,
@@ -205,7 +205,7 @@ class PongConsumer(WebsocketConsumer):
 		)
 
 		if (self.room_group_name not in dictio):
-			self.disconnect(0)
+			return self.close(3000)
 		self.game = dictio[self.room_group_name]
 
 		if self.user not in self.pongroom.users_online.all():
@@ -215,12 +215,12 @@ class PongConsumer(WebsocketConsumer):
 		elif self.game.player2.id == self.user.id:
 			self.id = 2
 		else:
-			self.disconnect(0)
+			return self.close(3000)
 		
 		try:
 			self.pong_match = get_object_or_404(PongMatch, id=self.game.game_id)
 		except:
-			self.disconnect(0)
+			return self.close(3000)
 		self.accept()
 		self.in_game = 1
 		self.send(text_data=json.dumps({

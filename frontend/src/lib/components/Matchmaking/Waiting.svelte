@@ -38,7 +38,6 @@
 		let i = 0;
 		while (historyData[i])
 		{
-			console.log(historyData[i].winner)
 			if (historyData[i].winner != state.user!.id)
 			{
 				await profileData(parseInt(historyData[i].winner));
@@ -156,12 +155,24 @@
 				const found = raycaster.intersectObjects(scene.children);
 				if (found[0])
 				{
-					
 					hit = 0.5;
-					var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.1 , 5, 5), new THREE.MeshBasicMaterial( { color: 0xffcccc} ))
-					sphere.scale.z = 0.5
-					sphere.position.set(found[0].point.x, found[0].point.y ,found[0].point.z );
-					bone.attach(sphere)
+					if (found[0].object.name == '')
+					{
+						found[0].object.material.color.g -= 0.1;
+						found[0].object.material.color.b -= 0.1;
+						if (found[0].object.scale.z < 3)
+						{
+							found[0].object.scale.z += 0.1
+							console.log(found[0].object.scale.z)
+						}
+					}
+					else
+					{
+						var sphere = new THREE.Mesh(new THREE.SphereGeometry(0.1 , 5, 5), new THREE.MeshBasicMaterial( { color: 0xffcccc} ))
+						sphere.scale.z = 1
+						sphere.position.set(found[0].point.x, found[0].point.y ,found[0].point.z );
+						bone.attach(sphere)
+					}
 					nb_hit ++;
 					if (clickmouse.x < 0)
 						hit_pose(-1)
