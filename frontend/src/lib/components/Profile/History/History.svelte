@@ -5,17 +5,16 @@
     import { page } from '$app/stores';
 
     export let data;
-
+    let historyToDisplay : string;
     $: userId = $page.params.id;
-    console.log(userId);
-
+    
     interface User {
         id: number,
         username: string,
         score: number,
         profile_picture_url: string
     }
-
+    
     interface Game {
         me: User,
         opponent: User,
@@ -29,14 +28,23 @@
 
     let gamesHistory = new Array<Game>();
     export let state : AuthState | null;
-
+    
     onMount(async () => {
         auth.subscribe((value) => {
             state = value;
         })
         gamesHistory = await parseHistoryMatches(data);
-    })
+        historyToDisplay = (someGameOf('pong' ) ? 'pong' : 'Shooter');
+    })    
 
+    function someGameOf(gamemode : string){
+        for (let i = 0; gamesHistory[i]; i++){
+            if (gamesHistory[i].gamemode == gamemode || (gamesHistory[i].gamemode == 'pong_retro' && gamemode == 'pong')){
+                return (true);
+            }
+        }
+        return (false);
+    }
 
     async function parseHistoryMatches(data : any[]){
         for (let i = 0; data[i] ; i ++)
@@ -46,7 +54,7 @@
             else
                 await ParseShooterGame(data[i])
         }
-        return (gamesHistory)
+        return (gamesHistory);
     }
 
     async function ParsePongGame(data : any) {
@@ -121,36 +129,45 @@
 </script>
 
 <div class="flex-column history-container justify-content-top">
-    {#if gamesHistory[0] != null}
+    {#if someGameOf(historyToDisplay)}
         {#each gamesHistory as game}
-        <div class="row border  rounded match my-1 bg-dark text-truncate {game.winner == userId ? 'border-primary' : 'border-danger'}">
-
-            {#if game.gamemode != "Shooter"}
-                <p class="col-4 text-center text-light h4 mt-1">{state?.user?.id == userId ? 'Me' : game.me.username}</p>
-                <p class="col-4 text-center h4 {game.winner == userId ? 'text-primary' : 'text-danger'} mt-1">{game.me.score} / {game.opponent.score}</p>
-                <a class="col-4 text-center text-light h4 link mt-1" href={"/profile/" + game.opponent.id}>{game.opponent.username}</a>
-            {:else}
+            {#if game.gamemode != "Shooter" && historyToDisplay == 'pong'}
+                <div class="row border  rounded match my-1 bg-dark text-truncate {game.winner == userId ? 'border-primary' : 'border-danger'}">
+                    <p class="col-4 text-center text-light h4 mt-1">{state?.user?.id == userId ? 'Me' : game.me.username}</p>
+                    <p class="col-4 text-center h4 {game.winner == userId ? 'text-primary' : 'text-danger'} mt-1">{game.me.score} / {game.opponent.score}</p>
+                    <a class="col-4 text-center text-light h4 link mt-1" href={"/profile/" + game.opponent.id}>{game.opponent.username}</a>
+                    <div class="d-flex">
+                        <p class="col-4" style="color:grey;">{game.date}</p>
+                        <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
+                        <p class="col-4 text-end" style="color:grey;">{game.hours}</p>
+                    </div>
+                </div>
+            {:else if game.gamemode == "Shooter" && historyToDisplay == 'Shooter'}
                 {#each game.players as player, i}
                     {#if player[0].id == userId}
-                    <div class="d-flex justify-content-center">
-                        <p class="text-center text-light h4 link mt-1 me-2">Score :</p>
-                        <p class="text-center h4 {game.winner == userId ? 'text-primary' : 'text-danger'} mt-1">{player[1]}</p>
-                    </div>
+                        <div class="row border rounded match my-1 bg-dark text-truncate {(player[0].id == userId && i == 0) ? 'border-primary' : 'border-danger'}">
+                            <div class="d-flex justify-content-center">
+                                <p class="text-center text-light h4 link mt-1 me-2">Score :</p>
+                                <p class="text-center h4 {(player[0].id == userId && i == 0) ? 'text-primary' : 'text-danger'} mt-1">{player[1]}</p>
+                            </div>
+                            <div class="d-flex">
+                                <p class="col-4" style="color:grey;">{game.date}</p>
+                                <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
+                                <p class="col-4 text-end" style="color:grey;">{game.hours}</p>
+                            </div>
+                        </div>
                     {/if}
                 {/each}
             {/if}
-            <div class="d-flex">
-                <p class="col-4" style="color:grey;">{game.date}</p>
-                <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
-                <p class="col-4 text-end" style="color:grey;">{game.hours}</p>
-            </div>
-        </div>
         {/each}
     {:else}
         <div class="d-flex history-container justify-content-center align-items-center">
             <h5 class="" style="color:grey;">No match to Display</h5>
         </div>
     {/if}
+</div>
+<div class="d-flex justify-content-center">
+    <button class="btn btn-light" on:click={() => {historyToDisplay == 'Shooter' ? historyToDisplay = 'pong' : historyToDisplay = 'Shooter'}}>{historyToDisplay == 'Shooter' ? 'Pong' : 'Shooter'} Games</button>
 </div>
 
 <style>
