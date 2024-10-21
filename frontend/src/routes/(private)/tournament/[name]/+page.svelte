@@ -25,7 +25,6 @@
 		let data = JSON.parse(e.data)
 		if (data.event == "Connection")
 		{
-			console.log(data.players)
 			allUsers = data.players;
 			allGames = data.games;
 			allOnline = data.online;
@@ -76,16 +75,13 @@
 
 	function create_versus(game : Dict<string | null, number>)
 	{
-		console.log(game)
 		if (game && (typeof game.score1 == "number" || game.score1 == null) && (typeof game.score2 == "number" || game.score2 == null))
 		{
-			console.log("oui")
 			var match1 = create_match("top", game.player1, game.score1)
 			var match2 = create_match("bottom", game.player2, game.score2)
 		}
 		else
 		{
-			console.log("non")
 			var match1 = create_match("top", null, null)
 			var match2 = create_match("bottom", null, null)
 		}

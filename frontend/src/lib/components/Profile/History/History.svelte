@@ -166,7 +166,7 @@
         </div>
     {/if}
 </div>
-<div class="d-flex justify-content-center">
+<div class="d-flex justify-content-center mb-3">
     <button class="btn btn-light" on:click={() => {historyToDisplay == 'Shooter' ? historyToDisplay = 'pong' : historyToDisplay = 'Shooter'}}>{historyToDisplay == 'Shooter' ? 'Pong' : 'Shooter'} Games</button>
 </div>
 
