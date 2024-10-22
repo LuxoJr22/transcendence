@@ -42,11 +42,6 @@
 
     onMount(async () => {
         await fetchLatestDiscussion();
-        input = document.getElementById("input")!
-        box = document.getElementById("box")!
-        let wid = box!.getBoundingClientRect().width
-        
-        input!.style.width = (wid -  185) + "px"
         roomId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
         auth.subscribe((value : AuthState) =>{
             state = value;
@@ -62,6 +57,12 @@
 
     async function createRoom(id : number){
         await fetchChatMessages(id);
+        input = document.getElementById("input")!
+        box = document.getElementById("box")!
+        let wid = box!.getBoundingClientRect().width
+
+        if (input)
+            input.style.width = (wid -  185) + "px"
         const token = localStorage.getItem('access_token');
         if (ws && ws.readyState == WebSocket.OPEN)
             ws.close();

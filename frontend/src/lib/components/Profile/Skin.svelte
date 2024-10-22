@@ -16,7 +16,8 @@
 		if (self){
 			await fetchUser();
 			auth.subscribe((value : AuthState) =>{
-            	skinName = value.user!.skin;
+				if (value.user)
+            		skinName = value.user!.skin;
         	});
 		}
 		else {

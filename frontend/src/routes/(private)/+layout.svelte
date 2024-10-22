@@ -74,7 +74,6 @@
         wsOnline.onmessage = async function (event) {
             const data = JSON.parse(event.data);
             parseNotifications(data);
-            console.log(JSON.parse(event.data));
             navBarNotifications = addNotifications(data);
             await fetchLatestDiscussion();
             if (data.type !== 'chat' || window.location.href.search('/chat/') == -1){
