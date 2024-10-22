@@ -52,8 +52,9 @@ class UserSerializer(ValidationMixin, serializers.ModelSerializer):
 		model = User
 		fields = ['id', 'username', 'email', 'password', 'profile_picture']
 		extra_kwargs = {
-			'id': {'read_only':True},
+			'id': {'read_only': True},
 			'password': {'write_only': True},
+			'profile_picture': {'read_only': True},
 		}
 
 	def validate_username(self, value):
@@ -101,12 +102,9 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 
 	def validate_profile_picture(self, value):
 		validated_value = self._validate_profile_picture(value)
-		print("Validating profile picture", file=sys.stderr)
 		username = self.instance.username
 		profile_pictures_path = os.path.join(settings.MEDIA_ROOT, f'profile_pictures/{username}')
-		print(f"Profile pictures path: {profile_pictures_path}", file=sys.stderr)  # Debug
 		if os.path.exists(profile_pictures_path):
-			print(f"Removing profile pictures for {username}", file=sys.stderr)
 			shutil.rmtree(profile_pictures_path)
 		return validated_value
 
