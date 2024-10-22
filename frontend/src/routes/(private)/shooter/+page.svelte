@@ -5,7 +5,7 @@
     import { Player } from "$lib/stores/shooter/player";
     import { flagshader } from "$lib/stores/shooter/flagshader";
     import { createmap } from "$lib/stores/shooter/map"
-    import { auth, fetchUser } from '$lib/stores/auth';
+    import { auth, fetchUser, getAccessToken } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
     import { goto, beforeNavigate, afterNavigate } from '$app/navigation';
 
@@ -34,9 +34,10 @@
         });
 
         var match_id
+        let accessToken = await getAccessToken();
         const response = await fetch('/api/shooter/create/', {
 		method: 'POST',
-		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		headers: { 'Authorization': `Bearer ${accessToken}` },
 		});
 		const data = await response.json();
 		if (response.ok)
@@ -79,7 +80,7 @@
 
         const resp = await fetch('/api/shooter/settings/' + state.user?.id, {
 		method: 'GET',
-		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		headers: { 'Authorization': `Bearer ${accessToken}` },
 		});
 		const dat = await resp.json();
 		if (resp.ok)
@@ -379,7 +380,7 @@
             players.push(pl);
         }
 
-        let url = '/ws/shooter/shooter_' + match_id + '/?token=' + localStorage.getItem('access_token');
+        let url = '/ws/shooter/shooter_' + match_id + '/?token=' + accessToken;
         
         chatSocket = new WebSocket(url);
         

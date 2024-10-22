@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { refresh_token } from "$lib/stores/auth";
+    import { getAccessToken, refresh_token } from "$lib/stores/auth";
     import type { Profile } from "$lib/stores/user";
     import { onMount } from "svelte";
     import { goto } from '$app/navigation';
@@ -13,8 +13,7 @@
     }
 
     async function fetchAllUser(){
-        await refresh_token();
-        const accessToken = localStorage.getItem('access_token');
+        const accessToken = await getAccessToken();
         const response = await fetch('/api/user/list/', {
             headers : { 'Authorization': `Bearer ${accessToken}`}
         });
@@ -22,7 +21,6 @@
         if (response.ok){
             allUser = await response.json();
         }
-
     }
 
     function loadRoom(roomId : number){
@@ -83,6 +81,4 @@
         scrollbar-width: thin;
         scrollbar-color: black grey;
     }
-
-    
 </style>

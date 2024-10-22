@@ -1,5 +1,6 @@
 <script lang="ts">
 	import {beforeNavigate, goto } from '$app/navigation';
+    import { getAccessToken } from '$lib/stores/auth';
 
 	interface Dictionary<T> {
         [Key: string]: T;
@@ -16,7 +17,7 @@
 	var Users : string[] = []
 	var capacity = 0
 
-	let url = '/ws/tournament/pong/' + tournament_name + '/?token=' + localStorage.getItem('access_token');
+	let url = '/ws/tournament/pong/' + tournament_name + '/?token=' + (async () => {return (await getAccessToken())});
 	const chatSocket = new WebSocket(url)
 
 
