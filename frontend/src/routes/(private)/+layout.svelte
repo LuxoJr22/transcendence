@@ -2,7 +2,7 @@
     import { goto, afterNavigate } from '$app/navigation';
     import { onMount } from 'svelte';
     import {get} from 'svelte/store';
-    import { auth, fetchUser, logout , refresh_token } from '$lib/stores/auth';
+    import { auth, fetchUser, getAccessToken, logout , refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
     import { fetchLatestDiscussion } from '$lib/stores/chat';
@@ -51,7 +51,7 @@
     }
 
     afterNavigate(async () => {
-        let token = localStorage.getItem('access_token');
+        let token = localStorage.getItem('access_token');;
         if (currentUrl != '/login' && currentUrl != '/register' && !token){
             await refresh_token();
             let tmp = localStorage.getItem('access_token');
@@ -68,8 +68,9 @@
         auth.subscribe((value : AuthState) =>{
             state = value;
         });
+        const token = await getAccessToken();
         if (state.accessToken != null)
-            wsOnline = new WebSocket('/ws/status/?token=' + localStorage.getItem('access_token'));
+            wsOnline = new WebSocket('/ws/status/?token=' + token);
         
         wsOnline.onmessage = async function (event) {
             const data = JSON.parse(event.data);
@@ -108,7 +109,7 @@
 
     let requestsList = new Array<Request>();
     async function fetchFriendRequests(){
-        const { accessToken } = get(auth);
+        const accessToken = await getAccessToken();
 
         if (!accessToken)
             return;
@@ -130,9 +131,10 @@
     }
 
     async function getKeyBinds(){
+        let accessToken = await getAccessToken();
         const resp = await fetch('/api/pong/settings/' + state.user?.id + '/', {
             method: 'GET',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+            headers: { 'Authorization': `Bearer ${accessToken}` },
         });
         const dat = await resp.json();
         if (resp.ok)
@@ -141,7 +143,7 @@
         }
         const resp1 = await fetch('/api/shooter/settings/' + state.user?.id + '/', {
             method: 'GET',
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+            headers: { 'Authorization': `Bearer ${accessToken}` },
         });
         const dat1 = await resp1.json();
         if (resp.ok){

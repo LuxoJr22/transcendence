@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { getAccessToken } from './auth';
 
 export interface friendInterface {
     id: number;
@@ -10,7 +11,7 @@ export interface friendInterface {
 export let friendList = writable<friendInterface[]>([]);
 
 export async function fetchFriendList(){
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = await getAccessToken();
 
     if (!accessToken)
         return;
@@ -28,7 +29,7 @@ export async function fetchFriendList(){
 }
 
 export async function declineFriendRequest(id: number){
-    const accessToken = localStorage.getItem('access_token');;
+    const accessToken = await getAccessToken();
 
     if (!accessToken)
         return;
@@ -45,7 +46,7 @@ export async function declineFriendRequest(id: number){
 }
 
 export async function acceptFriendRequest(id: number){
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = await getAccessToken();
 
     if (!accessToken)
         return;
@@ -63,7 +64,7 @@ export async function acceptFriendRequest(id: number){
 }
 
 export async function deleteFriend(id: number){
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = await getAccessToken();
 
     if (!accessToken)
         return;

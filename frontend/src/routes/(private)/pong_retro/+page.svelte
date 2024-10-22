@@ -9,7 +9,7 @@
 	import { Player } from "$lib/stores/pong_retro/player";
 	import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 	import {CrtShader} from "$lib/stores/pong_retro/crtShader";
-	import { auth, fetchUser } from '$lib/stores/auth';
+	import { auth, fetchUser, getAccessToken } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 
@@ -31,10 +31,11 @@
 		scene.background = new THREE.Color(0x000000);
 
 
-		var skins
+		var skins;
+		let accessToken = await getAccessToken();
 		const response = await fetch('/api/pong/skins/' + localStorage.getItem('game_id'), {
 		method: 'GET',
-		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		headers: { 'Authorization': `Bearer ${accessToken}` },
 		});
 		const data = await response.json();
 		if (response.ok)
@@ -294,7 +295,8 @@
 
 		//#region Collision
 
-		let url = '/ws/pong/pong_retro/' + localStorage.getItem('room_name') + '/?token=' + localStorage.getItem('access_token');
+		const token = await getAccessToken();
+		let url = '/ws/pong/pong_retro/' + localStorage.getItem('room_name') + '/?token=' + token;
 		pongSocket = new WebSocket(url)
 
 		pongSocket.onmessage = function(e) {

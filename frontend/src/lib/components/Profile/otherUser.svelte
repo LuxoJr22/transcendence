@@ -8,6 +8,7 @@
     import { friendList, fetchFriendList, deleteFriend } from '$lib/stores/friendship';
     import type { friendInterface } from '$lib/stores/friendship';
     import Skin from '$lib/components/Profile/Skin.svelte';
+    import { getAccessToken } from '$lib/stores/auth';
 
     export let userId : string;
     let data : any = [];
@@ -49,10 +50,11 @@
     }
 
     export async function fetchHistoryMatches(){
+        let token = await getAccessToken();
         const response = await fetch("/api/pong/history/" + user?.id, {
             method: 'GET',
             headers:{
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                'Authorization': `Bearer ${token}`,
             }
         });
 
@@ -63,7 +65,7 @@
         const resp = await fetch("/api/shooter/history/" + user?.id, {
             method: 'GET',
             headers:{
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                'Authorization': `Bearer ${token}`,
             }
         });
 
@@ -106,9 +108,10 @@
 
     async function addFriend() {
         const receiver = user.id;
+        const token = await getAccessToken();
         const response = await fetch('/api/send/', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('access_token')}`},
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
             body: JSON.stringify({ receiver }),
         });
         statusAddFriendRequest = await response.json();

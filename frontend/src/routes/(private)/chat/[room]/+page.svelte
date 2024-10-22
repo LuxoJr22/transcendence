@@ -2,7 +2,7 @@
     import { onDestroy, onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { page } from '$app/stores'
-    import { auth} from '$lib/stores/auth';
+    import { auth, getAccessToken} from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchChatMessages, fetchLatestDiscussion } from '$lib/stores/chat';
     import ModalUser from '$lib/components/Chat/ModalUser.svelte';
@@ -63,7 +63,7 @@
 
         if (input)
             input.style.width = (wid -  185) + "px"
-        const token = localStorage.getItem('access_token');
+        const token = await getAccessToken();
         if (ws && ws.readyState == WebSocket.OPEN)
             ws.close();
         if (id)
