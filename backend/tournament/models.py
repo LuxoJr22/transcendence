@@ -9,7 +9,7 @@ class Tournament(models.Model):
 	users_online = models.ManyToManyField(User, related_name='users_online', blank=True)
 	matchs = models.ManyToManyField(PongMatch, related_name='matchs')
 	last_round = models.DateTimeField(null=True, blank=True)
-	nb_player = models.IntegerField()
+	nb_player = models.IntegerField(null=True, blank=True)
 	capacity = models.IntegerField()
 
 	is_full = models.BooleanField(default=False)
