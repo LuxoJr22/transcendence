@@ -20,7 +20,7 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 		try:
 			self.tournament_room = get_object_or_404(Tournament, name=self.tournament_name)
 		except:
-			return self.close(3000)
+			return self.close(3000, "Tournament room don't exist")
 
 
 		async_to_sync(self.channel_layer.group_add)(
