@@ -163,7 +163,6 @@
 						if (found[0].object.scale.z < 3)
 						{
 							found[0].object.scale.z += 0.1
-							console.log(found[0].object.scale.z)
 						}
 					}
 					else

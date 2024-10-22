@@ -18,7 +18,7 @@
 </script>
 
 <div class="card card-body">
-    <form on:submit|preventDefault="{update}">
+    <form on:submit|preventDefault="{update}" >
         <input type="text" class="form-control" bind:value={newUsername}>
         <button class="btn btn-success my-2" type="submit" on:click={resetValue}>Confirm</button>
         {#if errorsMessage == 'success'}

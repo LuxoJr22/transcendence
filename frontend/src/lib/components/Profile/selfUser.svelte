@@ -40,9 +40,9 @@
 
     function calcWinRate(data: any){
         for (let i = 0; data[i] ; i++){
-            if (data[i].winner == state.user?.id)
+            if (data[i].winner == state.user?.id && (data[i].gamemode == 'pong_retro' || data[i].gamemode == 'pong'))
                 victories += 1;
-            else
+            else if ((data[i].gamemode == 'pong_retro' || data[i].gamemode == 'pong'))
                 defeats += 1;
         }
     }

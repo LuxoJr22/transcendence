@@ -16,7 +16,6 @@
 
 
     window.onbeforeunload = () => {
-        console.log('Page is refreshing or closing');
         if (chatSocket) {
             chatSocket.close();
             chatSocket = null;

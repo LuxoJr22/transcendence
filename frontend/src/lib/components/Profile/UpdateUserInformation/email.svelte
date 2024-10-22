@@ -4,10 +4,6 @@
     let newEmail : string;
     let errorsMessage : string = '';
 
-    function resetValue(){
-        errorsMessage = '';
-    }
-
     async function update(){
         const data : any = await updateEmail(newEmail);
         if (!data){
