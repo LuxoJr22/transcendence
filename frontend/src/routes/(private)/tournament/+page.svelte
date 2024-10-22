@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     const img = new URL('/assets/pong.png', import.meta.url).href
     const img1 = new URL('/assets/game2.png', import.meta.url).href
-    import { refresh_token } from '$lib/stores/auth';
+    import { getAccessToken, refresh_token } from '$lib/stores/auth';
     import { goto } from '$app/navigation';
 
     //const create_tournament = document.getElementById("create_button");
@@ -24,9 +24,10 @@
             nb = 8
         else 
             nb = 0
+        const token = await getAccessToken();
         const response = await fetch('api/tournament/create/', {
 		method: 'POST',
-		headers: {'Content-Type': 'application/json' ,'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		headers: {'Content-Type': 'application/json' ,'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ "name":`${tournament_name}`, 'nb_player':nb, 'capacity': nb}),
 		});
 		const data = await response.json();
@@ -37,15 +38,14 @@
     }
 
     async function fetchAllTournaments(){
-        await refresh_token();
-            const accessToken = localStorage.getItem('access_token');
-            const response = await fetch('/api/tournament/list/', {
-                headers : { 'Authorization': `Bearer ${accessToken}`}
-            });
+        const token = await getAccessToken();
+        const response = await fetch('/api/tournament/list/', {
+            headers : { 'Authorization': `Bearer ${token}`}
+        });
 
-            if (response.ok){
-                allTournament = await response.json();
-            }
+        if (response.ok){
+            allTournament = await response.json();
+        }
     }
 
     async function go_to_tournament(id : string){
