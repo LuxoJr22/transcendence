@@ -34,14 +34,16 @@ class ShooterConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
+		self.accept()
 		try:
 			self.shootermatch = get_object_or_404(ShooterMatch, room_name=self.room_group_name)
 		except:
-			return self.close(3000)		
+			return self.close(3000, "Match don't exist")		
 		if self.user not in self.shooter_room.users_online.all():
 			self.shooter_room.users_online.add(self.user)
 		else:
-			return self.close(3000)
+			print("oui", file=sys.stderr)
+			return self.close(3000, "Already in match")
 		if self.room_group_name not in dictio:
 			dictio[self.room_group_name] = Game()
 		self.game = dictio[self.room_group_name]
@@ -54,7 +56,7 @@ class ShooterConsumer(WebsocketConsumer):
 			self.game.players[self.id - 1]["skin"] = self.user.skin
 
 		self.in_game = 1
-		self.accept()
+		
 
 		async_to_sync(self.channel_layer.group_send)(
 			self.room_group_name,

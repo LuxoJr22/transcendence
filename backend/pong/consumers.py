@@ -31,14 +31,14 @@ class PrivateMatchmakingConsumer(WebsocketConsumer):
 			self.matchmaking_room = PongMatchmaking.objects.create(
 				group_name = self.room_group_name,
 			)
-
+		self.accept()
 		try:
 			self.pongmatch = get_object_or_404(PongMatch, id=self.game_id)
 		except:
-			return self.close(3000)
+			return self.close(3000, "Game found don't exist")
 
 		if self.user.id != self.pongmatch.player1 and self.user.id != self.pongmatch.player2:
-			return self.close(3000)
+			return self.close(3000, "You are not a player in found game")
 
 		async_to_sync(self.channel_layer.group_add)(
 			self.room_group_name,
@@ -48,7 +48,7 @@ class PrivateMatchmakingConsumer(WebsocketConsumer):
 		if self.user not in self.matchmaking_room.users_online.all():
 			self.matchmaking_room.users_online.add(self.user)
 		
-		self.accept()
+		
 		
 		if self.matchmaking_room.users_online.count() >= 2:
 			self.player1 = self.pongmatch.player1
@@ -203,9 +203,9 @@ class PongConsumer(WebsocketConsumer):
 			self.room_group_name,
 			self.channel_name
 		)
-
+		self.accept()
 		if (self.room_group_name not in dictio):
-			return self.close(3000)
+			return self.close(3000, "Game don't exist")
 		self.game = dictio[self.room_group_name]
 
 		if self.user not in self.pongroom.users_online.all():
@@ -215,13 +215,13 @@ class PongConsumer(WebsocketConsumer):
 		elif self.game.player2.id == self.user.id:
 			self.id = 2
 		else:
-			return self.close(3000)
+			return self.close(3000, "You are not a player in this game")
 		
 		try:
 			self.pong_match = get_object_or_404(PongMatch, id=self.game.game_id)
 		except:
-			return self.close(3000)
-		self.accept()
+			return self.close(3000, "Match don't exist")
+		
 		self.in_game = 1
 		self.send(text_data=json.dumps({
 			'type':'Pong',
