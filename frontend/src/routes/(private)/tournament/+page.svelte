@@ -11,14 +11,23 @@
     }
 
     var tournament_name : string
+    var option1 : HTMLInputElement | null;
+    var option2 : HTMLInputElement | null;
 
     let allTournament : Dictionary<string>[] = [];
 
     async function create_tournament() {
+        let nb : number
+        if (option1 && option1.checked)
+            nb = 4
+        else if (option2 && option2.checked)
+            nb = 8
+        else 
+            nb = 0
         const response = await fetch('api/tournament/create/', {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json' ,'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-        body: JSON.stringify({ "name":`${tournament_name}`, 'nb_player':4, 'capacity': 4}),
+        body: JSON.stringify({ "name":`${tournament_name}`, 'nb_player':nb, 'capacity': nb}),
 		});
 		const data = await response.json();
         if (response.ok)
@@ -45,6 +54,8 @@
 
     onMount(async () => {
             await fetchAllTournaments()
+            option1 = document.getElementById("option1") as HTMLInputElement
+            option2 = document.getElementById("option2") as HTMLInputElement
     });
     
 </script>
@@ -93,31 +104,6 @@
                                 <input type="radio" class="btn-check" name="options" id="option2" autocomplete="off">
                                 <label class="btn btn-secondary" for="option2">8 players</label>
                             </div>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <h4>Choose your game</h4>
-                        <div id="carouselExampleIndicators" class="carousel slide">
-                            <div class="carousel-indicators">
-                                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                                <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                            </div>
-                            <div class="carousel-inner">
-                                <div class="carousel-item active">
-                                    <img src={img} class="d-block w-100 mt-2" alt="...">
-                                </div>
-                                <div class="carousel-item">
-                                    <img src={img1} class="d-block w-100 mt-2" alt="...">
-                                </div>
-                            </div>
-                            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Previous</span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
-                            </button>
                         </div>
                     </div>
                 </div>
