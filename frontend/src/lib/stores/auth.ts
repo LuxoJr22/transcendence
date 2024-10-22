@@ -183,10 +183,9 @@ export async function updatePassword(password: string, current_password: string)
 
 
 export async function updateProfilePicture(profile_picture: File) {
-    const accessToken = await getAccessToken;
+    const accessToken = await getAccessToken();
     if (!accessToken) {
         throw new Error('Username update failed');
-        return;
     }
     
     const formData = new FormData();

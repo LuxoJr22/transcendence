@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
+    import { page } from '$app/stores';
     import Pie from './pie.svelte';
     import { auth, getAccessToken } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
@@ -12,6 +13,7 @@
     import Password from '$lib/components/Profile/UpdateUserInformation/password.svelte';
     import History from '$lib/components/Profile/History/History.svelte';
     import Skin from '$lib/components/Profile/Skin.svelte';
+
 
     let historyData : any = [];
     let fetchStatus = false;

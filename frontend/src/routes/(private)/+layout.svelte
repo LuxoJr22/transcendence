@@ -1,5 +1,5 @@
 <script lang='ts'>
-    import { goto, afterNavigate } from '$app/navigation';
+    import { goto, afterNavigate, beforeNavigate } from '$app/navigation';
     import { onMount } from 'svelte';
     import {get} from 'svelte/store';
     import { auth, fetchUser, getAccessToken, logout , refresh_token } from '$lib/stores/auth';
@@ -51,7 +51,7 @@
     }
 
     afterNavigate(async () => {
-        let token = localStorage.getItem('access_token');;
+        let token = localStorage.getItem('access_token');
         if (currentUrl != '/login' && currentUrl != '/register' && !token){
             await refresh_token();
             let tmp = localStorage.getItem('access_token');
@@ -64,30 +64,31 @@
 
     let wsOnline : WebSocket;
     onMount( async () => {
-        await fetchUser();
-        auth.subscribe((value : AuthState) =>{
-            state = value;
-        });
         const token = await getAccessToken();
-        if (state.accessToken != null)
-            wsOnline = new WebSocket('/ws/status/?token=' + token);
-        
-        wsOnline.onmessage = async function (event) {
-            const data = JSON.parse(event.data);
-            parseNotifications(data);
-            navBarNotifications = addNotifications(data);
-            await fetchLatestDiscussion();
-            if (data.type !== 'chat' || window.location.href.search('/chat/') == -1){
-                const toastElList = document.querySelectorAll('.toast')
-                const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
-                    animation: true,
-                    autohide: true,
-                    delay: 5000
-                }))
-                toastList.forEach(toast => toast.show());
+        if (token){
+            await fetchUser();
+            auth.subscribe((value : AuthState) =>{
+                state = value;
+            });
+            if (state.accessToken != null)
+                wsOnline = new WebSocket('/ws/status/?token=' + token);
+            
+            wsOnline.onmessage = async function (event) {
+                const data = JSON.parse(event.data);
+                parseNotifications(data);
+                navBarNotifications = addNotifications(data);
+                await fetchLatestDiscussion();
+                if (data.type !== 'chat' || window.location.href.search('/chat/') == -1){
+                    const toastElList = document.querySelectorAll('.toast')
+                    const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
+                        animation: true,
+                        autohide: true,
+                        delay: 5000
+                    }))
+                    toastList.forEach(toast => toast.show());
+                }
             }
         }
-        
     });
 
     function handleLogout() {

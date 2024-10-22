@@ -34,22 +34,29 @@
 
     
     
-    window.onresize = function(event){
-        let wid = box?.getBoundingClientRect().width
-        if (wid && input)
-            input.style.width = (wid -  185) + "px"
-	}
+    window.onresize = async function(event){
+        const token = await getAccessToken();
+        if (token){
+            let wid = box?.getBoundingClientRect().width
+            if (wid && input)
+                input.style.width = (wid -  185) + "px"
+        }
+    }
 
     onMount(async () => {
-        await fetchLatestDiscussion();
-        roomId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
-        auth.subscribe((value : AuthState) =>{
-            state = value;
-        });
-        if (parseInt(roomId) == state.user?.id || window.location.href == '/chat')
-            goto('/chat/home/');
-        else if (roomId != 'home'){
-            createRoom(parseInt(roomId));
+        const token = await getAccessToken();
+        if (token)
+        {
+            await fetchLatestDiscussion();
+            roomId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
+            auth.subscribe((value : AuthState) =>{
+                state = value;
+            });
+            if (parseInt(roomId) == state.user?.id || window.location.href == '/chat')
+                goto('/chat/home/');
+            else if (roomId != 'home'){
+                createRoom(parseInt(roomId));
+            }
         }
     });
 
@@ -57,13 +64,15 @@
 
     async function createRoom(id : number){
         await fetchChatMessages(id);
+        const token = await getAccessToken();
+        if (!token)
+            return ;
         input = document.getElementById("input")!
         box = document.getElementById("box")!
         let wid = box!.getBoundingClientRect().width
 
         if (input)
             input.style.width = (wid -  185) + "px"
-        const token = await getAccessToken();
         if (ws && ws.readyState == WebSocket.OPEN)
             ws.close();
         if (id)
@@ -76,7 +85,7 @@
             };
         };
         ws.onmessage = async function (event){
-            const data = JSON.parse(event.data);
+            JSON.parse(event.data);
             await fetchLatestDiscussion();
             await fetchChatMessages(id);
         };
