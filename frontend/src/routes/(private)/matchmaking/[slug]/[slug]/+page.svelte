@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { auth, fetchUser } from '$lib/stores/auth';
+	import { auth, fetchUser, getAccessToken } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 	import Waiting from '$lib/components/Matchmaking/Waiting.svelte';
 	import { goto } from '$app/navigation'
@@ -17,7 +17,8 @@
 	var type = ur[index + 2]
 
 	onMount(async () => {
-		if (localStorage.getItem('access_token'))
+		const token = await getAccessToken();
+		if (token)
 			await fetchUser();
 		if (state.isAuthenticated && (gamemode == 'pong' || gamemode == 'pong_retro') && type == "public") {
 			ws = new WebSocket('/ws/pong_matchmaking/' + gamemode + '/?token=' + state.accessToken);

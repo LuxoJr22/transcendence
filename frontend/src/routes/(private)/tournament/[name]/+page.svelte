@@ -1,5 +1,6 @@
 <script lang="ts">
 	import {beforeNavigate, goto } from '$app/navigation';
+    import { getAccessToken } from '$lib/stores/auth';
 
 	interface Dictionary<T> {
         [Key: string]: T;

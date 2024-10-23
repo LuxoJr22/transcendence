@@ -1,4 +1,4 @@
-import json
+import json, re
 from channels.generic.websocket import AsyncWebsocketConsumer
 from asgiref.sync import sync_to_async
 from users.models import User
@@ -44,6 +44,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 		if 'invite_pong' in text_data_json:
 			gamemode = text_data_json['gamemode']
+			if gamemode not in ["pong", "pong_retro"]:
+				await self.close()
+				return
 			message = "Invitation to play Pong!" if gamemode == "pong" else "Invitation to play Pong Retro!"
 
 			pong_match = await sync_to_async(PongMatch.objects.create)(
@@ -65,7 +68,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 				}
 			)
 		else:
-			message = text_data_json['message']
+			message = self.sanitize_message(text_data_json['message'])
 			await self.save_message(self.sender, self.receiver_id, message)
 			await self.channel_layer.group_send(
 				self.room_group_name,
@@ -106,6 +109,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
 			'match_id': match_id,
 			'gamemode': gamemode
 		}))
+
+	def sanitize_message(self, message):
+		message = re.sub(r"[;'\"]", "", message)
+		message = message.replace("'", "''")
+		message = re.sub(r"<.*?>", "", message)
+		message = re.sub(r"[<>]", "", message)
+		message = message.strip()
+		return message
 
 	@sync_to_async
 	def save_message(self, sender, receiver_id, message, is_invitation=False, match_id=None, gamemode=None):

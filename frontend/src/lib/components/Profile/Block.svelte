@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { getAccessToken, refresh_token } from "$lib/stores/auth";
     import { onMount } from "svelte";
 
     let currentUserId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
@@ -6,6 +7,9 @@
     let blocked = false
 
     onMount(async () => {
+        const token = await getAccessToken();
+		if (token == null)
+			return ;
         await blockedUser();
         for (let i = 0; listUserBlocked[i]; i++){
             if (listUserBlocked[i].id == currentUserId){
@@ -16,7 +20,7 @@
     })
 
     async function blockedUser(){
-        const accessToken = localStorage.getItem('access_token');
+        const accessToken = await getAccessToken();
         const response = await fetch ('/api/blocked/', {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${accessToken}` },
@@ -28,7 +32,7 @@
     }
 
     async function blockUser(){
-        const accessToken = localStorage.getItem('access_token');
+        const accessToken = await getAccessToken();
         let id = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
         const response = await fetch ('/api/block/', {
             method: 'POST',
@@ -43,7 +47,7 @@
     }
 
     async function UnblockUser(){
-        const accessToken = localStorage.getItem('access_token');
+        const accessToken = await getAccessToken();
         let id = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
         const response = await fetch ('/api/unblock/' + id + '/', {
             method: 'DELETE',
@@ -54,6 +58,8 @@
             listUserBlocked = await blockedUser;
             blocked = false;
         }
+        else if (response.status == 401)
+            refresh_token();
     }
 </script>
 

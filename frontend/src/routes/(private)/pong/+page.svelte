@@ -6,7 +6,7 @@
 	import { Bot } from "$lib/stores/pong/bot";
 	import { shade } from "$lib/stores/pong/watershader";
 	import { Firework } from '$lib/stores/pong/firework';
-	import { auth } from '$lib/stores/auth';
+	import { auth, getAccessToken } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 
@@ -26,9 +26,12 @@
 		isLoad = true;
 
 		var skins
+		let accessToken = await getAccessToken();
+		if (accessToken == null)
+			return ;
 		const response = await fetch('/api/pong/skins/' + localStorage.getItem('game_id'), {
 		method: 'GET',
-		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		headers: { 'Authorization': `Bearer ${accessToken}` },
 		});
 		const data = await response.json();
 		if (response.ok)
@@ -40,7 +43,7 @@
 
 		const resp = await fetch('/api/pong/settings/' + state.user?.id + '/', {
 		method: 'GET',
-		headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+		headers: {'Authorization': `Bearer ${accessToken}`},
 		});
 		const dat = await resp.json();
 		if (resp.ok)
@@ -363,7 +366,7 @@
 
 
 		var frames = 0
-		let url = '/ws/pong/pong/' + localStorage.getItem('room_name') + '/?token=' + localStorage.getItem('access_token');
+		let url = '/ws/pong/pong/' + localStorage.getItem('room_name') + '/?token=' + accessToken;
 		pongSocket = new WebSocket(url)
 
 		pongSocket.onmessage = function(e) {

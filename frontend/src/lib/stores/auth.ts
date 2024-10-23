@@ -45,7 +45,9 @@ export async function login(username: string, password: string): Promise<any> {
                 email: data.user.email,
                 profile_picture: data.user.profile_picture_url,
                 is_2fa_enabled : data.is_2fa_enabled
-            }
+            },
+            accessToken: data.access,
+            refreshToken: data.refresh
         });
         localStorage.setItem('access_token', data.access);
         localStorage.setItem('refresh_token', data.refresh);
@@ -81,7 +83,9 @@ export async function login42(){
                 email: data.user.email,
                 profile_picture: data.user.profile_picture_url,
                 is_2fa_enabled : data.is_2fa_enabled
-            }
+            },
+            accessToken: data.access,
+            refreshToken: data.refresh
         });
         localStorage.setItem('access_token', data.access);
         localStorage.setItem('refresh_token', data.refresh);
@@ -109,7 +113,9 @@ export async function loginWithTwoFA(username: string, password: string, otp_cod
                 email: data.user.email,
                 profile_picture: data.user.profile_picture_url,
                 is_2fa_enabled : data.is_2fa_enabled
-            }
+            },
+            accessToken: data.access,
+            refreshToken: data.refresh
         });
         localStorage.setItem('access_token', data.access);
         localStorage.setItem('refresh_token', data.refresh);
@@ -120,7 +126,7 @@ export async function loginWithTwoFA(username: string, password: string, otp_cod
 }
 
 export async function updateUsername(username: string): Promise<any> {
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = await getAccessToken();
 
     const response = await fetch('/api/user/update/', {
         method: 'PATCH',
@@ -138,7 +144,7 @@ export async function updateUsername(username: string): Promise<any> {
 }
 
 export async function updateEmail(email: string): Promise<any> {
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = await getAccessToken();
 
     const response = await fetch('/api/user/update/', {
         method: 'PATCH',
@@ -156,7 +162,7 @@ export async function updateEmail(email: string): Promise<any> {
 }
 
 export async function updatePassword(password: string, current_password: string): Promise<any> {
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = await getAccessToken();
     if (!accessToken)
         throw new Error('Username update failed');
     const response = await fetch('/api/user/update/', {
@@ -177,10 +183,9 @@ export async function updatePassword(password: string, current_password: string)
 
 
 export async function updateProfilePicture(profile_picture: File) {
-    const accessToken = localStorage.getItem('access_token');
+    const accessToken = await getAccessToken();
     if (!accessToken) {
         throw new Error('Username update failed');
-        return;
     }
     
     const formData = new FormData();
@@ -188,7 +193,7 @@ export async function updateProfilePicture(profile_picture: File) {
     const response = await fetch('/api/user/update/', {
         method: 'PATCH',
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'Authorization': `Bearer ${accessToken}`,
         },
         body: formData,
     });
@@ -205,9 +210,7 @@ export async function updateProfilePicture(profile_picture: File) {
 }
 
 export async function fetchUser(): Promise<any> {
-    await refresh_token();
     const accessToken = localStorage.getItem('access_token');
-
     if (!accessToken) {
         logout();
         return;
@@ -231,19 +234,17 @@ export async function fetchUser(): Promise<any> {
                 is_2fa_enabled: user.is_2fa_enabled,
                 skin: user.skin,
             },
-            accessToken : localStorage.getItem('access_token'),
+            accessToken: localStorage.getItem('access_token'),
             refreshToken: localStorage.getItem('refresh_token')
         }));
         return ('success');
     }
     else if (response.status == 401){
         localStorage.setItem('access_token', '');
-        localStorage.setItem('refresh_token', '');
     }
 }
 
 function AccessTokenExpirated(){
-
     let token : string | null;
     let refresh_token : string | null;
     token = localStorage.getItem('access_token')
@@ -255,10 +256,16 @@ function AccessTokenExpirated(){
     return ((JSON.parse(expiration).exp - 5) <= (Math.floor(Date.now() / 1000)));
 }
 
+export async function getAccessToken(){
+    await fetchUser();
+    await refresh_token();
+    return (localStorage.getItem('access_token'));
+}
+
 export async function refresh_token(): Promise<any> {
     if (!AccessTokenExpirated())
         return ;
-    const refreshToken = localStorage.getItem('refresh_token');
+    let refreshToken = localStorage.getItem('refresh_token')
     if (refreshToken == null || refreshToken == ''){
         logout();
         return ;
@@ -276,6 +283,7 @@ export async function refresh_token(): Promise<any> {
             accessToken: data.access,
         }));
         localStorage.setItem('access_token', data.access);
+        return (data.access);
     } else {
         logout();
     }

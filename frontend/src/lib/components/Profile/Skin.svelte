@@ -3,7 +3,7 @@
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import {  userData } from '$lib/stores/user';
-	import { auth, fetchUser } from '$lib/stores/auth';
+	import { auth, fetchUser, getAccessToken } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 
     let canvas : HTMLCanvasElement;
@@ -13,6 +13,9 @@
 	export let userId = 0;
 
 	onMount(() => { (async () => {
+		const token = await getAccessToken();
+		if (token == null)
+			return ;
 		if (self){
 			await fetchUser();
 			auth.subscribe((value : AuthState) =>{

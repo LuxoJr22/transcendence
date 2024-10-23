@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { auth, fetchUser, type AuthState } from "$lib/stores/auth";
+    import { auth, fetchUser, getAccessToken, type AuthState } from "$lib/stores/auth";
     import { onMount } from "svelte";
     import { keyboardMap } from "./keyMap"
 
@@ -38,7 +38,7 @@
     })
 
     async function getQrcode(){
-		let accessToken = localStorage.getItem('access_token');
+		let accessToken = await getAccessToken();
 		const response = await fetch('/api/2fa/qrcode/', {
 			method: 'POST',
 			headers: {'Authorization': `Bearer ${accessToken}`}
@@ -50,7 +50,7 @@
 	}
 
     async function enable_2FA(){
-        let accessToken = localStorage.getItem('access_token');
+        let accessToken = await getAccessToken();
 		const response = await fetch('/api/2fa/enable/', {
 			method: 'POST',
 			headers: {'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
@@ -68,7 +68,7 @@
     }
 
 	async function disable_2FA(){
-		let accessToken = localStorage.getItem('access_token');
+		let accessToken = await getAccessToken();
 		const response = await fetch('/api/2fa/disable/', {
 			method: 'POST',
 			headers: {'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
@@ -81,34 +81,14 @@
                 twoFA_data = null;
 			await fetchUser();
 		}
-		else
+		else{
 			twoFA_data = await response.json();
-	}
+        }
+    }
 
 	function displayInputOtp(){
 		displayInput ? displayInput = false : displayInput = true;
 	}
-
-    async function getKeyBinds(){
-        const resp = await fetch('/api/pong/settings/' + state.user?.id + '/', {
-		    method: 'GET',
-		    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-		});
-		const dat = await resp.json();
-		if (resp.ok)
-		{
-			keyBinds[0] = dat.settings;
-		}
-        const resp1 = await fetch('/api/shooter/settings/' + state.user?.id + '/', {
-		    method: 'GET',
-		    headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
-		});
-		const dat1 = await resp1.json();
-		if (resp.ok)
-		{
-			keyBinds[1] = dat1.settings;
-		}
-    }
     
     document.addEventListener("keydown", onDocumentKeyDown, false);
 
@@ -128,17 +108,25 @@
 
     async function saveBinds(){
 
+        const token = await getAccessToken();
         const response = await fetch('/api/user/settings/update/', {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json',  'Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+            headers: { 'Content-Type': 'application/json',  'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ 'pong' : keyBinds[0],  'shooter' : keyBinds[1] })
         })
 
         const data = await response.json();
 
-        if (response.ok){
+        if (!response.ok){            
+			console.error('An error has occurred during data recovery');
         }
     }
+
+    window.addEventListener("popstate",(event) => {
+        let myModal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+        if (myModal)
+            myModal.hide();
+    });
 
 </script>
 

@@ -1,6 +1,6 @@
 <script lang="ts">;
     import { goto } from '$app/navigation';
-    import { login , login42, loginWithTwoFA} from '$lib/stores/auth';
+    import { getAccessToken, login , login42, loginWithTwoFA} from '$lib/stores/auth';
     import { onDestroy, onMount } from 'svelte';
     const logo42 = new URL('/assets/42_Logo.svg', import.meta.url).href
 
@@ -28,7 +28,8 @@
         if (response == '2fa'){
             displayModal();
         }
-        if (localStorage.getItem('access_token'))
+        const token = await getAccessToken()
+        if (token)
             goto('/');
         else if (response != '2fa')
             errorsLogin = true;
@@ -57,7 +58,8 @@
 
     async function handleTwoFA(){
         errorTwoFA = await loginWithTwoFA(username, password, otp_code);
-        if (localStorage.getItem('access_token'))
+        const token = await getAccessToken();
+        if (errorTwoFA == 'success')
             goto('/');
     }
 
@@ -82,12 +84,12 @@
                     <h5>Password</h5>
                     {#if !viewablePassword}
                         <div class="d-flex input-group">
-                            <input type="password" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
+                            <input type="password" id="Password" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
                             <div class="input-group-text hover-effect" on:click={viewPassword}><i class="bi bi-eye" style="color:grey;"></i></div>
                         </div>
                     {:else}
                         <div class="d-flex input-group">
-                            <input type="text" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
+                            <input type="text" id="Password" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
                             <div class="input-group-text hover-effect" on:click={viewPassword} ><i class="bi bi-eye-slash" style="color:grey;"></i></div>
                         </div>
                     {/if}

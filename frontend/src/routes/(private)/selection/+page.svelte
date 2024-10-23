@@ -4,7 +4,7 @@
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
-	import { auth, fetchUser } from '$lib/stores/auth';
+	import { auth, fetchUser, getAccessToken } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 
 	let state: AuthState;
@@ -19,6 +19,9 @@
 		auth.subscribe((value : AuthState) =>{
             state = value;
         });
+		const token = await getAccessToken();
+		if (token == null)
+			return ;
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
 		scene.background = new THREE.Color(0xCCCCCC);
@@ -210,9 +213,10 @@
 						ui!.style.cursor = "url('assets/ui/selection/closedHand.png'), auto";
 						draggable.throwed = 0 
 						bots[i].ispicked = 1
+						let accessToken = await getAccessToken();
 						const response = await fetch('/api/user/skin/update/', {
 							method: 'PATCH',
-							headers: { 'Content-Type':'application/json','Authorization': `Bearer ${localStorage.getItem('access_token')}` },
+							headers: { 'Content-Type':'application/json','Authorization': `Bearer ${accessToken}` },
 							body: JSON.stringify({
 								"skin": bots[i].name
 							})

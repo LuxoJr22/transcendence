@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
+    import { page } from '$app/stores';
     import Pie from './pie.svelte';
-    import { auth } from '$lib/stores/auth';
+    import { auth, getAccessToken } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchFriendList, friendList, deleteFriend } from "$lib/stores/friendship";
     import type { friendInterface } from '$lib/stores/friendship';
@@ -13,6 +14,7 @@
     import History from '$lib/components/Profile/History/History.svelte';
     import Skin from '$lib/components/Profile/Skin.svelte';
 
+
     let historyData : any = [];
     let fetchStatus = false;
 
@@ -20,7 +22,13 @@
     $: state = $auth;
 
     let listOfFriend : friendInterface[];
-    listOfFriend = $friendList; 
+    listOfFriend = $friendList;
+
+    window.addEventListener("popstate",(event) => {
+        let myModal = bootstrap.Modal.getInstance(document.getElementById('userDataModal'));
+        if (myModal)
+            myModal.hide();
+    });
 
     onMount(async () => {
         await fetchHistoryMatches();
@@ -48,10 +56,11 @@
     }
 
     async function fetchHistoryMatches(){
+        const token = await getAccessToken();
         const response = await fetch("/api/pong/history/" + state.user?.id, {
             method: 'GET',
             headers:{
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                'Authorization': `Bearer ${token}`,
             }
         });
 
@@ -62,7 +71,7 @@
         const resp = await fetch("/api/shooter/history/" + state.user?.id, {
             method: 'GET',
             headers:{
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                'Authorization': `Bearer ${token}`,
             }
         });
 

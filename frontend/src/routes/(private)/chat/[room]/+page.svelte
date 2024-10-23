@@ -2,7 +2,7 @@
     import { onDestroy, onMount } from 'svelte';
     import { goto } from '$app/navigation';
     import { page } from '$app/stores'
-    import { auth} from '$lib/stores/auth';
+    import { auth, getAccessToken} from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { fetchChatMessages, fetchLatestDiscussion } from '$lib/stores/chat';
     import ModalUser from '$lib/components/Chat/ModalUser.svelte';
@@ -28,19 +28,27 @@
             state = value;
         });
         if (roomId != 'home'){
-            createRoom(parseInt(roomId));
+            const nb : number = parseInt(roomId);
+            if (isNaN(nb) == false)
+                createRoom(nb);
         }
     }
 
     
     
-    window.onresize = function(event){
-        let wid = box?.getBoundingClientRect().width
-        if (wid && input)
-            input.style.width = (wid -  185) + "px"
-	}
+    window.onresize = async function(event){
+        const token = await getAccessToken();
+        if (token){
+            let wid = box?.getBoundingClientRect().width
+            if (wid && input)
+                input.style.width = (wid -  185) + "px"
+        }
+    }
 
     onMount(async () => {
+        const token = await getAccessToken();
+        if (token == null)
+            return ;
         await fetchLatestDiscussion();
         roomId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
         auth.subscribe((value : AuthState) =>{
@@ -57,13 +65,15 @@
 
     async function createRoom(id : number){
         await fetchChatMessages(id);
+        const token = await getAccessToken();
+        if (token == null)
+            return ;
         input = document.getElementById("input")!
         box = document.getElementById("box")!
         let wid = box!.getBoundingClientRect().width
 
         if (input)
             input.style.width = (wid -  185) + "px"
-        const token = localStorage.getItem('access_token');
         if (ws && ws.readyState == WebSocket.OPEN)
             ws.close();
         if (id)
@@ -76,7 +86,7 @@
             };
         };
         ws.onmessage = async function (event){
-            const data = JSON.parse(event.data);
+            JSON.parse(event.data);
             await fetchLatestDiscussion();
             await fetchChatMessages(id);
         };

@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { getAccessToken } from './auth';
 
 export interface Profile {
    id: number;
@@ -11,7 +12,7 @@ export interface Profile {
 export const profile = writable<Profile>();
 
 export async function profileData(id: number): Promise<void> {
-   let accessToken = localStorage.getItem('access_token');
+   let accessToken = await getAccessToken();
 
    const response = await fetch('/api/user/profile/' + id.toString() + '/', {
       method: 'GET',
@@ -33,7 +34,7 @@ export async function profileData(id: number): Promise<void> {
 }
 
 export async function userData(id: number): Promise<void> {
-   let accessToken = localStorage.getItem('access_token');
+   let accessToken = await getAccessToken();
 
    const response = await fetch('/api/user/profile/' + id.toString() + '/', {
       method: 'GET',

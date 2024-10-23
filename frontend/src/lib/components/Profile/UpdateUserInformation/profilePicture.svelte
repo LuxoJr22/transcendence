@@ -3,6 +3,12 @@
 
     export let state;
 
+    window.addEventListener("popstate",(event) => {
+        let myModal = bootstrap.Modal.getInstance(document.getElementById('pictureModal'));
+        if (myModal)
+            myModal.hide();
+    });
+
     let newProfilePicture : File;
     let error : any;
     function handleFileChange(event: any) {

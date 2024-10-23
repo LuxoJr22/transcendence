@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { refresh_token } from "$lib/stores/auth";
+    import { getAccessToken, refresh_token } from "$lib/stores/auth";
     import type { Profile } from "$lib/stores/user";
     import { onMount } from "svelte";
     import { goto } from '$app/navigation';
@@ -8,13 +8,18 @@
     let allUser = new Array<Profile>();
     let userSearch : string;
     
+    window.addEventListener("popstate",(event) => {
+        let myModal = bootstrap.Modal.getInstance(document.getElementById('userListModal'));
+        if (myModal)
+            myModal.hide();
+    });
+
     function resetFriendSearch (){
         userSearch = '';
     }
 
     async function fetchAllUser(){
-        await refresh_token();
-        const accessToken = localStorage.getItem('access_token');
+        const accessToken = await getAccessToken();
         const response = await fetch('/api/user/list/', {
             headers : { 'Authorization': `Bearer ${accessToken}`}
         });
@@ -22,7 +27,6 @@
         if (response.ok){
             allUser = await response.json();
         }
-
     }
 
     function loadRoom(roomId : number){
@@ -83,6 +87,4 @@
         scrollbar-width: thin;
         scrollbar-color: black grey;
     }
-
-    
 </style>

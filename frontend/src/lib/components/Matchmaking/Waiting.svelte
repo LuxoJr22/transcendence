@@ -3,7 +3,7 @@
 	import * as THREE from 'three';
 	import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 	import { profileData, profile, type Profile } from '$lib/stores/user';
-	import { auth, fetchUser } from '$lib/stores/auth';
+	import { auth, fetchUser, getAccessToken } from '$lib/stores/auth';
 	import type { AuthState } from '$lib/stores/auth';
 	
     let canvas : HTMLCanvasElement;
@@ -23,17 +23,21 @@
         });
 		isLoad = true
 
-		
+		const token = await getAccessToken();
         const response = await fetch("/api/pong/history/" + state.user?.id, {
             method: 'GET',
             headers:{
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                'Authorization': `Bearer ${token}`,
             }
         });
 
         if (response.ok) {
             var historyData = await response.json();
         }
+		else {
+			console.error('An error has occurred during data recovery');
+			return ;
+		}
 		
 		let i = 0;
 		while (historyData[i])
