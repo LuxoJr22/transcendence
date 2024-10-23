@@ -128,7 +128,7 @@
 
         play_btn!.addEventListener('click',  function() {
             let now = performance.now()
-            if (pointerLockActivated && now - pointerLockActivated < 1100)
+            if (pointerLockActivated && now - pointerLockActivated < 2000)
                 return
             menu_displayed = false
             el!.style.opacity = "0";
