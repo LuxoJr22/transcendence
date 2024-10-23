@@ -122,6 +122,12 @@
         }
     }
 
+    window.addEventListener("popstate",(event) => {
+        let myModal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+        if (myModal)
+            myModal.hide();
+    });
+
 </script>
 
 

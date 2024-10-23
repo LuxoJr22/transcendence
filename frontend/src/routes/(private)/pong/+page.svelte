@@ -27,6 +27,8 @@
 
 		var skins
 		let accessToken = await getAccessToken();
+		if (accessToken == null)
+			return ;
 		const response = await fetch('/api/pong/skins/' + localStorage.getItem('game_id'), {
 		method: 'GET',
 		headers: { 'Authorization': `Bearer ${accessToken}` },
@@ -364,8 +366,7 @@
 
 
 		var frames = 0
-		const token = await getAccessToken();
-		let url = '/ws/pong/pong/' + localStorage.getItem('room_name') + '/?token=' + token;
+		let url = '/ws/pong/pong/' + localStorage.getItem('room_name') + '/?token=' + accessToken;
 		pongSocket = new WebSocket(url)
 
 		pongSocket.onmessage = function(e) {

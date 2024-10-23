@@ -17,7 +17,7 @@
 	var Users : string[] = []
 	var capacity = 0
 
-	let url = '/ws/tournament/pong/' + tournament_name + '/?token=' + (async () => {return (await getAccessToken())});
+	let url = '/ws/tournament/pong/' + tournament_name + '/?token=' + localStorage.getItem('access_token');
 	const chatSocket = new WebSocket(url)
 
 

@@ -46,10 +46,12 @@ export async function fetchChatMessages(id: number){
         }
     });
     const data = await response.json();
-    for (let message of data)
-        if (message.is_invitation)
-            message.is_over = await checkPongMatch(message.match_id);
-    messages.set(data);
+    if (data[0]){
+        for (let message of data)
+            if (message.is_invitation)
+                message.is_over = await checkPongMatch(message.match_id);
+        messages.set(data);
+    }
 };
 
 export async function fetchLatestDiscussion(){

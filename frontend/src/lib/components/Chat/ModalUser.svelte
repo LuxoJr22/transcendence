@@ -8,6 +8,12 @@
     let allUser = new Array<Profile>();
     let userSearch : string;
     
+    window.addEventListener("popstate",(event) => {
+        let myModal = bootstrap.Modal.getInstance(document.getElementById('userListModal'));
+        if (myModal)
+            myModal.hide();
+    });
+
     function resetFriendSearch (){
         userSearch = '';
     }
