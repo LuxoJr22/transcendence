@@ -7,6 +7,9 @@
     let blocked = false
 
     onMount(async () => {
+        const token = await getAccessToken();
+		if (token == null)
+			return ;
         await blockedUser();
         for (let i = 0; listUserBlocked[i]; i++){
             if (listUserBlocked[i].id == currentUserId){
