@@ -35,6 +35,8 @@
 
         var match_id
         let accessToken = await getAccessToken();
+        if (accessToken == null)
+            return ;
         const response = await fetch('/api/shooter/create/', {
 		method: 'POST',
 		headers: { 'Authorization': `Bearer ${accessToken}` },

@@ -28,7 +28,9 @@
             state = value;
         });
         if (roomId != 'home'){
-            createRoom(parseInt(roomId));
+            const nb : number = parseInt(roomId);
+            if (isNaN(nb) == false)
+                createRoom(nb);
         }
     }
 
@@ -45,18 +47,17 @@
 
     onMount(async () => {
         const token = await getAccessToken();
-        if (token)
-        {
-            await fetchLatestDiscussion();
-            roomId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
-            auth.subscribe((value : AuthState) =>{
-                state = value;
-            });
-            if (parseInt(roomId) == state.user?.id || window.location.href == '/chat')
-                goto('/chat/home/');
-            else if (roomId != 'home'){
-                createRoom(parseInt(roomId));
-            }
+        if (token == null)
+            return ;
+        await fetchLatestDiscussion();
+        roomId = window.location.href.substring(window.location.href.lastIndexOf('/') + 1);
+        auth.subscribe((value : AuthState) =>{
+            state = value;
+        });
+        if (parseInt(roomId) == state.user?.id || window.location.href == '/chat')
+            goto('/chat/home/');
+        else if (roomId != 'home'){
+            createRoom(parseInt(roomId));
         }
     });
 
@@ -65,7 +66,7 @@
     async function createRoom(id : number){
         await fetchChatMessages(id);
         const token = await getAccessToken();
-        if (!token)
+        if (token == null)
             return ;
         input = document.getElementById("input")!
         box = document.getElementById("box")!
