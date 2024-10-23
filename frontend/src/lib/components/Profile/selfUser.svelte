@@ -22,7 +22,13 @@
     $: state = $auth;
 
     let listOfFriend : friendInterface[];
-    listOfFriend = $friendList; 
+    listOfFriend = $friendList;
+
+    window.addEventListener("popstate",(event) => {
+        let myModal = bootstrap.Modal.getInstance(document.getElementById('userDataModal'));
+        if (myModal)
+            myModal.hide();
+    });
 
     onMount(async () => {
         await fetchHistoryMatches();
