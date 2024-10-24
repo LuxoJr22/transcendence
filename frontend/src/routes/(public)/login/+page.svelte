@@ -9,7 +9,7 @@
     let errorsLogin = false;
     let otp_code = '';
     let myModal : any = null;
-    let errorTwoFA : any = ''
+    let errorTwoFA : any;
     let error42Login : any;
     let twoFaWith42 = false;
 
@@ -135,7 +135,7 @@
                     {/if}
                     <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" on:click={() => {errorTwoFA.error = ''}}>Login</button>
+                    <button type="submit" class="btn btn-primary" on:click={() => {errorTwoFA = null}}>Login</button>
                     </div>
                 </form>
               </div>
