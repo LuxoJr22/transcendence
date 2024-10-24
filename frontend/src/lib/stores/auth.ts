@@ -164,7 +164,7 @@ export async function updateEmail(email: string): Promise<any> {
 export async function updatePassword(password: string, current_password: string): Promise<any> {
     const accessToken = await getAccessToken();
     if (!accessToken)
-        throw new Error('Username update failed');
+        throw new Error('Password update failed');
     const response = await fetch('/api/user/update/', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json',  'Authorization': `Bearer ${accessToken}` },
@@ -185,9 +185,9 @@ export async function updatePassword(password: string, current_password: string)
 export async function updateProfilePicture(profile_picture: File) {
     const accessToken = await getAccessToken();
     if (!accessToken) {
-        throw new Error('Username update failed');
+        throw new Error('Profile picture update failed (no access token)');
     }
-    
+
     const formData = new FormData();
     formData.append('profile_picture', profile_picture);
     const response = await fetch('/api/user/update/', {
@@ -198,7 +198,12 @@ export async function updateProfilePicture(profile_picture: File) {
         body: formData,
     });
 
-    const data = await response.json();
+    let data : any;
+    try {
+        data = await response.json();
+    } catch (error) {
+        throw new Error('Profile picture update failed');
+    }
 
     if (response.ok) {
         await fetchUser();
@@ -211,10 +216,6 @@ export async function updateProfilePicture(profile_picture: File) {
 
 export async function fetchUser(): Promise<any> {
     const accessToken = localStorage.getItem('access_token');
-    if (!accessToken) {
-        logout();
-        return;
-    }
 
     const response = await fetch('/api/user/', {
         method: 'GET',

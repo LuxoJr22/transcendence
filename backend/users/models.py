@@ -24,7 +24,7 @@ class UserManager(BaseUserManager):
 		return user
 
 def user_profile_picture_path(instance, filename):
-	return f'profile_pictures/{instance.username}/{filename}'
+	return f'profile_pictures/{instance.id}/{filename}'
 
 def pong_dict():
 	return {"up": 90, "down": 83, "left":81, "right":68, "charge":32}
