@@ -37,12 +37,16 @@ class ValidationMixin:
 
 	def _validate_profile_picture(self, value):
 		if value:
+			if not re.match(r'^[\w,\s-]+\.[A-Za-z]{3,4}$', value.name):
+				raise serializers.ValidationError("Invalid profile picture filename")
+			if value.size > 10 * 1024 * 1024:
+				raise serializers.ValidationError("Profile picture file size cannot exceed 10 MB")
 			try:
 				image = Image.open(value)
 			except Exception as e:
-					raise serializers.ValidationError(f"Error processing image: {e}")
+				raise serializers.ValidationError(f"Error processing image: {e}")
 			if image.width > 1024 or image.height > 1024:
-					raise serializers.ValidationError("Profile picture size cannot exceed 1024x1024 pixels")
+				raise serializers.ValidationError("Profile picture size cannot exceed 1024x1024 pixels")
 		return value
 
 class UserSerializer(ValidationMixin, serializers.ModelSerializer):
@@ -102,8 +106,8 @@ class UserUpdateSerializer(ValidationMixin, serializers.ModelSerializer):
 
 	def validate_profile_picture(self, value):
 		validated_value = self._validate_profile_picture(value)
-		username = self.instance.username
-		profile_pictures_path = os.path.join(settings.MEDIA_ROOT, f'profile_pictures/{username}')
+		user_id = self.instance.id
+		profile_pictures_path = os.path.join(settings.MEDIA_ROOT, f'profile_pictures/{user_id}')
 		if os.path.exists(profile_pictures_path):
 			shutil.rmtree(profile_pictures_path)
 		return validated_value
