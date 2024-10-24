@@ -7,17 +7,20 @@
     let errorsPassword : string = '';
 
     async function updateNewPassword() {
-       const response : any = await updatePassword(newPassword, currentPassword);
-        if (response.password)
-        {
+        let response : any;
+        try {
+            response = await updatePassword(newPassword, currentPassword);
+        } catch (e) {
+            errorsPassword = (e as Error).toString();
+            return;
+        }
+        if (response.password) {
             errorsPassword = response.password;
         }
-        else if (response.current_password)
-        {
+        else if (response.current_password) {
             errorsPassword = response.current_password;
         }
-        else if (response == 'success')
-        {
+        else if (response == 'success') {
             errorsPassword = 'success';
         }
     }
