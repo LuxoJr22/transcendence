@@ -41,7 +41,8 @@ services:
     networks:
       - triplum
     ports:
-      - 8080:5173
+      - 1080:80
+      - 1443:443
     restart: unless-stopped
     depends_on:
       - backend
