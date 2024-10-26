@@ -114,6 +114,10 @@
 		
 		const ring = await loader.loadAsync('/assets/maps/waiting/boxing_ring.glb');
 		ring.scene.position.set(0, -3, 0)
+		ring.scene.traverse(function(node : THREE.Object3D) {
+            node.name = 'ring'
+        })
+
 
 		scene.add(ring.scene)
 
@@ -157,7 +161,7 @@
 				}
 				raycaster.setFromCamera( clickmouse, camera)
 				const found = raycaster.intersectObjects(scene.children);
-				if (found[0])
+				if (found[0] && found[0].object.name != 'ring')
 				{
 					hit = 0.5;
 					if (found[0].object.name == '')
