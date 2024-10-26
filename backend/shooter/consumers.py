@@ -111,9 +111,6 @@ class ShooterConsumer(WebsocketConsumer):
 			self.shootermatch.winner = newlist[0]['id']
 			gain = 10
 			for play in newlist:
-				# if (self.shootermatch.scores == None):
-				# 	self.shootermatch.scores = [play['score']]
-				# else:
 				self.shootermatch.scores.add(PlayerScore.objects.create(player_id=play["id"], score=play["score"]))
 				usr = User.objects.filter(id=play["id"]).all().first()
 				usr.shooter_elo += gain
