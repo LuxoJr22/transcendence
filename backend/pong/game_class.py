@@ -97,7 +97,7 @@ class Game:
 		self.scoring = 0
 		self.ballx = 0
 		self.bally = 0
-		self.balldir = 1.5 * self.lastscore
+		self.balldir = 1.5 * -self.lastscore
 		self.balldiry = 0
 		self.ballspeed = 1
 		

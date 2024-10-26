@@ -401,8 +401,8 @@
 				cam.rotation.x = 0
 				cam.fov = 70
 				cam.updateProjectionMatrix ();
-				play.mesh.rotation.y += 0.25
-				er.mesh.rotation.y -= 0.25
+				play.mesh.rotation.y = Math.PI / 2
+				er.mesh.rotation.y = Math.PI * 3 / 2
 				scene.background = null
 				score1!.style.display = 'block'
 				score2!.style.display = 'block'
