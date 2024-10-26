@@ -57,7 +57,9 @@
         if (parseInt(roomId) == state.user?.id || window.location.href == '/chat')
             goto('/chat/home/');
         else if (roomId != 'home'){
-            createRoom(parseInt(roomId));
+            const nb : number = parseInt(roomId);
+            if (isNaN(nb) == false)
+                createRoom(nb);
         }
     });
 
