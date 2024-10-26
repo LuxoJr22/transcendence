@@ -52,6 +52,9 @@ export async function fetchChatMessages(id: number){
                 message.is_over = await checkPongMatch(message.match_id);
         messages.set(data);
     }
+    else {
+        messages.set([]);
+    }
 };
 
 export async function fetchLatestDiscussion(){
