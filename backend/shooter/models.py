@@ -16,9 +16,16 @@ class Shooter(models.Model):
 	def __str__(self):
 		return self.group_name
 
+class PlayerScore(models.Model):
+	player_id = models.IntegerField()
+	score = models.IntegerField(default=0)
+
+	def __str__(self):
+		return f'{self.player_id}: {self.score}'
+
 class ShooterMatch(models.Model):
 	players = models.ManyToManyField(User, related_name='players_in_shooter_match')
-	scores = ArrayField(models.IntegerField(),null=True, blank=True)
+	scores = models.ManyToManyField(PlayerScore, related_name='scores_in_shooter_match', blank=True)
 	room_name = models.CharField(max_length=128, unique=True, blank=True)
 	winner = models.IntegerField(null=True, blank=True)
 	elo = models.IntegerField()
