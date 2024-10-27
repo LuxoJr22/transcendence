@@ -23,7 +23,7 @@
         if (newProfilePicture == null){
             return ;
         }
-        if (newProfilePicture.size > 10 * 1024 * 1024) {
+        if (newProfilePicture.size > 5 * 1024 * 1024) {
             error = "File too large"
             return ;
         }
