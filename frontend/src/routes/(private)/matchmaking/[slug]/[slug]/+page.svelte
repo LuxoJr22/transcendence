@@ -65,9 +65,16 @@
 
 </script>
 
-<div class="container-fluid">
-	<p style="color: white">WAITING FOR OPONENT</p>
-</div>
 <div class="d-flex justify-content-center">
 	<Waiting />
 </div>
+<div class="container-fluid d-flex justify-content-center title">
+	<p style="color: white">WAITING FOR OPONENT</p>
+</div>
+
+<style>
+	.title {
+		font-family: 'Luckiest Guy';
+		font-size: 300%;
+	}
+</style>
