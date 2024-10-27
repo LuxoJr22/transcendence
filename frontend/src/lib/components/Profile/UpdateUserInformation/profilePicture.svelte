@@ -20,6 +20,9 @@
     }
 
     async function updateNewProfilePicture(){
+        if (newProfilePicture == null){
+            return ;
+        }
         if (newProfilePicture.size > 10 * 1024 * 1024) {
             error = "File too large"
             return ;
