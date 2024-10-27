@@ -1,13 +1,10 @@
-import json
+import json, operator, time, sys
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 from django.shortcuts import get_object_or_404
-from .models import Shooter, ShooterMatch
+from .models import Shooter, ShooterMatch, PlayerScore
 from users.models import User
 from .game_class import Game
-import operator
-import time
-import sys
 
 dictio = {}
 
@@ -114,10 +111,7 @@ class ShooterConsumer(WebsocketConsumer):
 			self.shootermatch.winner = newlist[0]['id']
 			gain = 10
 			for play in newlist:
-				if (self.shootermatch.scores == None):
-					self.shootermatch.scores = [play['score']]
-				else:
-					self.shootermatch.scores.append(play['score'])
+				self.shootermatch.scores.add(PlayerScore.objects.create(player_id=play["id"], score=play["score"]))
 				usr = User.objects.filter(id=play["id"]).all().first()
 				usr.shooter_elo += gain
 				gain -= 5

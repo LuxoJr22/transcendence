@@ -94,34 +94,33 @@
     }
 
     async function ParseShooterGame(data : any) {
-        let player1 : any = await userData(data.players[0] == userId ? data.players[0] : data.players[2]);
-        let player2 : any = await userData(data.players[0] != userId ? data.players[0] : data.players[2]);
-        var players = new Array<any>();
-        let scores = data.scores;
-        players[0] = [await userData(data.players[0]), scores[0]]
-        players[1] = [await userData(data.players[1]), scores[1]]
-        players[2] = [await userData(data.players[2]), scores[2]]
-        players[3] = [await userData(data.players[3]), scores[3]]
-        
+
+        let player1 : any = await userData(userId);
+        let score : number = 0;
+        for (let i = 0; data.scores[i]; i++){
+            if (data.scores[i].player_id == userId){
+                score = data.scores[i].score;
+            }
+        }
         let game = {
             me: {
                 id: userId,
                 username: player1.username,
-                score: scores[0],
-                profile_picture_url : player2.profile_picture_url
+                score: score,
+                profile_picture_url : ''
             },
             opponent: {
-                id: player2.id,
-                username: player2.username,
-                score: scores[1],
-                profile_picture_url : player2.profile_picture_url
+                id: userId,
+                username: player1.username,
+                score: score,
+                profile_picture_url : ''
             },
             gamemode: "Shooter",
             type: data.type,
             winner: data.winner,
             date: data.match_date.substring(0, 10),
             hours: data.match_date.substring(11, 16),
-            players: players
+            players: []
         }
         gamesHistory.push(game);
     }
@@ -143,21 +142,17 @@
                     </div>
                 </div>
             {:else if game.gamemode == "Shooter" && historyToDisplay == 'Shooter'}
-                {#each game.players as player, i}
-                    {#if player[0].id == userId}
-                        <div class="row border rounded match my-1 bg-dark text-truncate {(player[0].id == userId && i == 0) ? 'border-primary' : 'border-danger'}">
-                            <div class="d-flex justify-content-center">
-                                <p class="text-center text-light h4 link mt-1 me-2">Score :</p>
-                                <p class="text-center h4 {(player[0].id == userId && i == 0) ? 'text-primary' : 'text-danger'} mt-1">{player[1]}</p>
-                            </div>
-                            <div class="d-flex">
-                                <p class="col-4" style="color:grey;">{game.date}</p>
-                                <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
-                                <p class="col-4 text-end" style="color:grey;">{game.hours}</p>
-                            </div>
-                        </div>
-                    {/if}
-                {/each}
+                <div class="row border rounded match my-1 bg-dark text-truncate {(game.winner == userId) ? 'border-primary' : 'border-danger'}">
+                    <div class="d-flex justify-content-center">
+                        <p class="text-center text-light h4 link mt-1 me-2">Score :</p>
+                        <p class="text-center h4 {(game.winner == userId) ? 'text-primary' : 'text-danger'} mt-1">{game.me.score}</p>
+                    </div>
+                    <div class="d-flex">
+                        <p class="col-4" style="color:grey;">{game.date}</p>
+                        <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
+                        <p class="col-4 text-end" style="color:grey;">{game.hours}</p>
+                    </div>
+                </div>
             {/if}
         {/each}
     {:else}

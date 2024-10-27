@@ -58,7 +58,7 @@
                 </li>
                 {/if}
                 <li>
-                    <h5 class="text-light">Email</h5>
+                    <h5 class="text-light {errors?.username ? 'pt-4' : ''}">Email</h5>
                     <input class="form-control"  placeholder="Enter your email" bind:value={email}>
                 </li>
                 {#if errors?.email}

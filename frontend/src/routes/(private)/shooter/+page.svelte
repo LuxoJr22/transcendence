@@ -65,11 +65,11 @@
         var scoreboard = document.getElementById("scoreboard")
         var timer = document.getElementById("timer")
         var table_body : HTMLTableElement = document.getElementById("mytbody")! as HTMLTableElement
-        var play_btn = document.getElementById("play_btn")
-        var menu_btn = document.getElementById("menu_btn")
+        var play_btn = document.getElementById("play_btn") as HTMLButtonElement
+        var menu_btn = document.getElementById("menu_btn") as HTMLButtonElement
 
 
-        var score_cells : HTMLElement[] = []
+        var score_row = new Map()
 
         var players : Player[] = []
 
@@ -133,6 +133,8 @@
             menu_displayed = false
             el!.style.opacity = "0";
             el!.style.display = 'none';
+            menu_btn!.disabled = true
+            play_btn!.disabled = true
             play.cam.lock();
         });
 
@@ -149,6 +151,8 @@
             play.controller.xn = 0;
             play.controller.yp = 0;
             play.controller.yn = 0;
+            menu_btn!.disabled = false
+            play_btn!.disabled = false
             menu_displayed = true
             scoreboard!.style.display = 'none'
             el!.style.opacity = "1";
@@ -405,7 +409,7 @@
 
                     usercell.innerHTML = data.players[i].username
                     scorecell.innerHTML = `${Math.round(data.players[i].score)}`
-                    score_cells.push(scorecell)
+                    score_row.set(i, row)
                     i ++;
                 }
                 camera.position.z = data.position.z;
@@ -433,6 +437,9 @@
                         players[i].mesh.material = undefined
                         scene.remove(players[i].mesh)
                         players.splice(i, 1)
+
+                        table_body!.removeChild(score_row.get(data.id - 1))
+                        score_row.delete(data.id - 1)
                     }
                     i ++
                 }
@@ -443,7 +450,7 @@
                 var scorecell = row.insertCell(1)
                 usercell.innerHTML = data.players[data.id - 1].username
                 scorecell.innerHTML = `${Math.round(data.players[data.id - 1].score)}`
-                score_cells.push(scorecell)
+                score_row.set(data.id - 1 , row)
             }
             if (data.event == 'Flag_picked')
             {
@@ -478,10 +485,10 @@
                         players[i].controller = data.players[actid].controller
                         
                     }
-                    score_cells[actid].innerHTML = `${Math.round(data.players[actid].score)}`
+                    score_row.get(actid).children[1]!.innerHTML = `${Math.round(data.players[actid].score)}`
                     i ++;
                 }
-                score_cells[id - 1].innerHTML = `${Math.round(data.players[id - 1].score)}`
+                score_row.get(id - 1).children[1]!.innerHTML = `${Math.round(data.players[id - 1].score)}`
 				chatSocket!.send(JSON.stringify({
 					'event':'frame',
 					'player':[play.cam.getObject().position, play.direc],
@@ -522,8 +529,11 @@
             if (menu_displayed == false)
             {
                 var keyCode = event.which;
+                if (keyCode == 9) {
+                    event.preventDefault();
+                }
                 play.keydown(keyCode);
-                if (keyCode == 20)
+                if (keyCode == 9)
                 {
                     scoreboard!.style.display = 'flex'
                     sortTable()    
@@ -536,7 +546,7 @@
             {
                 var keyCode = event.which;
                 play.keyup(keyCode);
-                if (keyCode == 20)
+                if (keyCode == 9)
                     scoreboard!.style.display = 'none'
             }
         };

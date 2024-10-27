@@ -36,6 +36,3 @@ class Player:
 		else:
 			self.charging = lerp(self.charging, 1, 0.1, dt)
 			self.charge = 0
-		
-
-		
