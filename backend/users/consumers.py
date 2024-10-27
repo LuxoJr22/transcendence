@@ -16,6 +16,11 @@ class UserStatusConsumer(WebsocketConsumer):
 			)
 			self.accept()
 			self.update_user_status(online=True)
+			self.group_send("online_users", {
+				"type": "user_online",
+				"user_id": self.user.id,
+				"online": True
+			})
 
 	def disconnect(self, close_code):
 		if self.user.is_authenticated:
@@ -28,6 +33,11 @@ class UserStatusConsumer(WebsocketConsumer):
 				self.channel_name
 			)
 			self.update_user_status(online=False)
+			self.group_send("online_users", {
+				"type": "user_online",
+				"user_id": self.user.id,
+				"online": False
+			})
 
 	def update_user_status(self, online):
 		self.user.is_online = online
