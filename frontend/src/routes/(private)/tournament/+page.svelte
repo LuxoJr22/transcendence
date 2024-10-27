@@ -4,6 +4,7 @@
     const img1 = new URL('/assets/game2.png', import.meta.url).href
     import { getAccessToken, refresh_token } from '$lib/stores/auth';
     import { goto } from '$app/navigation';
+    import Block from '$lib/components/Profile/Block.svelte';
 
     //const create_tournament = document.getElementById("create_button");
     interface Dictionary<T> {
@@ -13,6 +14,7 @@
     var tournament_name : string
     var option1 : HTMLInputElement | null;
     var option2 : HTMLInputElement | null;
+    var error : string = '';
 
     let allTournament : Dictionary<string>[] = [];
 
@@ -31,10 +33,12 @@
         body: JSON.stringify({ "name":`${tournament_name}`, 'nb_player':nb, 'capacity': nb}),
 		});
 		const data = await response.json();
-        if (response.ok)
-		{
+        if (response.ok){
 			goto(`/tournament/${data.name}`);
 		}
+        else {
+            error = data.name;
+        }
     }
 
     async function fetchAllTournaments(){
@@ -91,6 +95,11 @@
                         <div class="mb-3">
                             <label for="formGroupExampleInput" class="form-label"><h4>Tournament's name</h4></label>
                             <input type="text" class="form-control" id="formGroupExampleInput" placeholder="Enter name" bind:value={tournament_name}>
+                            {#if error}
+                                <div class="my-2 alert alert-danger">
+                                    {error}
+                                </div>
+                            {/if}
                         </div>
                     </div>
                     <div class="">
