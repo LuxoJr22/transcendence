@@ -105,9 +105,9 @@
 			canvasSize.height = window.innerWidth * 0.7 / 2 * 1
 			ui!.style.width = canvasSize.width + "px";
        		ui!.style.height = canvasSize.height + "px";
+			renderer.setSize( canvasSize.width, canvasSize.height);
 			top = renderer.domElement.getBoundingClientRect().top
 			l = renderer.domElement.getBoundingClientRect().left
-			renderer.setSize( canvasSize.width, canvasSize.height);
 		}
 
 
@@ -206,13 +206,8 @@
 
 		function hit_pose(sign : number)
 		{
-			// left.rotation.set(0, 0, THREE.MathUtils.lerp(left.rotation.z, -Math.PI / 6, 0.1))
-			// right.rotation.set(0, 0, THREE.MathUtils.lerp(right.rotation.z, Math.PI / 6, 0.1))
-			// bone.rotation.set(THREE.MathUtils.lerp(bone.rotation.x, -Math.PI / 6, 0.1), 0, 0)
-
 			rotating_skin.rotation.set(0, Math.PI / 6 * sign, 0)
 			face.forEach( (e) => {
-				// e.scale.set(0.3, 0.5, 1)
 				e.scale.set(0.6, 0.3, 1)
 			})
 			left.rotation.set(0, 0, -Math.PI / 6)
@@ -303,9 +298,9 @@
 
 
 	.glove {
-		height: 300px;
+		height: auto;
+		width: 60%;
 		pointer-events: none;
-		
 	}
 
 	#gloves_ui {
@@ -326,6 +321,8 @@
 	}
 
 	.att_glove {
+		height: auto;
+		width: 30%;
 		display: none;
 		position: absolute;
 		pointer-events: none;
