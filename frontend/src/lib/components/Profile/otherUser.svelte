@@ -152,12 +152,12 @@
                     {#if user?.is_online}
                     <div class="d-flex justify-content-center align-items-end">
                         <img alt="user profile" src={user?.profile_picture_url} class="img-circle rounded-circle ms-2">
-                        <span class="mt-2 badge rounded-pill bg-success">Online</span>
+                        <span id="status_{user?.id}" class="mt-2 badge rounded-pill bg-success">Online</span>
                     </div>
                     {:else}
                     <div class="d-flex justify-content-center align-items-end">
                         <img alt="user profile" src={user?.profile_picture_url} class="img-circle rounded-circle ms-2">
-                        <span class="mt-2 badge rounded-pill bg-secondary">Offline</span>
+                        <span id="status_{user?.id}" class="mt-2 badge rounded-pill bg-secondary">Offline</span>
                     </div>
                     {/if}
                 </div>
