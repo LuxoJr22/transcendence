@@ -628,11 +628,15 @@
 </style>
 
 <div id="ui">
-	<div id="score">
-		<span class="text" id="player1_name"></span>
-		<span class="text" id="player1">0</span>
-		<span class="text" id="player2">0</span>
-		<span class="text" id="player2_name"></span>
+	<div id="score" class="row">
+		<div class="d-flex justify-content-end col-6">
+			<span class="text me-5" id="player1_name"></span>
+			<span class="text" id="player1">0</span>
+		</div>
+		<div class="d-flex justify-content-start col-6">
+			<span class="text ms-4" id="player2">0</span>
+			<span class="text ms-5" id="player2_name"></span>
+		</div>
 	</div>
 	<div id="versus">
 		<div id="vs">
