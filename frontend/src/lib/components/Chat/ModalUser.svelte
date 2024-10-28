@@ -58,7 +58,7 @@
                         <div class="col text-center p-0 m-2" role="button">
                             <button class="text-center btn text-light border rounded" on:click={() => resetFriendSearch} on:click={() => loadRoom(user.id)} data-bs-dismiss="modal" aria-label="Close" style="width:100%; height:100%;">
                                 <div class="d-flex justify-content-center">
-                                    <ImgOnline path={user?.profile_picture_url} status={user?.is_online} width=50% height=50% />
+                                    <ImgOnline user_id={user?.id} path={user?.profile_picture_url} status={user?.is_online} width=50% height=50% />
                                 </div>
                                 <p class="text-center m-0">{user.username}</p>
                                 <i class="bi bi-plus pt-2" style="font-size:1.8em"></i>
