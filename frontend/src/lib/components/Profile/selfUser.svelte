@@ -105,7 +105,7 @@
                     {#each listOfFriend as friend}
                         <div class="border rounded d-flex align-items-center me-2 mb-2 my-bg-black">
                             <div class="d-flex ms-2 align-items-center">
-                                <ImgOnline path={friend?.profile_picture_url} status={friend?.is_online} width=25% height=25% />
+                                <ImgOnline user_id={friend?.id} path={friend?.profile_picture_url} status={friend?.is_online} width=25% height=25% />
                                 <a class="text-light ms-3 mb-3 mt-3 link" style="font-size:100%;" role="button" href={"/profile/" + friend.id}>{friend.username}</a>
                             </div>
                             <div class="d-flex">

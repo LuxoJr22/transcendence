@@ -1,7 +1,6 @@
 <script lang='ts'>
-    import { goto, afterNavigate, beforeNavigate } from '$app/navigation';
+    import { goto, afterNavigate } from '$app/navigation';
     import { onMount } from 'svelte';
-    import {get} from 'svelte/store';
     import { auth, fetchUser, getAccessToken, logout , refresh_token } from '$lib/stores/auth';
     import type { AuthState } from '$lib/stores/auth';
     import { acceptFriendRequest, declineFriendRequest } from '$lib/stores/friendship'
@@ -29,6 +28,21 @@
     let state: AuthState;
     $: $auth, state = $auth;
 
+    async function handleNotification(data : any){
+        parseNotifications(data);
+        navBarNotifications = addNotifications(data);
+        await fetchLatestDiscussion();
+        if (data.type !== 'chat' || window.location.href.search('/chat/') == -1){
+            const toastElList = document.querySelectorAll('.toast')
+            const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
+                animation: true,
+                autohide: true,
+                delay: 5000
+            }))
+            toastList.forEach(toast => toast.show());
+        }
+    }
+
     function parseNotifications(data : any){
         notifications = notifications.filter(notif => Date.now() - notif.date < 5001);
         let tmp : Notifications = {
@@ -48,6 +62,27 @@
     function deleteNotif(i : number){
         navBarNotifications.splice(i, 1);
         return (navBarNotifications);
+    }
+
+    function updateStatus(data : any){
+        if (currentUrl === `/profile/${data.user_id}`) {
+            const statusElement = document.getElementById(`status_${data.user_id}`);
+            if (data.online && statusElement) {
+                statusElement.className = "mt-2 badge rounded-pill bg-success";
+                statusElement.innerHTML = "Online";
+            }
+            else if (statusElement) {
+                statusElement.className = "mt-2 badge rounded-pill bg-secondary";
+                statusElement.innerHTML = "Offline";
+            }
+        }
+        else if (currentUrl.startsWith('/chat/') || currentUrl === `/profile/${state.user?.id}`) {
+            const statusElement = document.getElementById(`status_${data.user_id}`);
+            if (data.online && statusElement)
+                statusElement.style.backgroundColor = "green";
+            else if (statusElement)
+                statusElement.style.backgroundColor = "grey";
+        }
     }
 
     afterNavigate(async () => {
@@ -75,18 +110,10 @@
             
             wsOnline.onmessage = async function (event) {
                 const data = JSON.parse(event.data);
-                parseNotifications(data);
-                navBarNotifications = addNotifications(data);
-                await fetchLatestDiscussion();
-                if (data.type !== 'chat' || window.location.href.search('/chat/') == -1){
-                    const toastElList = document.querySelectorAll('.toast')
-                    const toastList = [...toastElList].map(toastEl => new bootstrap.Toast(toastEl, {
-                        animation: true,
-                        autohide: true,
-                        delay: 5000
-                    }))
-                    toastList.forEach(toast => toast.show());
-                }
+                if (data.type === 'users_status')
+                    updateStatus(data);
+                else if (data.type != 'users_status')
+                    handleNotification(data);
             }
         }
     });

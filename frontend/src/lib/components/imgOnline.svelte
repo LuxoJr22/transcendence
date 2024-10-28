@@ -1,4 +1,5 @@
 <script>
+    export let user_id;
     export let path;
     export let status;
     export let width;
@@ -7,13 +8,7 @@
 
 <div class="icon-container" style="width:{width}; height:{height}">
     <img alt="avatar" src={path} class="rounded-circle align-items-center">
-    {#if status}
-        <div class="status-circle online">
-        </div>
-    {:else}
-        <div class="status-circle offline">
-        </div>
-    {/if}
+    <div id="status_{user_id}" class="status-circle {status ? 'online' : 'offline'}"></div>
 </div>
 
 <style>
