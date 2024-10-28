@@ -238,7 +238,7 @@ class PongConsumer(WebsocketConsumer):
 			self.pongroom.users_online.remove(self.user)
 		if self.pongroom.users_online.count() == 0:
 			del self.pong_match.winner
-			if (self.game.game_state == LAUNCHED and self.game.winner == 0 and self.pong_match.winner == None):
+			if (self.game.winner == 0 and self.pong_match.winner == None):
 				self.pong_match.winner = self.user.id
 				self.pong_match.save(update_fields=["winner"])
 				self.game.winner = self.user.id
@@ -350,7 +350,7 @@ class PongConsumer(WebsocketConsumer):
 							{
 								'type': 'notify_user',
 								'notification_type': 'tournament',
-								'message': f"{tour.name}: new round ready to start",
+								'message': f"{tour.name}: New round ready to start",
 								'info': tour.name,
 							})
 					
