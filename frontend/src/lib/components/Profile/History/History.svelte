@@ -137,7 +137,14 @@
                     <a class="col-4 text-center text-light h4 link mt-1" href={"/profile/" + game.opponent.id}>{game.opponent.username}</a>
                     <div class="d-flex">
                         <p class="col-4" style="color:grey;">{game.date}</p>
-                        <p class="col-4 game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
+                        <div class="col-4 d-flex justify-content-center">
+                            <p class="game-title text-light text-center">{game.gamemode.toUpperCase()}</p>
+                            {#if game.type == 'normal'}
+                                <i class="bi bi-people-fill text-light ms-1" title='Public Game'></i>
+                            {:else if game.type == 'private'}
+                                <i class="bi bi-person-fill-lock text-light ms-1" title='Private Game'></i>
+                            {/if}
+                        </div>
                         <p class="col-4 text-end" style="color:grey;">{game.hours}</p>
                     </div>
                 </div>
