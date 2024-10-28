@@ -89,7 +89,7 @@
                         </div>
                     {:else}
                         <div class="d-flex input-group">
-                            <input type="text" id="Password" bind:value="{password}" required class="form-control col-12" placeholder="Enter password">
+                            <input type="text" id="Password" bind:value="{password}" required class="form-control col-12" placeholder="Enter password" autocomplete="off">
                             <div class="input-group-text hover-effect" on:click={viewPassword} ><i class="bi bi-eye-slash" style="color:grey;"></i></div>
                         </div>
                     {/if}

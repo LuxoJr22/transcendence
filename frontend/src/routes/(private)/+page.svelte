@@ -62,7 +62,7 @@
 	<div class="row mt-5">
 		<div class="col-4">
 			<label class="form-check-label" for="pong">
-			<input class="form-check-input d-none" type="radio" name="gameRadio" id="pong" checked>
+			<input class="form-check-input d-none" type="radio" name="gameRadio" id="pong">
 				<div class="card m-4 bg-light" style="width: 90%;">
 					<img src={imgPong} class="card-img-top p-3" alt="pong" draggable="false">
 				</div>
@@ -70,7 +70,7 @@
 		</div>
 		<div class="col-4">
 			<label class="form-check-label" for="pong_retro">
-			<input class="form-check-input d-none" type="radio" name="gameRadio" id="pong_retro">
+			<input class="form-check-input d-none" type="radio" name="gameRadio" id="pong_retro" checked>
 				<div class="card m-4 bg-black" style="width: 90%;">
 					<img src={imgRetro} class="card-img-top p-3" alt="pong" draggable="false">
 				</div>
