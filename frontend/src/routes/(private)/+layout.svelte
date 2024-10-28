@@ -77,11 +77,12 @@
             }
         }
         else if (currentUrl.startsWith('/chat/') || currentUrl === `/profile/${state.user?.id}`) {
-            const statusElement = document.getElementById(`status_${data.user_id}`);
-            if (data.online && statusElement)
-                statusElement.style.backgroundColor = "green";
-            else if (statusElement)
-                statusElement.style.backgroundColor = "grey";
+            document.querySelectorAll(`[id^="status_${data.user_id}"]`).forEach(statusElement => {
+                if (data.online)
+                    (statusElement as HTMLElement).style.backgroundColor = "green";
+                else
+                    (statusElement as HTMLElement).style.backgroundColor = "grey";
+            });
         }
     }
 
