@@ -135,7 +135,7 @@ class TournamentMatchmakingConsumer(WebsocketConsumer):
 	def receive(self, text_data):
 		text_data_json = json.loads(text_data)
 		event = text_data_json['event']
-		if (event == 'Match_button'):
+		if (event == 'Match_button' and self.user.id in text_data_json["winners"]):
 			self.launch_match()
 
 	def Starting_matchs(self, event):

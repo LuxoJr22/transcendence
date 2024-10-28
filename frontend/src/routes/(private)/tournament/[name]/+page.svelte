@@ -16,6 +16,7 @@
 	var allOnline : Dictionary<string>[]  = []
 	var Users : string[] = []
 	var capacity = 0
+	var winners : (string | null)[]  = []
 
 	let url = '/ws/tournament/pong/' + tournament_name + '/?token=' + localStorage.getItem('access_token');
 	const chatSocket = new WebSocket(url)
@@ -52,6 +53,7 @@
 	function start_match() {
 		chatSocket.send(JSON.stringify({
 			'event':'Match_button',
+			'winners':winners,
 		}))
 	}
 
@@ -134,6 +136,7 @@
 
 	function create_bracket(capacity : number, allgames : Dictionary<string | null>[], allusers :  Dictionary<string>[])
 	{
+		winners = []
 		var bracket = document.createElement("div");
 		var act_game = 0
 		bracket.className = "bracket";
@@ -143,6 +146,7 @@
 		{
 			while (allusers[i])
 			{
+				winners.push(allusers[i].id)
 				if (i % 2 == 1)
 				{
 					allgames.push({player1:allusers[i - 1].username, player2:allusers[i].username, score1:null, score2:null})
@@ -153,7 +157,7 @@
 		else if (capacity >= 1)
 		{
 			let start = allgames.length - capacity;
-			let winners = []
+			
 			while (allgames[start])
 			{
 				winners.push(allgames[start].winner)

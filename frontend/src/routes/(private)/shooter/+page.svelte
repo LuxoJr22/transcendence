@@ -15,6 +15,9 @@
     let isLoad : boolean = false;
 
 
+    let isEnded = false;
+    let endingscreen = 0;
+
     window.onbeforeunload = () => {
         if (chatSocket) {
             chatSocket.close();
@@ -49,6 +52,9 @@
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
+
+
+        const camer = new THREE.PerspectiveCamera( 70, 16 / 9, 0.1, 1000 );
         
         var pointerLockActivated = 0
 
@@ -63,6 +69,7 @@
         var circle = document.getElementById("circular");
         var ficon = document.getElementById("flagicon");
         var scoreboard = document.getElementById("scoreboard")
+        var crosshair = document.getElementById("crosshair")
         var timer = document.getElementById("timer")
         var table_body : HTMLTableElement = document.getElementById("mytbody")! as HTMLTableElement
         var play_btn = document.getElementById("play_btn") as HTMLButtonElement
@@ -128,7 +135,16 @@
 
         play_btn!.addEventListener('click',  function() {
             let now = performance.now()
-            if (pointerLockActivated && now - pointerLockActivated < 1100)
+            if (isEnded)
+            {
+                menu_displayed = false
+                el!.style.opacity = "0";
+                el!.style.display = 'none';
+                menu_btn!.disabled = true
+                play_btn!.disabled = true
+                return
+            }
+            if ((pointerLockActivated && now - pointerLockActivated < 1100))
                 return
             menu_displayed = false
             el!.style.opacity = "0";
@@ -146,6 +162,8 @@
 
 
         play.cam.addEventListener( 'unlock', function () {
+            if (isEnded)
+                return
             pointerLockActivated = performance.now()
             play.controller.xp = 0;
             play.controller.xn = 0;
@@ -507,8 +525,14 @@
             }
             if (data.event == "Quit")
             {
+                scoreboard!.style.display = 'flex'
+                sortTable()    
+                isEnded = true
                 play.cam.unlock()
-                goto('/');
+                crosshair!.style.display = "none"
+                timer!.innerHTML = data.username + " won the game!"
+                if (chatSocket)
+                    chatSocket.close()
             }
         }
 
@@ -546,7 +570,7 @@
             {
                 var keyCode = event.which;
                 play.keyup(keyCode);
-                if (keyCode == 9)
+                if (keyCode == 9 && isEnded == false)
                     scoreboard!.style.display = 'none'
             }
         };
@@ -571,14 +595,8 @@
         }
 
 
-        
-        
-        
-        function animate() {
-            if (isLoad)
-                requestAnimationFrame( animate );
-            const dt = clock.getDelta();
-            t += dt;
+        function gameLogic(dt :number)
+        {
             if (gamepads[0])
             {
                 gamepads[0] = navigator.getGamepads()[0]!
@@ -610,6 +628,15 @@
             players.forEach(element => {
 				element.update(dt);
 			});
+            renderer.render( scene, camera );
+        }
+        
+        
+        function animate() {
+            if (isLoad)
+                requestAnimationFrame( animate );
+            const dt = clock.getDelta();
+            t += dt;
             sh.material.uniforms.time.value = t;
             tor.material.uniforms.time.value = t + 1;
             toru.material.uniforms.time.value = t + 2;
@@ -619,7 +646,18 @@
                     scene.remove(tor)
             if (Math.tan(toru.material.uniforms.time.value) > 2.0 && !scene.getObjectByName('flag'))
                     scene.remove(toru)
-            renderer.render( scene, camera );
+            if (isEnded == false)
+                gameLogic(dt)
+            else
+            {
+                camer.position.set(0, 80, 0)
+                camer.rotation.set(-Math.PI / 2, 0, 0)
+                endingscreen += dt
+                if (endingscreen >= 10)
+                    goto('/')
+                renderer.render( scene, camer );
+            }
+            
         }
         animate(); 
     })();

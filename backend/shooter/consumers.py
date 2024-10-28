@@ -107,7 +107,7 @@ class ShooterConsumer(WebsocketConsumer):
 		else:
 			self.game.timer -= dt
 		if (self.game.game_state == FINISHED and self.shootermatch.winner == None):
-			newlist = sorted(self.game.players, key=operator.itemgetter('score', 'kill', 'death', 'id'), reverse=True)
+			newlist = sorted(self.game.players, key=operator.itemgetter('score', 'kill', 'death', 'id', 'username'), reverse=True)
 			self.shootermatch.winner = newlist[0]['id']
 			gain = 10
 			for play in newlist:
@@ -123,6 +123,7 @@ class ShooterConsumer(WebsocketConsumer):
 				{
 					'type':'Quit',
 					'event':'Quit',
+					'username':newlist[0]['username']
 				}
 			)
 
@@ -206,6 +207,7 @@ class ShooterConsumer(WebsocketConsumer):
 		self.send(text_data=json.dumps({
 			'type':'Shooter',
 			'event':'Quit',
+			'username':event['username']
 		}))
 
 	def Shooter_event(self, event):
