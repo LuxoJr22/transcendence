@@ -189,8 +189,8 @@
         ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 		score1!.style.fontSize = canvasSize.height / 10 + "px"
 		score2!.style.fontSize = canvasSize.height / 10 + "px"
-		name1!.style.fontSize = canvasSize.height / 12 + "px"
-		name2!.style.fontSize = canvasSize.height / 12 + "px"
+		name1!.style.fontSize = canvasSize.height / 14 + "px"
+		name2!.style.fontSize = canvasSize.height / 14 + "px"
 		renderer.shadowMap.enabled = true;
 		document.body.appendChild( renderer.domElement );
 		ui!.style.display = 'flex'
@@ -280,8 +280,8 @@
             ui!.style.left = renderer.domElement.getBoundingClientRect().left + "px"
 			score1!.style.fontSize = canvasSize.height / 10 + "px"
 			score2!.style.fontSize = canvasSize.height / 10 + "px"
-			name1!.style.fontSize = canvasSize.height / 12 + "px"
-			name2!.style.fontSize = canvasSize.height / 12 + "px"
+			name1!.style.fontSize = canvasSize.height / 14 + "px"
+			name2!.style.fontSize = canvasSize.height / 14 + "px"
 		}
 
 		function onDocumentKeyDown(event : KeyboardEvent) {
@@ -551,7 +551,7 @@
 	}
 
 	#player1_name, #player2_name {
-		margin-top: 4%;
+		margin-top: 6%;
 	}
 
 
@@ -560,11 +560,15 @@
 </style>
 
 <div id="ui">
-	<div id="score">
-		<span class="text" id="player1_name"></span>
-		<span class="text" id="player1">0</span>
-		<span class="text" id="player2">0</span>
-		<span class="text" id="player2_name"></span>
+	<div id="score" class="row">
+		<div class="d-flex justify-content-end col-6">
+			<span class="text me-5" id="player1_name"></span>
+			<span class="text" id="player1">0</span>
+		</div>
+		<div class="d-flex justify-content-start col-6">
+			<span class="text ms-4" id="player2">0</span>
+			<span class="text ms-5" id="player2_name"></span>
+		</div>
 	</div>
 </div>
 

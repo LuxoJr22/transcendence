@@ -67,7 +67,8 @@
 <div class="container">
     <div class="row mt-5">
         <div class="d-flex justify-content-center border-bottom">
-            <button class="btn btn-primary mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"><i class="bi-plus-square-fill" style="font-size: 1.6rem; color: cornflowerblue;"></i><p class="mb-1">New tournament</p></button>
+            <button class="btn btn-primary my-3 mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions"><i class="bi-plus-square-fill" style="font-size: 1.6rem; color: cornflowerblue;"></i><p class="mb-1">New tournament</p></button>
+            <button class="btn btn-light mx-3 my-5" on:click={async () => {await fetchAllTournaments()}}><i class="bi bi-arrow-repeat"></i></button>
         </div>
         <div class="modal-body d-flex justify-content-center row user-container m-0 me-2 mb-2">
             {#each allTournament as tournament}
