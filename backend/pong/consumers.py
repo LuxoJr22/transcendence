@@ -135,20 +135,20 @@ class MatchmakingConsumer(WebsocketConsumer):
 
 	def doMatchmaking(self, event):
 		currentMatch = list(PongMatch.objects.filter(
-            models.Q(type="normal") & models.Q(winner=None) &
-            (models.Q(player1=self.user.id) | models.Q(player2=self.user.id))))
-        if currentMatch:
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name,
-                {
-                    'type': 'Pong_match',
-                    'event': 'Match',
-                    'player1_id': currentMatch[0].player1,
-                    'player2_id': currentMatch[0].player2,
-                    'match_id': currentMatch[0].id,
-                } 
-            )
-            return
+			models.Q(type="normal") & models.Q(winner=None) &
+			(models.Q(player1=self.user.id) | models.Q(player2=self.user.id))))
+		if currentMatch:
+			async_to_sync(self.channel_layer.group_send)(
+				self.room_group_name,
+				{
+					'type': 'Pong_match',
+					'event': 'Match',
+					'player1_id': currentMatch[0].player1,
+					'player2_id': currentMatch[0].player2,
+					'match_id': currentMatch[0].id,
+				} 
+			)
+			return
 
 		if (self.range < 150 and self.t < time.perf_counter()):
 			self.range += 30
