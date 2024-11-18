@@ -194,7 +194,9 @@
                     <ul class="dropdown-menu dropdown-menu-end notif-container">
                     {#each requestsList as request, i}
                         {#if request.receiver.id == state.user?.id}
-                        <div class="d-flex align-items-center p-2 m-2 mt-1 border rounded">
+                        <div class="d-flex align-items-center p-2 m-2 mt-1 border rounded"on:click={(event) => {
+                                handleGoto(event, `/profile/${request?.id}/`);
+                        }}>
                             <p class="dropdown-item mb-0" style="">{request.requester.username} sent you a friend request</p>
                             <button class="btn p-0 m-0" style="" on:click={async () => {await acceptFriendRequest(request.id); await fetchFriendRequests()}}>
                                 <i class="bi bi-person-check-fill p-2" style="color:green; font-size:1.3rem;"></i>
@@ -206,7 +208,12 @@
                         {/if}
                     {/each}
                     {#each navBarNotifications as notif, i}
-                        <div class="d-flex p-2 m-2 mt-1 border rounded navbar-notif">
+                        <div class="d-flex p-2 m-2 mt-1 border rounded navbar-notif" on:click={(event) => {
+                            if (notif?.type === 'chat')
+                                handleGoto(event, `/chat/${notif?.info}/`);
+                            else if (notif?.type === 'tournament')
+                                handleGoto(event, `/tournament/${notif?.info}/`);
+                        }}>
                             <p class="ms-3 p-0 m-0 text-start align-self-center text-truncate w-75">{ notif?.message }</p>
                             <button class="w-25 btn text-end" on:click={() =>{navBarNotifications = deleteNotif(i)}}><i class="bi bi-x-lg" style="color:red;"></i></button>
                         </div>
