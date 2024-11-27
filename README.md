@@ -41,9 +41,11 @@ Once the containers have finished compiling, you can go [here](http://localhost:
 |[Matteo Pelazza](https://github.com/olmayto)|Backend Developer|
 |[Forestié Sacha](https://github.com/Stelviaa)|Frontend Developer|
 ## Images
-![](https://drive.google.com/thumbnail?id=1FsSXSLjw-f2la7GVFdOcip3kfkt70U8n&sz=w1000)
-![](https://drive.google.com/thumbnail?id=1X8p5QstxB6w0vqthPAEtbxcs7IBHdQKi&sz=w1000)
+![](https://drive.google.com/thumbnail?id=1n9LjvevuR14HKHGd-HA8J19oYIhNxoj6&sz=w1000)
+![](https://drive.google.com/thumbnail?id=1JpbmR5g5v1yArf7pYMQG4ZUX1J8MrIbH&sz=w1000)
 ![](https://drive.google.com/thumbnail?id=1LYLY8hzQrz9e6Nn8O8xxbTsl18Wc8Bmf&sz=w1000)
 ![](https://drive.google.com/thumbnail?id=1ThBQZ_n684D723Dbb66ZahgM8DD_0UZu&sz=w1000)
 ![](https://drive.google.com/thumbnail?id=1UjT1U2NLjG-fpxGiE5dtWznAIkvSa7uN&sz=w1000)
 ![](https://drive.google.com/thumbnail?id=1weD4UtDvfNipfg2OToiYw0wrsrgqY4lZ&sz=w1000)
+![](https://drive.google.com/thumbnail?id=1BYkgSmomI0_JTGut6Jje4mGkIWNVAmU_&sz=w1000)
+![](https://drive.google.com/thumbnail?id=1X_76oIO-jsAwSZjhfzFINEFa69FT95ud&sz=w1000)
