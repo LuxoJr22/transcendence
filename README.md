@@ -1,31 +1,33 @@
 # Ft_transcendence
 42 school common core final project.
 ## Purpose
-The main aim of the project was to create a website with mutliplayers pong game, and tournament system, in single-page-application. 
+The main goal of the project was to create a website with mutliplayers pong game, and tournament system, in single-page-application. 
 To validate the project, we had to choose 7 major modules. A major module could be replaced by two minor modules.
-### The modules we have chosen:
-- <strong>Major module: Standard user management:<br></strong>
-  The user had to be able to create an account, register for tournaments, add friend, update their informations and his profile picture. We also had to implement a user history matchs.<br>
-- <strong>Major module: Implementing a remote authentication.<br></strong>
+### Modules we chose:
+<strong>Major modules:<nr></strong>
+- <strong>Standard user management:<br></strong>
+  The user had to be able to create an account, register for tournaments, add friends, update their informations and their profile picture. We also had to implement a user matchs history.<br>
+- <strong>Implement a remote authentication.<br></strong>
   The user shoud be able to subscribe with 42 OAuth 2.0 authentication.
-- <strong>Major module: Remote players<br></strong>
-  The users should be able to play with other player on different computer.
-- <strong>Major module: Multiple players</strong><br>
+- <strong>Remote players<br></strong>
+  The users should be able to play with other players on different computers.
+- <strong>Multiple players</strong><br>
   It is possible to have more than two players on a game.
-- <strong>Major module: Add Another Game with User History and Matchmaking</strong>
-- <strong>Major module: Implementing Advanced 3D Techniques<br></strong>
+- <strong>Add Another Game with User History and Matchmaking</strong>
+- <strong>Implement Advanced 3D Techniques<br></strong>
   All games on our website are make with threeJS.
-- <strong>Major module: Live chat.<br></strong>
+- <strong>Live chat.<br></strong>
   This one, worked like a basic chat, he allowed the user to send and receive message, games invitations and block some users.
-- <strong>Major module: Uses django for the backend.<br></strong>
-- <strong>Minor module: Game Customization Options.<br></strong>
-  The user could change his keybinds, character and he had the choice to play in two different pong.
-- <strong>Minor module: Game Customization Options.<br><strong>
-- <strong>Minor module: Use bootstrap toolkit in frontend.<br></strong>
-- <strong>Minor module: Use PostgreSQL as database.<br></strong>
+- <strong>Use django for the backend.<br></strong>
+
+<strong>Minor modules:<br></strong>
+- <strong>Game Customization Options.<br></strong>
+  The user could change his keybinds, character and he could choose between two different pongs.
+- <strong>Use bootstrap toolkit in frontend.<br></strong>
+- <strong>Use PostgreSQL as database.<br></strong>
 
 ## Download and Installation
-The project has been made with docker and docker compose, you must have the both installed to compile.
+The project has been made with docker and docker compose, you must have both to compile.
 ```
 git clone https://github.com/LuxoJr22/transcendence.git
 cd transcendence
@@ -38,3 +40,10 @@ Once the containers have finished compiling, you can go [here](http://localhost:
 |[Mathis Boyer](https://github.com/LuxoJr22)|Game Developer|
 |[Matteo Pelazza](https://github.com/olmayto)|Backend Developer|
 |[Forestié Sacha](https://github.com/Stelviaa)|Frontend Developer|
+## Images
+![](https://drive.google.com/thumbnail?id=1FsSXSLjw-f2la7GVFdOcip3kfkt70U8n&sz=w1000)
+![](https://drive.google.com/thumbnail?id=1X8p5QstxB6w0vqthPAEtbxcs7IBHdQKi&sz=w1000)
+![](https://drive.google.com/thumbnail?id=1LYLY8hzQrz9e6Nn8O8xxbTsl18Wc8Bmf&sz=w1000)
+![](https://drive.google.com/thumbnail?id=1ThBQZ_n684D723Dbb66ZahgM8DD_0UZu&sz=w1000)
+![](https://drive.google.com/thumbnail?id=1UjT1U2NLjG-fpxGiE5dtWznAIkvSa7uN&sz=w1000)
+![](https://drive.google.com/thumbnail?id=1weD4UtDvfNipfg2OToiYw0wrsrgqY4lZ&sz=w1000)
