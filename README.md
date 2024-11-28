@@ -15,9 +15,9 @@ To validate the project, we had to choose 7 major modules. A major module could 
   It is possible to have more than two players on a game.
 - <strong>Add Another Game with User History and Matchmaking</strong>
 - <strong>Implement Advanced 3D Techniques<br></strong>
-  All games on our website are make with threeJS.
+  All games on the website were built using threeJS.
 - <strong>Live chat.<br></strong>
-  This one, worked like a basic chat, he allowed the user to send and receive message, games invitations and block some users.
+  This one, worked like a basic chat, it allowed the user to send and receive message, games invitations and block other users.
 - <strong>Use django for the backend.<br></strong>
 
 <strong>Minor modules:<br></strong>
