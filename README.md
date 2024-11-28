@@ -5,9 +5,9 @@ The main goal of the project was to create a website with mutliplayers pong game
 To validate the project, we had to choose 7 major modules. A major module could be replaced by two minor modules.
 ### Modules we chose:
 <strong>Major modules:<nr></strong>
-- <strong>Standard user management:<br></strong>
+- <strong>Standard user management<br></strong>
   The user had to be able to create an account, register for tournaments, add friends, update their informations and their profile picture. We also had to implement a user matchs history.<br>
-- <strong>Implement a remote authentication.<br></strong>
+- <strong>Implement a remote authentication<br></strong>
   The user shoud be able to subscribe with 42 OAuth 2.0 authentication.
 - <strong>Remote players<br></strong>
   The users should be able to play with other players on different computers.
@@ -16,15 +16,15 @@ To validate the project, we had to choose 7 major modules. A major module could 
 - <strong>Add Another Game with User History and Matchmaking</strong>
 - <strong>Implement Advanced 3D Techniques<br></strong>
   All games on the website were built using threeJS.
-- <strong>Live chat.<br></strong>
+- <strong>Live chat<br></strong>
   This one, worked like a basic chat, it allowed the user to send and receive message, games invitations and block other users.
-- <strong>Use django for the backend.<br></strong>
+- <strong>Use django for the backend<br></strong>
 
 <strong>Minor modules:<br></strong>
-- <strong>Game Customization Options.<br></strong>
+- <strong>Game Customization Options<br></strong>
   The user could change his keybinds, character and he could choose between two different pongs.
-- <strong>Use bootstrap toolkit in frontend.<br></strong>
-- <strong>Use PostgreSQL as database.<br></strong>
+- <strong>Use bootstrap toolkit in frontend<br></strong>
+- <strong>Use PostgreSQL as database<br></strong>
 
 ## Download and Installation
 The project has been made with docker and docker compose, you must have both to compile.
